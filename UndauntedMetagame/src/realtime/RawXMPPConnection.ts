@@ -1,3 +1,11 @@
+/*
+ * New work for the Undaunted 1.4.4 preservation fork (Harmonicrain/Undaunted),
+ * September 2026. Transport for the XMPPSession / PresenceService code, which is
+ * derived from Mystic Paradox (see NOTICE.md).
+ *
+ * Licensed under the GNU Affero General Public License v3.0.
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
 import crypto from "node:crypto";
 import type { Socket } from "node:net";
 import { logger } from "../logger";
