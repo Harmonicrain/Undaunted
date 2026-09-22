@@ -588,14 +588,237 @@ bool ConfigCacheInitGetStringHook(void* a1, const wchar_t* Section, const wchar_
     return reinterpret_cast<bool(*)(void* a1, const wchar_t* Section, const wchar_t* Key, FString * Value, FString * Filename)>(OrigConfigCacheIniGetString)(a1, Section, Key, Value, Filename);
 }
 
+// ---------------------------------------------------------------------------
+// Hunt-unlock diagnostics. Opt-in: inactive unless UNDAUNTED_DIAG_LOG is set to
+// a file path prefix, in which case each process writes <prefix>.<role>.<pid>.log.
+//
+// Why: bounties a player holds are refunded on every world load. The gameserver
+// re-validates each one in UBountyComponent::ServerInitializeBounties through
+// IsBountyUnlocked, which bottoms out in UHuntCatalog::IsHuntUnlocked (0x14F2A30,
+// the function hooked below). The same check passes when drafting, so something
+// it depends on is not ready at world load. IsHuntUnlocked fails at the first of:
+//
+//   A  the player controller is null
+//   B  player controller +0x668 (the quest system) is null
+//   C  GetSchedulerComponent (0x161E5E0) returns null
+//   D  the schedule-active check (0x14713B0) returns false - this one logs nothing
+//   E  neither Unlock nor AltUnlock is satisfied (0x14D8B50)
+//
+// This records which one, per call, tagged with who asked: bounty setup on world
+// load (INIT), drafting (DRAFT), or the UI (UI). Diagnostic only - every hook
+// forwards its arguments untouched and returns the original result.
+#include <mutex>
+#include <chrono>
+#include <intrin.h>
+
+namespace HuntDiag {
+    static bool Enabled = false;
+    static std::mutex LogMutex;
+    static std::ofstream Log;
+
+    struct CallState {
+        bool Active = false;
+        int SchedulerCalls = 0;
+        bool SchedulerNonNull = false;
+        int ScheduleCalls = 0;
+        bool ScheduleActive = false;
+        int UnlockCalls = 0;
+        bool UnlockResults[4] = {};
+    };
+
+    static thread_local CallState Current;
+    static thread_local const char* BountyContext = nullptr;
+    static thread_local std::string BountyId;
+
+    void Init() {
+        char Prefix[MAX_PATH] = {};
+        DWORD Length = GetEnvironmentVariableA("UNDAUNTED_DIAG_LOG", Prefix, MAX_PATH);
+
+        if (Length == 0 || Length >= MAX_PATH) {
+            return;
+        }
+
+        // One file per process, so the client and each world server never interleave.
+        std::string File = std::string(Prefix) + "." + (Globals::AmServer ? "server" : "client") + "."
+            + std::to_string(GetCurrentProcessId()) + ".log";
+
+        Log.open(File, std::ios::app);
+        Enabled = Log.is_open();
+    }
+
+    void Write(const std::string& Line) {
+        if (!Enabled) {
+            return;
+        }
+
+        std::lock_guard<std::mutex> Lock(LogMutex);
+
+        auto Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        Log << Now << " " << Line << std::endl;
+    }
+}
+
+using DiagFn = __int64(*)(__int64, __int64, __int64, __int64, __int64, __int64, __int64, __int64);
+
+// The helpers below are forwarded with eight integer arguments and the original
+// is called before anything else happens. That keeps every argument register -
+// and any stack arguments - exactly as the caller left them, whatever the real
+// signature is. Results are only recorded while an IsHuntUnlocked call is active.
+
+void* OrigGetSchedulerComponent = nullptr;
+
+__int64 GetSchedulerComponentDiag(__int64 a1, __int64 a2, __int64 a3, __int64 a4, __int64 a5, __int64 a6, __int64 a7, __int64 a8) {
+    __int64 Result = reinterpret_cast<DiagFn>(OrigGetSchedulerComponent)(a1, a2, a3, a4, a5, a6, a7, a8);
+
+    if (HuntDiag::Current.Active) {
+        HuntDiag::Current.SchedulerCalls++;
+        HuntDiag::Current.SchedulerNonNull = Result != 0;
+    }
+
+    return Result;
+}
+
+void* OrigIsScheduleActive = nullptr;
+
+__int64 IsScheduleActiveDiag(__int64 a1, __int64 a2, __int64 a3, __int64 a4, __int64 a5, __int64 a6, __int64 a7, __int64 a8) {
+    __int64 Result = reinterpret_cast<DiagFn>(OrigIsScheduleActive)(a1, a2, a3, a4, a5, a6, a7, a8);
+
+    if (HuntDiag::Current.Active) {
+        HuntDiag::Current.ScheduleCalls++;
+        // A bool comes back in AL; the upper bytes of RAX are not meaningful.
+        HuntDiag::Current.ScheduleActive = (Result & 0xFF) != 0;
+    }
+
+    return Result;
+}
+
+void* OrigCheckUnlockInfo = nullptr;
+
+__int64 CheckUnlockInfoDiag(__int64 a1, __int64 a2, __int64 a3, __int64 a4, __int64 a5, __int64 a6, __int64 a7, __int64 a8) {
+    __int64 Result = reinterpret_cast<DiagFn>(OrigCheckUnlockInfo)(a1, a2, a3, a4, a5, a6, a7, a8);
+
+    if (HuntDiag::Current.Active) {
+        if (HuntDiag::Current.UnlockCalls < 4) {
+            HuntDiag::Current.UnlockResults[HuntDiag::Current.UnlockCalls] = (Result & 0xFF) != 0;
+        }
+
+        HuntDiag::Current.UnlockCalls++;
+    }
+
+    return Result;
+}
+
+void* OrigIsBountyUnlocked = nullptr;
+
+// Return addresses (as offsets from the image base) of the three call sites of
+// UBountyComponent::IsBountyUnlocked in this build.
+static const uintptr_t IsBountyUnlockedFromInit = 0x13F8883;   // ServerInitializeBounties
+static const uintptr_t IsBountyUnlockedFromDraft = 0x13F59F2;  // ServerDraftBounty_Implementation
+static const uintptr_t IsBountyUnlockedFromUI = 0x1AD57D7;     // Blueprint-callable exec thunk
+
+__int64 IsBountyUnlockedDiag(__int64 a1, __int64 a2, __int64 a3, __int64 a4, __int64 a5, __int64 a6, __int64 a7, __int64 a8) {
+    uintptr_t Caller = (uintptr_t)_ReturnAddress() - Globals::BaseAddress;
+
+    const char* PreviousContext = HuntDiag::BountyContext;
+    std::string PreviousId = HuntDiag::BountyId;
+
+    HuntDiag::BountyContext = Caller == IsBountyUnlockedFromInit ? "INIT"
+        : Caller == IsBountyUnlockedFromDraft ? "DRAFT"
+        : Caller == IsBountyUnlockedFromUI ? "UI"
+        : "OTHER";
+
+    // The second argument points at the bounty's row name.
+    HuntDiag::BountyId = a2 != 0 ? reinterpret_cast<FName*>(a2)->ToString() : std::string("<null>");
+
+    __int64 Result = reinterpret_cast<DiagFn>(OrigIsBountyUnlocked)(a1, a2, a3, a4, a5, a6, a7, a8);
+
+    HuntDiag::Write(std::string("BOUNTY ctx=") + HuntDiag::BountyContext + " bounty=" + HuntDiag::BountyId
+        + " unlocked=" + ((Result & 0xFF) != 0 ? "1" : "0"));
+
+    HuntDiag::BountyContext = PreviousContext;
+    HuntDiag::BountyId = PreviousId;
+
+    return Result;
+}
+
 void* OrigGetEscalationSeason = nullptr;
 
+// This is UHuntCatalog::IsHuntUnlocked, despite the name.
 bool GetEscalationSeason(UHuntCatalog* a1, FString* HuntID, FHunt_UnlockInfo* UnlockInfo, FHunt_UnlockInfo* AltUnlockInfo, AArchonPlayerController* PC) { // TODO: Fixup scheduling & Player leveling so this hack isn't necessary
+    auto Original = reinterpret_cast<bool(*)(UHuntCatalog * a1, FString * HuntID, FHunt_UnlockInfo * UnlockInfo, FHunt_UnlockInfo * AltUnlockInfo, AArchonPlayerController * PC)>(OrigGetEscalationSeason);
+
+    bool Instrument = HuntDiag::Enabled && HuntDiag::BountyContext != nullptr;
+
     if (HuntID->ToString().contains("Arena") || (HuntID->ToString().contains("Esca") && !HuntID->ToString().contains("Mint"))) {
+        if (Instrument) {
+            HuntDiag::Write(std::string("HUNT ctx=") + HuntDiag::BountyContext + " bounty=" + HuntDiag::BountyId
+                + " hunt=" + HuntID->ToString() + " result=1 reason=forced-by-undaunted-hook");
+        }
+
         return true;
     }
 
-    return reinterpret_cast<bool(*)(UHuntCatalog * a1, FString * HuntID, FHunt_UnlockInfo * UnlockInfo, FHunt_UnlockInfo * AltUnlockInfo, AArchonPlayerController * PC)>(OrigGetEscalationSeason)(a1, HuntID, UnlockInfo, AltUnlockInfo, PC);
+    if (!Instrument) {
+        return Original(a1, HuntID, UnlockInfo, AltUnlockInfo, PC);
+    }
+
+    // A and B are read here, before the original runs, from the same fields it tests.
+    bool PcNull = PC == nullptr;
+    bool QuestSystemNull = PcNull || *reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(PC) + 0x668) == 0;
+
+    HuntDiag::Current = HuntDiag::CallState{};
+    HuntDiag::Current.Active = true;
+
+    bool Result = Original(a1, HuntID, UnlockInfo, AltUnlockInfo, PC);
+
+    HuntDiag::Current.Active = false;
+
+    const HuntDiag::CallState& State = HuntDiag::Current;
+
+    const char* Reason = Result ? "ok"
+        : PcNull ? "A:player-controller-null"
+        : QuestSystemNull ? "B:quest-system-null"
+        : (State.SchedulerCalls > 0 && !State.SchedulerNonNull) ? "C:scheduler-component-null"
+        : (State.ScheduleCalls > 0 && !State.ScheduleActive) ? "D:schedule-inactive"
+        : State.UnlockCalls > 0 ? "E:unlock-requirements-unmet"
+        : "unknown";
+
+    std::string Unlocks;
+    for (int i = 0; i < State.UnlockCalls && i < 4; i++) {
+        Unlocks += State.UnlockResults[i] ? "1" : "0";
+    }
+
+    HuntDiag::Write(std::string("HUNT ctx=") + HuntDiag::BountyContext + " bounty=" + HuntDiag::BountyId
+        + " hunt=" + HuntID->ToString()
+        + " result=" + (Result ? "1" : "0")
+        + " reason=" + Reason
+        + " scheduler=" + (State.SchedulerCalls == 0 ? "-" : State.SchedulerNonNull ? "ok" : "null")
+        + " scheduleActive=" + (State.ScheduleCalls == 0 ? "-" : State.ScheduleActive ? "1" : "0")
+        + " unlockChecks=" + (Unlocks.empty() ? "-" : Unlocks));
+
+    return Result;
+}
+
+// Installed only when diagnostics are enabled, after MH_Initialize.
+void InstallHuntDiagHooks() {
+    if (!HuntDiag::Enabled) {
+        return;
+    }
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x13DAB60), IsBountyUnlockedDiag, &OrigIsBountyUnlocked);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x13DAB60));
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x161E5E0), GetSchedulerComponentDiag, &OrigGetSchedulerComponent);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x161E5E0));
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x14713B0), IsScheduleActiveDiag, &OrigIsScheduleActive);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x14713B0));
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x14D8B50), CheckUnlockInfoDiag, &OrigCheckUnlockInfo);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x14D8B50));
+
+    HuntDiag::Write(std::string("diagnostics enabled, role=") + (Globals::AmServer ? "server" : "client"));
 }
 
 void* OrigGetTrackProgress = nullptr;
@@ -661,6 +884,9 @@ int NetModeHook(void* a1) { //char __fastcall UArchonStaminaComponent_TryConsume
 
 void InitServerHooks() {
     MH_Initialize();
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x1D09D50), ConfigCacheInitGetStringHook, &OrigConfigCacheIniGetString);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x1D09D50));
 
     MH_CreateHook((void*)(Globals::BaseAddress + 0x25A37C0), GetGameDefaultMap, &OrigGetDefaultMap);
 
@@ -853,7 +1079,7 @@ void Init() {
 
         wchar_t** Args = CommandLineToArgvW(GetCommandLineW(), &NumArgs);
 
-        if (NumArgs > 8) {
+        if (NumArgs > 9) {
             Globals::ServerAPIKey = Args[1];
             Globals::Port = std::stoi(std::wstring(Args[2]));
             Globals::MapPath = Args[3];
@@ -861,6 +1087,7 @@ void Init() {
             Globals::MatchmakerHuntId = Args[5];
             Globals::ExpectedPlayerString = Args[6];
             Globals::MyIpAndPort = Args[7];
+            Globals::MetagameAddress = Args[8];
 
             if (Globals::Port >= 8776) {
                 EnableWatchdog = false;
@@ -886,7 +1113,9 @@ void Init() {
             std::cout << "Running as a server!" << std::endl;
         }
 
+        HuntDiag::Init();
         InitServerHooks();
+        InstallHuntDiagHooks();
     }
     else {
         Globals::EnableLogging = true;
@@ -912,7 +1141,9 @@ void Init() {
             Globals::MetagameAddress = Args[1];
         }
 
+        HuntDiag::Init();
         InitClientHooks();
+        InstallHuntDiagHooks();
     }
 
     DWORD threadId;

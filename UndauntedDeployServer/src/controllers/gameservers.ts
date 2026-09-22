@@ -1,7 +1,11 @@
 import { spawn } from "node:child_process"
+import { execFile } from "node:child_process";
 import { setTimeout } from "node:timers/promises";
+import { promisify } from "node:util";
 
 import crypto from "node:crypto";
+import { createWriteStream, mkdirSync } from "node:fs";
+import { join } from "node:path";
 
 import PlayerHuntTable from "../vendor/player_hunts_table.json";
 import MatchmakerHuntTable from "../vendor/matchmaker_hunts_table.json";
@@ -35,8 +39,8 @@ type ExpectedPlayer = {
 export let Gameservers: Gameserver[] = [];
 let FreePorts: number[] = [];
 
-let RamsgateServer : Gameserver;
-let TrainingDojoServer : Gameserver;
+let RamsgateServer : Gameserver | undefined;
+let TrainingDojoServer : Gameserver | undefined;
 
 const PORT_RANGE_BEGIN = Number(process.env.PORT_RANGE_BEGIN!);
 const PORT_RANGE_END = Number(process.env.PORT_RANGE_END!);
@@ -44,9 +48,46 @@ const RAMSGATE_PORT = PORT_RANGE_END;
 const TRAINING_DOJO_PORT = PORT_RANGE_END - 1;
 const GAMESERVER_BINARY_PATH = process.env.GAMESERVER_BINARY_PATH!;
 const STANDARD_GAMESERVER_ARGS = ["-EpicPortal", "-server", "-nullrhi"];
+
+// Gameserver output is otherwise discarded: the child is spawned onto a pipe
+// nothing reads and then unref'd. That matters because the gameserver, not the
+// client, is what talks to the metagame for progression and entitlements, so
+// when something it fetches does not take effect there is no way to see why.
+//
+// Opt-in and off by default. GAMESERVER_LOG_DIR turns capture on;
+// GAMESERVER_LOG_CMDS is passed straight through to UE's -LogCmds, e.g.
+// "global none, LogOnlineEntitlement Verbose" to get one category and nothing
+// else.
+const GAMESERVER_LOG_DIR = process.env.GAMESERVER_LOG_DIR;
+const GAMESERVER_LOG_CMDS = process.env.GAMESERVER_LOG_CMDS;
 const METAGAME_API_KEY = process.env.METAGAME_API_KEY!;
 const MY_IP = process.env.MY_IP!;
+const METAGAME_ADDRESS = process.env.METAGAME_ADDRESS!;
 const SECONDS_TO_WAIT_BETWEEN_GAMESERVER_STARTUP = Number(process.env.SECONDS_TO_WAIT_BETWEEN_GAMESERVER_STARTUP!);
+const execFileAsync = promisify(execFile);
+
+async function WaitForGamePort(pid: number, port: number) {
+    const deadline = Date.now() + 60_000;
+    while (Date.now() < deadline) {
+        try {
+            const { stdout } = await execFileAsync("netstat", ["-ano", "-p", "UDP"]);
+            const listening = stdout.split(/\r?\n/).some(line => {
+                // Windows netstat -ano prints: UDP  local-address  remote-address  PID.
+                const fields = line.trim().split(/\s+/);
+                if (fields.length < 4 || fields[0].toUpperCase() !== "UDP") return false;
+                const local = fields[1].replace(/^\[|\]$/g, "");
+                const localPort = Number(local.slice(local.lastIndexOf(":") + 1));
+                return localPort === port && Number(fields.at(-1)) === pid;
+            });
+            if (listening) return;
+        } catch (error) {
+            logger.error({ error }, "Could not check gameserver UDP readiness");
+            throw error;
+        }
+        await setTimeout(1000);
+    }
+    throw new Error(`Gameserver PID ${pid} did not listen on UDP ${port} within 60 seconds`);
+}
 
 function TransformExpectedPlayerArgs(ExpectedPlayers: ExpectedPlayer[]){
     let ToReturn = "";
@@ -68,12 +109,12 @@ export async function CleanupServer(ServerToShutdown: Gameserver){
     if(ServerToShutdown.isRamsgate){
         logger.warn("RAMSGATE HAS FALLEN! Restarting!");
 
-        await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
+        RamsgateServer = await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
     }
     else if(ServerToShutdown.isTrainingDojo){
         logger.warn("Training Dojo Crashed! Restarting!");
 
-        await StartServer(TRAINING_DOJO_MAP_PATH, undefined, undefined, undefined, false, true);
+        TrainingDojoServer = await StartServer(TRAINING_DOJO_MAP_PATH, undefined, undefined, undefined, false, true);
     }
     else{
         FreePorts.push(ServerToShutdown.port);
@@ -107,6 +148,10 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         throw new Error("No free ports left!");
     }
 
+    const DiagnosticArgs = GAMESERVER_LOG_DIR != undefined
+        ? ["-log", ...(GAMESERVER_LOG_CMDS != undefined ? [`-LogCmds=${GAMESERVER_LOG_CMDS}`] : [])]
+        : [];
+
     const Child = spawn(GAMESERVER_BINARY_PATH, [
         METAGAME_API_KEY,
         Port.toString(),
@@ -115,8 +160,30 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         MatchmakerHuntId != undefined ? MatchmakerHuntId : "NO_MM_HUNTID",
         ExpectedPlayers != undefined ? TransformExpectedPlayerArgs(ExpectedPlayers) : "NO_EXPECTED_PLAYERS",
         MY_IP + ":" + Port.toString(),
-        ...STANDARD_GAMESERVER_ARGS
+        METAGAME_ADDRESS,
+        ...STANDARD_GAMESERVER_ARGS,
+        ...DiagnosticArgs
     ]);
+
+    if(GAMESERVER_LOG_DIR != undefined){
+        try{
+            mkdirSync(GAMESERVER_LOG_DIR, { recursive: true });
+
+            const LogPath = join(GAMESERVER_LOG_DIR, `gameserver-${Port}-${Child.pid}.log`);
+            const LogStream = createWriteStream(LogPath, { flags: "a" });
+
+            Child.stdout?.pipe(LogStream);
+            Child.stderr?.pipe(LogStream);
+
+            logger.info({ port: Port, pid: Child.pid, logPath: LogPath }, "Capturing gameserver output");
+        } catch(Error){
+            // Diagnostics must never stop a world from starting.
+            logger.warn({ Error, port: Port }, "Could not capture gameserver output");
+        }
+    }
+
+    Child.on("error", error => logger.error({ error, port: Port }, "Gameserver process failed"));
+    Child.on("exit", (code, signal) => logger.warn({ pid: Child.pid, port: Port, code, signal }, "Gameserver exited"));
 
     Child.unref();
 
@@ -135,17 +202,59 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
 
     Gameservers.push(NewGameserver);
 
+    try {
+        await WaitForGamePort(Child.pid!, Port);
+    } catch (error) {
+        Gameservers = Gameservers.filter(server => server !== NewGameserver);
+        if (!IsRamsgate && !IsTrainingDojo) FreePorts.push(Port);
+        if (Child.exitCode === null) Child.kill();
+        throw error;
+    }
+
     return NewGameserver;
 }
 
-export function GetRamsgateConnectionDetails(){
+function IsProcessAlive(ProcessId: number){
+    try{
+        kill(ProcessId, 0);
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// A persistent world can die without the deploy service noticing: the watchdog
+// is optional, runs on a 60 second timer and only reclaims ports. Anything that
+// hands out a connection has to confirm the world is actually alive first, or
+// the client is sent to a port nothing is listening on and travel fails with no
+// error on this side.
+async function EnsurePersistentWorldAlive(Existing: Gameserver | undefined, MapPath: string, IsRamsgate: boolean, IsTrainingDojo: boolean, Label: string){
+    if(Existing != undefined && IsProcessAlive(Existing.processId)){
+        return Existing;
+    }
+
+    logger.warn(`${Label} is not running - starting it before handing out a connection`);
+
+    if(Existing != undefined){
+        Gameservers = Gameservers.filter(Server => Server !== Existing);
+    }
+
+    return await StartServer(MapPath, undefined, undefined, undefined, IsRamsgate, IsTrainingDojo);
+}
+
+export async function GetRamsgateConnectionDetails(){
+    RamsgateServer = await EnsurePersistentWorldAlive(RamsgateServer, RAMSGATE_MAP_PATH, true, false, "Ramsgate");
+
     return {
         host: MY_IP,
         port: RamsgateServer.port
     };
 }
 
-export function GetTrainingDojoConnectionDetails(){
+export async function GetTrainingDojoConnectionDetails(){
+    TrainingDojoServer = await EnsurePersistentWorldAlive(TrainingDojoServer, TRAINING_DOJO_MAP_PATH, false, true, "Training dojo");
+
     return {
         host: MY_IP,
         port: TrainingDojoServer.port

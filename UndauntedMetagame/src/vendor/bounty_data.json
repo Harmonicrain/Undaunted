@@ -1,0 +1,1151 @@
+{
+  "_comment": [
+    "Bounty definitions served in GET /bounty/game-data as bounty_data.",
+    "",
+    "The gameserver validates every stored bounty against this list on login:",
+    "a bounty whose id is absent is treated as 'disabled from config', and",
+    "UBountyComponent::ServerInitializeBounties resets it and refunds the token.",
+    "With this list empty, every drafted bounty was wiped on every relog.",
+    "",
+    "Ids are the row names of the client's own Gameplay/Bounty/bounty_table,",
+    "so they are exactly the bounties this build can display.",
+    "",
+    "reward_amount is Hunt Pass XP and is a server-owner choice, not something",
+    "recovered from the original service. Defaults here are tiered by rarity.",
+    "1.4.4 entry serializer at preferred VA 0x1413f2d20 reads bounty_id, enabled, reward_amount.",
+    "enabled must be explicit; missing it disables the entry and prevents drafting.",
+    "on_claim_grant_item_* fields belong to the separate item_grant_data entry serializer (0x1413f2f40)."
+  ],
+  "bounty_data": [
+    {
+      "bounty_id": "Bounty_Bronze_ASInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_AxeInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_BlazePatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_BreakAllPartsKill",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_DPInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_DirePatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_FrostPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherCommon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherDamage",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherDefense",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherHealing",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherPylon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherSpecial",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherSpeed",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GatherWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_Gatherables",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GrenadeDamage",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_GrenadeInterrupt",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HammerBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HeroicPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HeroicPlusPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntNotDowned",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsASTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsAxeTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsChainbladesTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsDPTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsHammerTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsPikeTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_HuntsSwordTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_InterruptEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_Interrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillASChain",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillAxePike",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillBlazeFrost",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillBlazeWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillChainPike",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillFrostShock",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillFrostWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillHammerDP",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillNeutralWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillRadiant",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillRadiantNeutral",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillRadiantWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillRage",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillShockBlaze",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillShockWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillSwordAxe",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillTerraShock",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillTerraWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillUmbral",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillUmbralNeutral",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillUmbralWeapon",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_KillWithFriends",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_LanternDamage",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_NeutralPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PartDamageEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PartDamageReduce",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PartsEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolASTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolAxeTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolDPTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolHammerTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolNotDowned",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolPikeTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PatrolSwordTwo",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PerfectDodges",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PhysicalDodges",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_PikeBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_ProjectileDodges",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_ShockPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_StaggerDamageEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_StaggerDamageReduce",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_StaggerEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_SwordInterrupts",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_TerraPatrols",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_WoundDamageEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_WoundDamageReduce",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Bronze_WoundEnraged",
+      "enabled": true,
+      "reward_amount": 20
+    },
+    {
+      "bounty_id": "Bounty_Gold_ASInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_AxeInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_BlazePatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_BreakAllPartsKill",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_DPInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_DirePatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_FrostPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_Gatherables",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_GrenadeDamage",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_GrenadeInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HammerBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HeroicPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HeroicPlusPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntNotDowned",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsASTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsAxeTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsChainbladesTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsDPTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsHammerTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsPikeTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_HuntsSwordTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_InterruptEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_Interrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillASChain",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillAxePike",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillBlazeFrost",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillBlazeWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillChainPike",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillFrostShock",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillFrostWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillHammerDP",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillNeutralWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillRadiant",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillRadiantNeutral",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillRadiantWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillRage",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillShockBlaze",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillShockWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillSwordAxe",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillTerraShock",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillTerraWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillUmbral",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillUmbralNeutral",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillUmbralWeapon",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_KillWithFriends",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_LanternDamage",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_NeutralPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PartDamageEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PartDamageReduce",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PartsEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolASTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolAxeTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolDPTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolHammerTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolNotDowned",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolPikeTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PatrolSwordTwo",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PerfectDodges",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PhysicalDodges",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_PikeBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_ProjectileDodges",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_ShockPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_StaggerDamageEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_StaggerDamageReduce",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_StaggerEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_SwordInterrupts",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_TerraPatrols",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_WoundDamageEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_WoundDamageReduce",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Gold_WoundEnraged",
+      "enabled": true,
+      "reward_amount": 60
+    },
+    {
+      "bounty_id": "Bounty_Silver_ASInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_AxeInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_BlazePatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_BreakAllPartsKill",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_DPInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_DirePatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_FrostPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherCommon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherDamage",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherDefense",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherHealing",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherPylon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherSpecial",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherSpeed",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GatherWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_Gatherables",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GrenadeDamage",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_GrenadeInterrupt",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HammerBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HeroicPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HeroicPlusPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntNotDowned",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsASTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsAxeTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsChainbladesTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsDPTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsHammerTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsPikeTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_HuntsSwordTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_InterruptEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_Interrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillASChain",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillAxePike",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillBlazeFrost",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillBlazeWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillChainPike",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillFrostShock",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillFrostWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillHammerDP",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillNeutralWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillRadiant",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillRadiantNeutral",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillRadiantWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillRage",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillShockBlaze",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillShockWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillSwordAxe",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillTerraShock",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillTerraWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillUmbral",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillUmbralNeutral",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillUmbralWeapon",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_KillWithFriends",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_LanternDamage",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_NeutralPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PartDamageEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PartDamageReduce",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PartsEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolASTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolAxeTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolDPTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolHammerTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolNotDowned",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolPikeTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PatrolSwordTwo",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PerfectDodges",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PhysicalDodges",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_PikeBlastInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_ProjectileDodges",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_ShockPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_StaggerDamageEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_StaggerDamageReduce",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_StaggerEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_SwordInterrupts",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_TerraPatrols",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_WoundDamageEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_WoundDamageReduce",
+      "enabled": true,
+      "reward_amount": 40
+    },
+    {
+      "bounty_id": "Bounty_Silver_WoundEnraged",
+      "enabled": true,
+      "reward_amount": 40
+    }
+  ]
+}

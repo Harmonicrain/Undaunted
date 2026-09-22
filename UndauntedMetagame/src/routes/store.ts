@@ -2,6 +2,10 @@ import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { GetNotesForUser } from "../controllers/store";
+import { GetWallet } from "../controllers/wallet";
+import storeCatalog from "../vendor/store_catalog.json";
+import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, RedeemFreePurchase, StoreError } from "../controllers/freeStore";
+import { RequestHandler } from "express";
 
 export const storeRouter = Router();
 
@@ -14,7 +18,8 @@ storeRouter.post("/reconcile", HasUndauntedMetagameAuth, async (req: any, res) =
     res.json({
         balances: {
             id_currency_notes: Notes,
-            CURRENCY_NOTES: Notes
+            CURRENCY_NOTES: Notes,
+            ...GetWallet(req.AuthData.userId)
         },
         refreshInventory: true
     });
@@ -91,20 +96,84 @@ storeRouter.get("/balance", HasUndauntedMetagameAuth, async (req: any, res) => {
         CURRENCY_S17_COIN: 0,
         id_currency_s14_coin: 0,
         CURRENCY_EVENT_RAMSGIVING: 0,
-        id_currency_s17_coin: 0
+        id_currency_s17_coin: 0,
+        // Stored balances overlay the zeroed sheet. Hunt Pass ranks pay out
+        // platinum, steel marks and prestige, and before the wallet existed
+        // those grants had nowhere to go and never became visible here.
+        ...GetWallet(UserId)
     });
 });
 
-storeRouter.get("/product/skus/public", HasUndauntedMetagameAuth, async (req: any, res) => {
-    logger.info("Store SKUs (stubbed)");
+// The client fetches the catalogue by tag. Observed tags on 1.4.4:
+//   webstore                    the main storefront
+//   season09b_pass              Elite for the active Hunt Pass (BuyPremiumSKU)
+//   season09b_rank              Hunt Pass rank skips     (BuyLevelSKU)
+//   loadout_slots               additional loadout slots
+//   fountain_daily_free_bundle  the daily free bundle
+//
+// The 1.4.4 client needs flat price fields AND its own category tags (e.g.
+// feature, skin_armour). A 200 response with only webstore-tagged offers leaves
+// the store without visible categories. Verified in the running client.
+// Tags come from src/vendor/store_catalog.json so an owner can add offers
+// without editing TypeScript. Keys starting with "_" are documentation.
+const StoreCatalog = storeCatalog as Record<string, any>;
 
-    // TODO: No clue if this is microtransactions or game transactions yet
-    // If game transactions, I'll support it as it was on live
-    // If microtransactions, I'll prob rewire to make everything earnable (no real money here!)
+const KNOWN_STORE_TAGS = Object.keys(StoreCatalog).filter((Key) => !Key.startsWith("_"));
 
-    res.status(400);
-    res.json({
-        code: "400",
-        message: "Undaunted does not support the store (yet)"
-    });
-});
+const StoreAction = (handler: RequestHandler): RequestHandler => (req: any, res, next) => {
+    try {
+        if (typeof req.AuthData?.userId !== "string") throw new StoreError(401, "Player authentication required");
+        return handler(req, res, next);
+    } catch (error) {
+        if (error instanceof StoreError) {
+            res.status(error.status).json({ code: String(error.status), message: error.message });
+        } else {
+            logger.error({ err: error }, "Store request failed");
+            res.status(500).json({ code: "500", message: "Store request failed" });
+        }
+    }
+};
+
+storeRouter.get("/product/sku/:skuId", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
+    res.json(GetOfferById(req.AuthData.userId, req.params.skuId));
+}));
+
+storeRouter.get("/token/:currency/:skuId", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
+    res.json(CreateFreePurchase(req.AuthData.userId, req.params.currency, req.params.skuId));
+}));
+
+storeRouter.post("/notification/:currency", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
+    RedeemFreePurchase(req.AuthData.userId, req.params.currency, req.query.token);
+    res.status(204).send();
+}));
+
+storeRouter.get("/product/skus/public", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
+    const RequiredTags = req.query.requiredTags;
+
+    // Matches the documented behaviour of the original service.
+    if(RequiredTags == undefined || String(RequiredTags).length === 0){
+        logger.warn("Store SKU request with no requiredTags");
+
+        res.status(400);
+        res.json({
+            code: "400",
+            message: "missing requiredTags query parameter"
+        });
+
+        return;
+    }
+
+    const Tag = String(RequiredTags);
+    const Offers = Tag === "webstore" ? GetFreeStoreOffers(req.AuthData.userId)
+        : GetOffersForTag(req.AuthData.userId, Tag);
+
+    if(!KNOWN_STORE_TAGS.includes(Tag)){
+        logger.warn(`Store SKUs requested for unknown tag ${Tag} - returning an empty catalogue`);
+    }
+    else{
+        logger.info(`Store SKUs for tag ${Tag} - returning ${Offers.length} offer(s)`);
+    }
+
+    res.status(200);
+    res.json(Offers);
+}));

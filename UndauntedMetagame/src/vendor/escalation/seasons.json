@@ -1,0 +1,1884 @@
+{
+  "_comment": [
+    "Escalation season registry, exported read-only from the installed 1.4.4 client (CL239827).",
+    "Source: Archon_16-WindowsClient.pak /Game/gamemodes/escalation/base_blueprints/escalation_progression (FEscalationProgressionTuning rows) and the talent tables each row names.",
+    "Executable SHA-256 d3d41e614908d2befd518b27046d9822d6130ef12ba3504babbdb786bef9cff4.",
+    "Level arithmetic, talent budget and reward delivery are native (see research/escalation/PROTOCOL.md). The backend only validates and stores the season snapshot the gameserver POSTs; these values are used for validation, not to compute progress.",
+    "levels[i].requiredExperience is the cost of going from level i to level i+1; a fresh account is level 0."
+  ],
+  "revision": "cl239827-7255b00448ed",
+  "source": {
+    "escalation_progression.uexp": "7255b00448ed9754f1a5b29150b3c662d1cd40b5671395bfc8378d1ee84e7f17",
+    "escalation_talents.uexp": "26247dc7bd42a82f9201d7159d0d5569f13625568c412a69156112d9fe9da1d5",
+    "escalation_talents_S2.uexp": "9bd468cb567ea1c55b5ce214ec1f577882b7d6f176cc4478f7bb5d9ab6dfa04c",
+    "escalation_talents_S3.uexp": "9557469ce6d518bb16ad07ee83a8ca6f5846b619bceff527fa843f92293ca7af",
+    "escalation_talents_S4.uexp": "abdf87dc0f119a10fc4b494b44a40fc9851193f3a115ccf2421eb2a4e0455179",
+    "escalation_talents_S5.uexp": "90c1e5e3b4c3b57375ae901d7798331a2c9becf5fae58343c54c87529006d34e"
+  },
+  "seasons": [
+    {
+      "id": "ESC_SEASON_1",
+      "context": "Shock",
+      "displayName": "Shock Escalation",
+      "enabled": true,
+      "persistentPowerPerLevel": 2,
+      "levels": [
+        {
+          "level": 1,
+          "requiredExperience": 500
+        },
+        {
+          "level": 2,
+          "requiredExperience": 600
+        },
+        {
+          "level": 3,
+          "requiredExperience": 700
+        },
+        {
+          "level": 4,
+          "requiredExperience": 800
+        },
+        {
+          "level": 5,
+          "requiredExperience": 900
+        },
+        {
+          "level": 6,
+          "requiredExperience": 1000
+        },
+        {
+          "level": 7,
+          "requiredExperience": 1200
+        },
+        {
+          "level": 8,
+          "requiredExperience": 1500
+        },
+        {
+          "level": 9,
+          "requiredExperience": 1800
+        },
+        {
+          "level": 10,
+          "requiredExperience": 2500
+        },
+        {
+          "level": 11,
+          "requiredExperience": 3000
+        },
+        {
+          "level": 12,
+          "requiredExperience": 3500
+        },
+        {
+          "level": 13,
+          "requiredExperience": 4000
+        },
+        {
+          "level": 14,
+          "requiredExperience": 4500
+        },
+        {
+          "level": 15,
+          "requiredExperience": 5000
+        },
+        {
+          "level": 16,
+          "requiredExperience": 5500
+        },
+        {
+          "level": 17,
+          "requiredExperience": 6000
+        },
+        {
+          "level": 18,
+          "requiredExperience": 6500
+        },
+        {
+          "level": 19,
+          "requiredExperience": 7000
+        },
+        {
+          "level": 20,
+          "requiredExperience": 7500
+        },
+        {
+          "level": 21,
+          "requiredExperience": 8000
+        },
+        {
+          "level": 22,
+          "requiredExperience": 8500
+        },
+        {
+          "level": 23,
+          "requiredExperience": 9000
+        },
+        {
+          "level": 24,
+          "requiredExperience": 9500
+        },
+        {
+          "level": 25,
+          "requiredExperience": 10000
+        }
+      ],
+      "talentsTable": "escalation_talents",
+      "talents": [
+        {
+          "id": "ESC_TALENT_S1_TIER1_UPGRADEONE",
+          "name": "Upgrade Executioner",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER1_UPGRADETWO",
+          "name": "Upgrade Squad Goals",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER1_PASSIVE",
+          "name": "Zai's Maneuvers",
+          "type": "Special",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER2_UPGRADEONE",
+          "name": "Upgrade Torrent Shield",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER2_UPGRADETWO",
+          "name": "Upgrade Mender's Gift",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER2_PASSIVE",
+          "name": "Lucky Strikes",
+          "type": "Special",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER3_UPGRADEONE",
+          "name": "Upgrade Breath of Life",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER3_UPGRADETWO",
+          "name": "Upgrade Paragon's Blessing",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER3_PASSIVE",
+          "name": "Strega's Infusion",
+          "type": "Special",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER4_UPGRADEONE",
+          "name": "Upgrade Thrill of the Hunt",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER4_UPGRADETWO",
+          "name": "Upgrade all Malkarion's Spite amps",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER4_PASSIVE",
+          "name": "Moyra's Reinforcement",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER5_UPGRADEONE",
+          "name": "Upgrade Full Throttle",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER5_UPGRADETWO",
+          "name": "Upgrade Duelist's Precision",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER5_PASSIVE",
+          "name": "Kat's Claws",
+          "type": "Special",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER6_SPECIAL_UNLOCKONE",
+          "name": "Lady Luck's Flames",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER6_SPECIAL_UNLOCKTWO",
+          "name": "Wounded Corruption",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S1_TIER6_SPECIAL_UNLOCKTHREE",
+          "name": "Enduring Barriers",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        }
+      ],
+      "unlocks": [
+        {
+          "id": "ESC_Reward_2",
+          "unlockLevel": 8,
+          "rewardType": "PatrolChestBonus",
+          "title": "Patrol Chest Bonus",
+          "items": [
+            {
+              "catalogId": "ORB_SHOCK",
+              "quantity": 5
+            }
+          ]
+        },
+        {
+          "id": "ESC_Reward_3",
+          "unlockLevel": 5,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 1",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_4",
+          "unlockLevel": 15,
+          "rewardType": "AdditionalRelicChoice",
+          "title": "Extra Amp Option",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_5",
+          "unlockLevel": 10,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 2",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_6",
+          "unlockLevel": 20,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 3",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_7",
+          "unlockLevel": 25,
+          "rewardType": "ItemGrant",
+          "title": "Shock Escalation Cosmetics",
+          "items": [
+            {
+              "catalogId": "AR_THUNDERBIRD_HELM_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_THUNDERBIRD_CHEST_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_THUNDERBIRD_LEGS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_THUNDERBIRD_ARMS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "LT_THUNDERBIRD",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_STANDARD_THUNDERBIRD_00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ESC_SEASON_2",
+      "context": "Blaze",
+      "displayName": "Blaze Escalation",
+      "enabled": true,
+      "persistentPowerPerLevel": 2,
+      "levels": [
+        {
+          "level": 1,
+          "requiredExperience": 500
+        },
+        {
+          "level": 2,
+          "requiredExperience": 600
+        },
+        {
+          "level": 3,
+          "requiredExperience": 700
+        },
+        {
+          "level": 4,
+          "requiredExperience": 800
+        },
+        {
+          "level": 5,
+          "requiredExperience": 900
+        },
+        {
+          "level": 6,
+          "requiredExperience": 1000
+        },
+        {
+          "level": 7,
+          "requiredExperience": 1200
+        },
+        {
+          "level": 8,
+          "requiredExperience": 1500
+        },
+        {
+          "level": 9,
+          "requiredExperience": 1800
+        },
+        {
+          "level": 10,
+          "requiredExperience": 2500
+        },
+        {
+          "level": 11,
+          "requiredExperience": 3000
+        },
+        {
+          "level": 12,
+          "requiredExperience": 3500
+        },
+        {
+          "level": 13,
+          "requiredExperience": 4000
+        },
+        {
+          "level": 14,
+          "requiredExperience": 4500
+        },
+        {
+          "level": 15,
+          "requiredExperience": 5000
+        },
+        {
+          "level": 16,
+          "requiredExperience": 5500
+        },
+        {
+          "level": 17,
+          "requiredExperience": 6000
+        },
+        {
+          "level": 18,
+          "requiredExperience": 6500
+        },
+        {
+          "level": 19,
+          "requiredExperience": 7000
+        },
+        {
+          "level": 20,
+          "requiredExperience": 7500
+        },
+        {
+          "level": 21,
+          "requiredExperience": 8000
+        },
+        {
+          "level": 22,
+          "requiredExperience": 8500
+        },
+        {
+          "level": 23,
+          "requiredExperience": 9000
+        },
+        {
+          "level": 24,
+          "requiredExperience": 9500
+        },
+        {
+          "level": 25,
+          "requiredExperience": 10000
+        }
+      ],
+      "talentsTable": "escalation_talents_S2",
+      "talents": [
+        {
+          "id": "ESC_TALENT_S2_TIER1_UPGRADEONE",
+          "name": "Upgrades Go Time",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER1_UPGRADETWO",
+          "name": "Upgrade Squad Goals",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER1_PASSIVE",
+          "name": "Zai's Maneuvers",
+          "type": "Special",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER2_UPGRADEONE",
+          "name": "Upgrade Torrent Shield",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER2_UPGRADETWO",
+          "name": "Upgrade Mender's Gift",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER2_PASSIVE",
+          "name": "Bormen's Might",
+          "type": "Special",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER3_UPGRADEONE",
+          "name": "Upgrade Breath of Life",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER3_UPGRADETWO",
+          "name": "Upgrade Paragon's Blessing",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER3_PASSIVE",
+          "name": "Strega's Infusion",
+          "type": "Special",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER4_UPGRADEONE",
+          "name": "Upgrade Thrill of the Hunt",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER4_UPGRADETWO",
+          "name": "Upgrade Torgadoro's Amps Duration",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER4_PASSIVE",
+          "name": "Moyra's Reinforcement",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER5_UPGRADEONE",
+          "name": "Upgrade Full Throttle",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER5_UPGRADETWO",
+          "name": "Upgrade Pact of Swiftness",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER5_PASSIVE",
+          "name": "Kat's Claws",
+          "type": "Special",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER6_SPECIAL_UNLOCKONE",
+          "name": "Spiteful Thunder",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER6_SPECIAL_UNLOCKTWO",
+          "name": "Voidrunner's Corruption",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            0
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S2_TIER6_SPECIAL_UNLOCKTHREE",
+          "name": "Enduring Barriers",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        }
+      ],
+      "unlocks": [
+        {
+          "id": "ESC_Reward_2",
+          "unlockLevel": 8,
+          "rewardType": "PatrolChestBonus",
+          "title": "Patrol Chest Bonus",
+          "items": [
+            {
+              "catalogId": "ORB_FLAME",
+              "quantity": 5
+            }
+          ]
+        },
+        {
+          "id": "ESC_Reward_3",
+          "unlockLevel": 5,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 1",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_4",
+          "unlockLevel": 15,
+          "rewardType": "AdditionalRelicChoice",
+          "title": "Extra Amp Option",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_5",
+          "unlockLevel": 10,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 2",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_6",
+          "unlockLevel": 20,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 3",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_7",
+          "unlockLevel": 25,
+          "rewardType": "ItemGrant",
+          "title": "Blaze Escalation Cosmetics",
+          "items": [
+            {
+              "catalogId": "AR_ARMSTRONG_HELM_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_ARMSTRONG_CHEST_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_ARMSTRONG_LEGS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_ARMSTRONG_ARMS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "LT_ARMSTRONG",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_STANDARD_ARMSTRONG_00",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ESC_SEASON_3",
+      "context": "Umbral",
+      "displayName": "Umbral Escalation",
+      "enabled": true,
+      "persistentPowerPerLevel": 2,
+      "levels": [
+        {
+          "level": 1,
+          "requiredExperience": 500
+        },
+        {
+          "level": 2,
+          "requiredExperience": 600
+        },
+        {
+          "level": 3,
+          "requiredExperience": 700
+        },
+        {
+          "level": 4,
+          "requiredExperience": 800
+        },
+        {
+          "level": 5,
+          "requiredExperience": 900
+        },
+        {
+          "level": 6,
+          "requiredExperience": 1000
+        },
+        {
+          "level": 7,
+          "requiredExperience": 1200
+        },
+        {
+          "level": 8,
+          "requiredExperience": 1500
+        },
+        {
+          "level": 9,
+          "requiredExperience": 1800
+        },
+        {
+          "level": 10,
+          "requiredExperience": 2500
+        },
+        {
+          "level": 11,
+          "requiredExperience": 3000
+        },
+        {
+          "level": 12,
+          "requiredExperience": 3500
+        },
+        {
+          "level": 13,
+          "requiredExperience": 4000
+        },
+        {
+          "level": 14,
+          "requiredExperience": 4500
+        },
+        {
+          "level": 15,
+          "requiredExperience": 5000
+        },
+        {
+          "level": 16,
+          "requiredExperience": 5500
+        },
+        {
+          "level": 17,
+          "requiredExperience": 6000
+        },
+        {
+          "level": 18,
+          "requiredExperience": 6500
+        },
+        {
+          "level": 19,
+          "requiredExperience": 7000
+        },
+        {
+          "level": 20,
+          "requiredExperience": 7500
+        },
+        {
+          "level": 21,
+          "requiredExperience": 8000
+        },
+        {
+          "level": 22,
+          "requiredExperience": 8500
+        },
+        {
+          "level": 23,
+          "requiredExperience": 9000
+        },
+        {
+          "level": 24,
+          "requiredExperience": 9500
+        },
+        {
+          "level": 25,
+          "requiredExperience": 10000
+        }
+      ],
+      "talentsTable": "escalation_talents_S3",
+      "talents": [
+        {
+          "id": "ESC_TALENT_S3_TIER1_UPGRADEONE",
+          "name": "Upgrades Go Time",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER1_UPGRADETWO",
+          "name": "Upgrade Squad Goals",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER1_PASSIVE",
+          "name": "Zai's Maneuvers",
+          "type": "Special",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER2_UPGRADEONE",
+          "name": "Upgrade Executioner",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER2_UPGRADETWO",
+          "name": "Upgrade Pact of Swiftness",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER2_PASSIVE",
+          "name": "Farslayer's Precision",
+          "type": "Special",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER3_UPGRADEONE",
+          "name": "Upgrade Exposed Weakness",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER3_UPGRADETWO",
+          "name": "Upgrade Overclock",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER3_PASSIVE",
+          "name": "Strega's Infusion",
+          "type": "Special",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER4_UPGRADEONE",
+          "name": "Upgrade Thrill of the Hunt",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER4_UPGRADETWO",
+          "name": "Upgrade Elemental Forms",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER4_PASSIVE",
+          "name": "Moyra's Reinforcement",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER5_UPGRADEONE",
+          "name": "Upgrade Full Throttle",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER5_UPGRADETWO",
+          "name": "Upgrade Surgical Precision",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER5_PASSIVE",
+          "name": "Lucky Strikes",
+          "type": "Special",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER6_SPECIAL_UNLOCKONE",
+          "name": "Thunderous Dominion",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER6_SPECIAL_UNLOCKTWO",
+          "name": "Lady Luck's Flames",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S3_TIER6_SPECIAL_UNLOCKTHREE",
+          "name": "Enduring Barriers",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        }
+      ],
+      "unlocks": [
+        {
+          "id": "ESC_Reward_2",
+          "unlockLevel": 8,
+          "rewardType": "PatrolChestBonus",
+          "title": "Patrol Chest Bonus",
+          "items": [
+            {
+              "catalogId": "GEM_ALPHA",
+              "quantity": 5
+            }
+          ]
+        },
+        {
+          "id": "ESC_Reward_3",
+          "unlockLevel": 5,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 1",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_4",
+          "unlockLevel": 15,
+          "rewardType": "AdditionalRelicChoice",
+          "title": "Extra Amp Option",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_5",
+          "unlockLevel": 10,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 2",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_6",
+          "unlockLevel": 20,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 3",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_7",
+          "unlockLevel": 25,
+          "rewardType": "ItemGrant",
+          "title": "Umbral Escalation Cosmetics",
+          "items": [
+            {
+              "catalogId": "AR_RANDALL_HELM_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_RANDALL_CHEST_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_RANDALL_LEGS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_RANDALL_ARMS_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "LT_RANDALL_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_STANDARD_RANDALL_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Fabric_Randall",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Sigil_Randall",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ESC_SEASON_4",
+      "context": "Terra",
+      "displayName": "Terra Escalation",
+      "enabled": true,
+      "persistentPowerPerLevel": 2,
+      "levels": [
+        {
+          "level": 1,
+          "requiredExperience": 500
+        },
+        {
+          "level": 2,
+          "requiredExperience": 600
+        },
+        {
+          "level": 3,
+          "requiredExperience": 700
+        },
+        {
+          "level": 4,
+          "requiredExperience": 800
+        },
+        {
+          "level": 5,
+          "requiredExperience": 900
+        },
+        {
+          "level": 6,
+          "requiredExperience": 1000
+        },
+        {
+          "level": 7,
+          "requiredExperience": 1200
+        },
+        {
+          "level": 8,
+          "requiredExperience": 1500
+        },
+        {
+          "level": 9,
+          "requiredExperience": 1800
+        },
+        {
+          "level": 10,
+          "requiredExperience": 2500
+        },
+        {
+          "level": 11,
+          "requiredExperience": 3000
+        },
+        {
+          "level": 12,
+          "requiredExperience": 3500
+        },
+        {
+          "level": 13,
+          "requiredExperience": 4000
+        },
+        {
+          "level": 14,
+          "requiredExperience": 4500
+        },
+        {
+          "level": 15,
+          "requiredExperience": 5000
+        },
+        {
+          "level": 16,
+          "requiredExperience": 5500
+        },
+        {
+          "level": 17,
+          "requiredExperience": 6000
+        },
+        {
+          "level": 18,
+          "requiredExperience": 6500
+        },
+        {
+          "level": 19,
+          "requiredExperience": 7000
+        },
+        {
+          "level": 20,
+          "requiredExperience": 7500
+        },
+        {
+          "level": 21,
+          "requiredExperience": 8000
+        },
+        {
+          "level": 22,
+          "requiredExperience": 8500
+        },
+        {
+          "level": 23,
+          "requiredExperience": 9000
+        },
+        {
+          "level": 24,
+          "requiredExperience": 9500
+        },
+        {
+          "level": 25,
+          "requiredExperience": 10000
+        }
+      ],
+      "talentsTable": "escalation_talents_S4",
+      "talents": [
+        {
+          "id": "ESC_TALENT_S4_TIER1_UPGRADEONE",
+          "name": "Upgrades Torrent Shield",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER1_UPGRADETWO",
+          "name": "Upgrades Pact of Hunger",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER1_PASSIVE",
+          "name": "Zai's Maneuvers",
+          "type": "Special",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_UPGRADEONE",
+          "name": "Upgrades Pact of Swiftness",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_UPGRADETWO",
+          "name": "Upgrades Shrapnel",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_PASSIVE",
+          "name": "Lucky Strikes",
+          "type": "Special",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_UPGRADEONE",
+          "name": "Upgrades Mender's Gift",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_UPGRADETWO",
+          "name": "Upgrades Pack Tactics",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_PASSIVE",
+          "name": "Strega's Infusion",
+          "type": "Special",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_UPGRADEONE",
+          "name": "Upgrades Reckoning",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_UPGRADETWO",
+          "name": "Upgrade Elemental Forms",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_PASSIVE",
+          "name": "Moyra's Reinforcement",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_UPGRADEONE",
+          "name": "Upgrade Thrill of the Hunt",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_UPGRADETWO",
+          "name": "Upgrades Shield Sphere",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_PASSIVE",
+          "name": "Kat's Claws",
+          "type": "Special",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKONE",
+          "name": "Critical Thunder",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKTWO",
+          "name": "Staggering Flames",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKTHREE",
+          "name": "Elemental Corruption",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        }
+      ],
+      "unlocks": [
+        {
+          "id": "ESC_Reward_2",
+          "unlockLevel": 8,
+          "rewardType": "PatrolChestBonus",
+          "title": "Patrol Chest Bonus",
+          "items": [
+            {
+              "catalogId": "ORB_TERRA",
+              "quantity": 5
+            }
+          ]
+        },
+        {
+          "id": "ESC_Reward_3",
+          "unlockLevel": 5,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 1",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_4",
+          "unlockLevel": 15,
+          "rewardType": "AdditionalRelicChoice",
+          "title": "Extra Amp Option",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_5",
+          "unlockLevel": 10,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 2",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_6",
+          "unlockLevel": 20,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 3",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_7",
+          "unlockLevel": 25,
+          "rewardType": "ItemGrant",
+          "title": "Terra Escalation Cosmetics",
+          "items": [
+            {
+              "catalogId": "AR_FUNGUY_HELM_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_CHEST_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_LEGS_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_ARMS_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "LT_FUNGUY_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_STANDARD_FUNGUY_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Fabric_Funguy",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Sigil_Funguy",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ESC_SEASON_5",
+      "context": "Frost",
+      "displayName": "~DNT~ Frost Escalation",
+      "enabled": false,
+      "persistentPowerPerLevel": 0,
+      "levels": [
+        {
+          "level": 1,
+          "requiredExperience": 500
+        },
+        {
+          "level": 2,
+          "requiredExperience": 600
+        },
+        {
+          "level": 3,
+          "requiredExperience": 700
+        },
+        {
+          "level": 4,
+          "requiredExperience": 800
+        },
+        {
+          "level": 5,
+          "requiredExperience": 900
+        },
+        {
+          "level": 6,
+          "requiredExperience": 1000
+        },
+        {
+          "level": 7,
+          "requiredExperience": 1200
+        },
+        {
+          "level": 8,
+          "requiredExperience": 1500
+        },
+        {
+          "level": 9,
+          "requiredExperience": 1800
+        },
+        {
+          "level": 10,
+          "requiredExperience": 2500
+        },
+        {
+          "level": 11,
+          "requiredExperience": 3000
+        },
+        {
+          "level": 12,
+          "requiredExperience": 3500
+        },
+        {
+          "level": 13,
+          "requiredExperience": 4000
+        },
+        {
+          "level": 14,
+          "requiredExperience": 4500
+        },
+        {
+          "level": 15,
+          "requiredExperience": 5000
+        },
+        {
+          "level": 16,
+          "requiredExperience": 5500
+        },
+        {
+          "level": 17,
+          "requiredExperience": 6000
+        },
+        {
+          "level": 18,
+          "requiredExperience": 6500
+        },
+        {
+          "level": 19,
+          "requiredExperience": 7000
+        },
+        {
+          "level": 20,
+          "requiredExperience": 7500
+        },
+        {
+          "level": 21,
+          "requiredExperience": 8000
+        },
+        {
+          "level": 22,
+          "requiredExperience": 8500
+        },
+        {
+          "level": 23,
+          "requiredExperience": 9000
+        },
+        {
+          "level": 24,
+          "requiredExperience": 9500
+        },
+        {
+          "level": 25,
+          "requiredExperience": 10000
+        }
+      ],
+      "talentsTable": "escalation_talents_S5",
+      "talents": [
+        {
+          "id": "ESC_TALENT_S4_TIER1_UPGRADEONE",
+          "name": "Upgrades Torrent Shield",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER1_UPGRADETWO",
+          "name": "Upgrades Pact of Hunger",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER1_PASSIVE",
+          "name": "Zai's Maneuvers",
+          "type": "Special",
+          "pointsToUnlock": 0,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_UPGRADEONE",
+          "name": "Upgrades Pact of Swiftness",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_UPGRADETWO",
+          "name": "Upgrades Shrapnel",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER2_PASSIVE",
+          "name": "Lucky Strikes",
+          "type": "Special",
+          "pointsToUnlock": 4,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_UPGRADEONE",
+          "name": "Upgrades Mender's Gift",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_UPGRADETWO",
+          "name": "Upgrades Pack Tactics",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER3_PASSIVE",
+          "name": "Strega's Infusion",
+          "type": "Special",
+          "pointsToUnlock": 8,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_UPGRADEONE",
+          "name": "Upgrades Reckoning",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_UPGRADETWO",
+          "name": "Upgrade Elemental Forms",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER4_PASSIVE",
+          "name": "Moyra's Reinforcement",
+          "type": "Special",
+          "pointsToUnlock": 12,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_UPGRADEONE",
+          "name": "Upgrade Thrill of the Hunt",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_UPGRADETWO",
+          "name": "Upgrades Shield Sphere",
+          "type": "RelicUpgrade",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER5_PASSIVE",
+          "name": "Kat's Claws",
+          "type": "Special",
+          "pointsToUnlock": 16,
+          "rankCosts": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKONE",
+          "name": "Critical Thunder",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKTWO",
+          "name": "Staggering Flames",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        },
+        {
+          "id": "ESC_TALENT_S4_TIER6_SPECIAL_UNLOCKTHREE",
+          "name": "Elemental Corruption",
+          "type": "Special",
+          "pointsToUnlock": 20,
+          "rankCosts": [
+            1
+          ]
+        }
+      ],
+      "unlocks": [
+        {
+          "id": "ESC_Reward_2",
+          "unlockLevel": 8,
+          "rewardType": "PatrolChestBonus",
+          "title": "Patrol Chest Bonus",
+          "items": [
+            {
+              "catalogId": "ORB_TERRA",
+              "quantity": 5
+            }
+          ]
+        },
+        {
+          "id": "ESC_Reward_3",
+          "unlockLevel": 5,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 1",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_4",
+          "unlockLevel": 15,
+          "rewardType": "AdditionalRelicChoice",
+          "title": "Extra Amp Option",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_5",
+          "unlockLevel": 10,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 2",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_6",
+          "unlockLevel": 20,
+          "rewardType": "StatBoost",
+          "title": "Power Boost 3",
+          "items": []
+        },
+        {
+          "id": "ESC_Reward_7",
+          "unlockLevel": 25,
+          "rewardType": "ItemGrant",
+          "title": "Terra Escalation Cosmetics",
+          "items": [
+            {
+              "catalogId": "AR_FUNGUY_HELM_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_CHEST_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_LEGS_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "AR_FUNGUY_ARMS_00_ULTRA",
+              "quantity": 1
+            },
+            {
+              "catalogId": "LT_FUNGUY_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_STANDARD_FUNGUY_00",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Fabric_Funguy",
+              "quantity": 1
+            },
+            {
+              "catalogId": "BNC_Sigil_Funguy",
+              "quantity": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

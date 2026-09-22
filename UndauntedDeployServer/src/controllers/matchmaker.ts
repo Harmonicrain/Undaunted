@@ -5,12 +5,12 @@ export async function HandleMatchmakingRequest(GameMode: string, GameArgs: strin
     logger.info(`Handling matchmaking with GameMode: ${GameMode} HuntId: ${HuntId} and GameArgs: ${GameArgs} and ExpectedPlayers ${ExpectedPlayers}`);
 
     if(GameMode === "CITY"){
-        return GetRamsgateConnectionDetails();
+        return await GetRamsgateConnectionDetails();
     }
     else if(GameMode === "SHARED"){
         if (HuntId != undefined && HuntId.trim().length > 0){
             if(HuntId == "ShatteredIsles_TrainingDojo"){
-                return GetTrainingDojoConnectionDetails();
+                return await GetTrainingDojoConnectionDetails();
             }
         }
     }
@@ -26,5 +26,5 @@ export async function HandleMatchmakingRequest(GameMode: string, GameArgs: strin
 
     logger.error("Matchmaking failed, sending you to Ramsgate!");
 
-    return GetRamsgateConnectionDetails();
+    return await GetRamsgateConnectionDetails();
 }

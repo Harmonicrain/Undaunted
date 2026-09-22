@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { logger } from "../logger";
-import { GetUserIDForAPIKey, SignMetagameJWTForUid } from "../controllers/auth";
+import { GetUserIDForAPIKey, SignMetagameJWTForUid, ValidateMetagameJWTAndGetPayload } from "../controllers/auth";
+import { GetDb } from "../db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
+import { HasOptionalUndauntedMetagameAuth } from "../middleware/HasOptionalUndauntedMetagameAuth";
 import { GetUsernameForUserId } from "../controllers/login";
 
 export const eosRouter = Router();
@@ -67,26 +71,38 @@ eosRouter.post("/account/api/oauth/token", async (req, res) => {
 });
 
 eosRouter.get("/account/api/oauth/verify", (req, res) => {
-    logger.info("Verifying token");
-
-    // TODO: EOS treats this as a "just checking in" endpoint, so I've gone with a minimal stub. Validate this is correct.
-
+    const header = req.headers.authorization;
+    if(!header?.toLowerCase().startsWith("bearer ")){ res.sendStatus(401); return; }
+    let payload: any;
+    try{ payload = ValidateMetagameJWTAndGetPayload(header.slice(7)); }
+    catch{ res.sendStatus(401); return; }
+    if(typeof payload !== "object" || typeof payload.userId !== "string"){
+        res.sendStatus(401); return;
+    }
+    const remaining = Math.max(0, (payload.exp ?? 0) - Math.floor(Date.now() / 1000));
     res.json({
       "active": true,
       "scope": "basic_profile friends_list presence",
       "token_type": "bearer",
-      "expires_in": 86400,
-      "expires_at": "2085-09-09T01:01:01.703Z",
-      "account_id": "9626f441055349ce8cb7d7d5a483eaa2",
+      "expires_in": remaining,
+      "expires_at": new Date((payload.exp ?? 0) * 1000).toISOString(),
+      "account_id": payload.userId,
       "client_id": "xyza7891lhxMVYGCON7LgnKZZ8HQGD5H",
       "application_id": "fghi4567O03HROxEjwbn7kgXpBhnhWwv"
     });
 });
 
-eosRouter.get("/account/api/public/account/:AccId", (req, res) => {
-    logger.info("EOS Account Info (stubbed)");
+eosRouter.get("/account/api/public/account/displayName/:displayName", HasUndauntedMetagameAuth, async (req, res) => {
+    const name = String(req.params.displayName);
+    const row = GetDb().select().from(users).all().find((entry) => entry.name.toLowerCase() === name.toLowerCase());
+    if(!row){ res.sendStatus(404); return; }
+    res.json(await BuildAccountInfo(row.userId));
+});
 
-    res.json({});
+eosRouter.get("/account/api/public/account/:AccId", HasUndauntedMetagameAuth, async (req, res) => {
+    const row = GetDb().select().from(users).where(eq(users.userId, String(req.params.AccId))).get();
+    if(!row){ res.sendStatus(404); return; }
+    res.json(await BuildAccountInfo(row.userId));
 });
 
 eosRouter.get("/account/api/public/account/:AccId/externalAuths", (req, res) => {
@@ -111,13 +127,10 @@ eosRouter.delete("/account/api/oauth/sessions/kill/:AuthToken", (req, res) => {
     res.json({});
 })
 
-eosRouter.get("/account/api/public/account", HasUndauntedMetagameAuth, (req: any, res) => {
-    const UserId = req.AuthData.userId;
-    const Username = GetUsernameForUserId(UserId);
+async function BuildAccountInfo(UserId: string){
+    const Username = await GetUsernameForUserId(UserId);
 
-    logger.info(`Account info for userId ${UserId}`);
-
-    res.json({
+    return {
         "id": UserId,
         "displayName": Username,
         "name": "",
@@ -136,5 +149,34 @@ eosRouter.get("/account/api/public/account", HasUndauntedMetagameAuth, (req: any
         "emailVerified": true,
         "minorVerified": false,
         "minorStatus": "NOT_MINOR"
-    });
+    };
+}
+
+eosRouter.get("/account/api/public/account", HasUndauntedMetagameAuth, async (req: any, res) => {
+    const UserId = req.AuthData.userId;
+
+    logger.info(`Account info for userId ${UserId}`);
+
+    res.json(await BuildAccountInfo(UserId));
+});
+
+// The runtime builds this lookup by pasting the metagame address straight onto
+// "/account" with no separator, producing paths like GET /account127.0.0.1:60000
+// that match no route and 404. Until that concatenation is fixed in
+// UndauntedInternalServer, serve the same account info rather than a 404. The
+// pattern deliberately excludes "/account/..." so the real EOS routes above
+// still win.
+// It arrives without credentials, so it cannot require auth either.
+eosRouter.get(/^\/account(?:[^\/].*)?$/, HasOptionalUndauntedMetagameAuth, async (req: any, res) => {
+    const UserId = req.AuthData?.userId;
+
+    logger.warn(`Malformed account lookup ${req.originalUrl}`);
+
+    if(UserId == undefined){
+        res.json({});
+
+        return;
+    }
+
+    res.json(await BuildAccountInfo(UserId));
 });

@@ -11,7 +11,11 @@ import { tuningRouter } from "./routes/tuning.js";
 import { matchmakingRouter } from "./routes/matchmaking.js";
 import { partyRouter } from "./routes/party.js";
 import { progressionRouter } from "./routes/progression.js";
+import { escalationRouter } from "./routes/escalation.js";
 import { loadoutRouter } from "./routes/loadout.js";
+import { friendsRouter } from "./routes/friends.js";
+import { slayerLinksRouter } from "./routes/slayerLinks.js";
+import { WireCapture } from "./middleware/WireCapture.js";
 import { undauntedApiRouter } from "./routes/undauntedapi.js";
 
 export const app = express();
@@ -19,6 +23,10 @@ export const app = express();
 app.use(express.json({ limit: "50mb" }));
 
 app.use(express.urlencoded({ extended: true }));
+
+// Observation only, gated behind WIRE_CAPTURE. Records what the client
+// actually sends to the stubbed routes without altering any response.
+app.use(WireCapture);
 
 app.use("/", loginRouter);
 app.use("/", eosRouter);
@@ -31,7 +39,10 @@ app.use("/", tuningRouter);
 app.use("/", matchmakingRouter);
 app.use("/", partyRouter);
 app.use("/", progressionRouter);
+app.use("/", escalationRouter);
 app.use("/", loadoutRouter);
+app.use("/", friendsRouter);
+app.use("/", slayerLinksRouter);
 app.use("/undaunted/api", undauntedApiRouter); // Everything that I/we add to help manage undaunted that doesn't belong to the game proper belongs here
 
 app.use((req, res) => {

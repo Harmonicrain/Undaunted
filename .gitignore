@@ -1,0 +1,8 @@
+# Local backups and tool leftovers from the preservation work
+*.bak
+*.bak-*
+*.drizzle-generated
+
+# Local databases
+*.sqlite
+*.sqlite-*

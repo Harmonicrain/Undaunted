@@ -1,4 +1,4 @@
-import { and, eq, lt } from "drizzle-orm";
+import { and, eq, lte } from "drizzle-orm";
 import { GetDb } from "../db";
 import { characters } from "../db/schema";
 import { GetUsernameForUserId } from "./login";
@@ -88,7 +88,24 @@ export async function CreateCharacterForUid(userId: string, characterName: strin
 export async function UpdateCharacterForUid(CharacterId: string, UserId: string, CharacterDataToUpdateWith: string, UpdateVersion: number){
     const CurrentData = await GetCharacterWithUid(CharacterId, UserId);
 
-    if(CurrentData!.updateVersion >= UpdateVersion){
+    if(CurrentData == undefined){
+        logger.warn(`Refusing to update unknown characterId ${CharacterId} for userId ${UserId}`);
+
+        return false;
+    }
+
+    if(!Number.isFinite(Number(UpdateVersion))){
+        logger.warn(`Refusing to update characterId ${CharacterId} for userId ${UserId} with non-numeric updateVersion ${UpdateVersion}`);
+
+        return false;
+    }
+
+    // The client re-sends a save at the version it already holds when travel or
+    // a retry overlaps an in-flight save, which used to be rejected as a
+    // conflict and lost the write. Treat an equal version as an idempotent
+    // re-send and accept it; only a strictly older version is a genuinely stale
+    // write worth refusing. Safe while a character has a single writer.
+    if(CurrentData.updateVersion > UpdateVersion){
         return false;
     }
 
@@ -97,7 +114,7 @@ export async function UpdateCharacterForUid(CharacterId: string, UserId: string,
     await GetDb().update(characters).set({
         data: CharacterDataToUpdateWith,
         updateVersion: UpdateVersion
-    }).where(and(and(eq(characters.userId, UserId), eq(characters.characterId, CharacterId)), lt(characters.updateVersion, UpdateVersion)));
+    }).where(and(and(eq(characters.userId, UserId), eq(characters.characterId, CharacterId)), lte(characters.updateVersion, UpdateVersion)));
 
     return true;
 }

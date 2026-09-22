@@ -111,9 +111,31 @@ loginRouter.put("/gamesession/epic", HasUndauntedMetagameAuth, (req: any, res) =
     })
 });
 
+// The 1.4.4 social search first resolves an Epic display name, then asks the
+// Phoenix account service to map those external ids to game accounts. Our LAN
+// identities deliberately use one stable id for both sides of that boundary.
+// The native response parser expects an object named accountMappings, keyed by
+// the queried external id, with accountId/accountType on each value.
+loginRouter.post("/account/mapping", HasUndauntedMetagameAuth, (req: any, res) => {
+    const rawIds: unknown[] = Array.isArray(req.body)
+        ? req.body
+        : (Array.isArray(req.body?.ids) ? req.body.ids
+            : Array.isArray(req.body?.accountIds) ? req.body.accountIds
+            : Array.isArray(req.body?.externalAccountIds) ? req.body.externalAccountIds : []);
+    const ids: string[] = [...new Set(rawIds.filter((value: unknown): value is string =>
+        typeof value === "string" && value.length > 0))].slice(0, 100);
+
+    const accountMappings: Record<string, { accountId: string, accountType: "Phoenix" }> = {};
+    for(const id of ids){
+        const local = GetDb().select().from(users).where(eq(users.userId, id)).get();
+        if(local) accountMappings[id] = { accountId: local.userId, accountType: "Phoenix" };
+    }
+
+    res.json({ accountMappings });
+});
+
 loginRouter.post("/accountinfo/public", HasUndauntedMetagameAuth, async (req: any, res) => {
     const AccountIdToLookupFromRequest = req.body.accountId;
-    const RequestorAccountId = req.AuthData.userId;
 
     const Username = await GetUsernameForUserId(AccountIdToLookupFromRequest);
 
@@ -121,12 +143,12 @@ loginRouter.post("/accountinfo/public", HasUndauntedMetagameAuth, async (req: an
 
     res.status(200);
     res.json({
-        accountId: RequestorAccountId,
+        accountId: AccountIdToLookupFromRequest,
         isSubscribed: true,
         language: null,
         linkedAccounts: [
             {
-                accountId: RequestorAccountId,
+                accountId: AccountIdToLookupFromRequest,
                 accountType: "epic"
             }
         ],

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
 import { CheckAndUpdateQueueStatus, HandlePlayerMatchmaking } from "../controllers/matchmaking";
+import { GetPartyForPlayer } from "../controllers/party";
 
 export const matchmakingRouter = Router();
 
@@ -10,13 +11,6 @@ const TARGET_CHANGELIST = process.env.TARGET_CHANGELIST;
 
 matchmakingRouter.post("/candidate/player/register", HasUndauntedMetagameAuth, (req: any, res) => {
     logger.info(`userId ${req.AuthData.userId} is registering for matchmaking!`);
-
-    res.status(200);
-    res.json({});
-});
-
-matchmakingRouter.delete("/party/member", HasUndauntedMetagameAuth, (req: any, res) => {
-    logger.info(`Clear party (stubbed)`);
 
     res.status(200);
     res.json({});
@@ -49,9 +43,30 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
     const UserId = req.AuthData.userId;
 
     const MatchmakingResult = await CheckAndUpdateQueueStatus(UserId);
+    const playerStates = Object.fromEntries(
+        (GetPartyForPlayer(UserId)?.members ?? [UserId]).map(playerId => [playerId, {}])
+    );
 
     if(MatchmakingResult != undefined){
-        if(MatchmakingResult.Ready){
+        if(MatchmakingResult.Failed){
+            // FAILED is one of the client's own candidate states (NEW, MATCHING,
+            // MATCHED, QUEUED_FOR_START, IN_PROGRESS, CANCELED, FAILED). No
+            // serverInfo: there is nowhere to travel.
+            logger.warn(`Telling client matchmaking failed for ${UserId}: ${MatchmakingResult.FailureReason}`);
+
+            res.status(200);
+            res.json({
+                candidateId: MatchmakingResult.CandidateId,
+                candidateStatusPeriodMillis: 10000,
+                gameMode: "ISLAND",
+                huntId: MatchmakingResult.HuntId,
+                playerStates,
+                status: "FAILED",
+                statusDuration: 0.0,
+                statusReason: MatchmakingResult.FailureReason
+            });
+        }
+        else if(MatchmakingResult.Ready){
             logger.info(`Telling client to travel to ${MatchmakingResult.Host}:${MatchmakingResult.Port}`);
 
             res.status(200);
@@ -60,9 +75,7 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
                 candidateStatusPeriodMillis: 10000,
                 gameMode: "ISLAND",
                 huntId: MatchmakingResult.HuntId,
-                playerStates: {
-                  UserId: {}
-                },
+                playerStates,
                 serverInfo: {
                     buildId: TARGET_CHANGELIST + "_1.4.4_shipping", // TODO: pull the end of the buildstring from somewhere nonstatic
                     gameSessionId: MatchmakingResult.CandidateId,
@@ -83,9 +96,7 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
                 candidateStatusPeriodMillis: 10000,
                 gameMode: "ISLAND",
                 huntId: MatchmakingResult.HuntId,
-                playerStates: {
-                  UserId : {}
-                },
+                playerStates,
                 status : "MATCHING",
                 statusDuration : 0.0,
                 statusReason : null
