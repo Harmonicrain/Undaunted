@@ -6,6 +6,8 @@ import { GetActiveHuntPassId, GetProgressionConfigPayload, GetTrackConfig } from
 import { GetWireTrack, GetWireProgressionTracks } from "../controllers/progressionTracks";
 import { ApplyProgressAndObjectives, ConfirmRank, GetObjectiveForUser, GetObjectivesForUser, ParseConfirmKind, ResetTrack } from "../controllers/progressionWrites";
 import { RewardError } from "../controllers/huntpassRewards";
+import { IsLinkTrack } from "../controllers/slayerLinkConfig";
+import { ConfirmLinkTrackRank, GetLinkTrackWire, IgnoreNativeLinkTrackGrant, SlayerLinkError } from "../controllers/slayerLinks";
 import { GetDb } from "../db";
 import { characters } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -235,11 +237,40 @@ function ResolveRewardCharacter(UserId: string){
     return Rows[0].characterId;
 }
 
+// Where a gameserver award happened and who was connected there, reported by
+// the runtime on every gameserver request (dllmain.cpp ProcessRequest). Only
+// a gameserver's word counts; a player cannot claim to be hunting with anyone.
+function HuntContextFrom(req: any){
+    if(req.AuthData?.IsGameserver !== true){
+        return undefined;
+    }
+
+    const World = req.headers["x-undaunted-world"];
+    const Present = req.headers["x-undaunted-copresent"];
+
+    if(typeof World !== "string" || typeof Present !== "string"){
+        return undefined;
+    }
+
+    return {
+        world: World,
+        copresentCharacterIds: Present.split(",").map((Id) => Id.trim()).filter((Id) => Id.length > 0)
+    };
+}
+
+// The runtime's stable per-request id (dllmain.cpp ProcessRequest). Trusted
+// from a gameserver only; it is what makes a retried award a no-op.
+function RequestIdFrom(req: any){
+    const Id = req.headers["x-undaunted-request-id"];
+
+    return req.AuthData?.IsGameserver === true && typeof Id === "string" && Id.length > 0 && Id.length <= 128 ? Id : undefined;
+}
+
 const ProgressionAction = (handler: RequestHandler): RequestHandler => (req: any, res, next) => {
     try{
         return handler(req, res, next);
     } catch(error: any){
-        if(error instanceof RewardError){
+        if(error instanceof RewardError || error instanceof SlayerLinkError){
             res.status(error.status).json({ code: String(error.status), message: error.message });
         }
         else{
@@ -256,7 +287,7 @@ const ProgressionAction = (handler: RequestHandler): RequestHandler => (req: any
 progressionRouter.post("/progression/:userId", HasUndauntedMetagameAuth, ProgressionAction((req: any, res) => {
     const AccountId = AssertGameserver(req);
 
-    const Result = ApplyProgressAndObjectives(AccountId, req.body?.progress_tracks ?? [], req.body?.objectives ?? []);
+    const Result = ApplyProgressAndObjectives(AccountId, req.body?.progress_tracks ?? [], req.body?.objectives ?? [], HuntContextFrom(req), RequestIdFrom(req));
 
     logger.info(`Progression granted for ${AccountId}: ${Result.Applied.map((Entry) => `${Entry.trackId}+${Entry.awarded}`).join(", ") || "nothing"}`);
 
@@ -303,6 +334,17 @@ progressionRouter.get("/progression/:userId/:trackId", HasUndauntedMetagameAuth,
     const RequestorAccountId = ResolveAccountId(req);
     const TrackId = req.params.trackId;
 
+    // Linked_Slayer_Slot_N reads the link in that slot, not the table below.
+    if(IsLinkTrack(TrackId)){
+        try{
+            res.status(200).json({ code: null, message: "OK", payload: GetLinkTrackWire(RequestorAccountId, TrackId) });
+        } catch(error: any){
+            res.status(error instanceof SlayerLinkError ? error.status : 500).json({ code: "404", message: error?.message });
+        }
+
+        return;
+    }
+
     if(GetTrackConfig(TrackId) == undefined){
         logger.warn(`Progression requested for unknown track ${TrackId}`);
 
@@ -328,9 +370,15 @@ progressionRouter.post("/progression/:userId/:trackId/:amount", HasUndauntedMeta
     const TrackId = req.params.trackId;
     const Amount = Number(req.params.amount);
 
-    const Result = ApplyProgressAndObjectives(AccountId, [{ progression_id: TrackId, progress: Amount }], []);
+    if(IsLinkTrack(TrackId)){
+        IgnoreNativeLinkTrackGrant(AccountId, TrackId, Amount);
+        res.status(200).json({ code: null, message: "OK", payload: GetLinkTrackWire(AccountId, TrackId) });
+        return;
+    }
 
-    if(Result.Applied.length === 0){
+    const Result = ApplyProgressAndObjectives(AccountId, [{ progression_id: TrackId, progress: Amount }], [], HuntContextFrom(req), RequestIdFrom(req));
+
+    if(Result.Applied.length === 0 && !Result.Replayed){
         throw new RewardError(400, `Could not award ${req.params.amount} on ${TrackId}`);
     }
 
@@ -355,6 +403,12 @@ progressionRouter.post("/progression/:userId/:trackId/:rank/confirm/:kind", HasU
         throw new RewardError(400, `Unrecognised confirmation kind ${req.params.kind}`);
     }
 
+    if(IsLinkTrack(TrackId)){
+        const Wire = Kind === "free" ? ConfirmLinkTrackRank(AccountId, TrackId, Rank) : GetLinkTrackWire(AccountId, TrackId);
+        res.status(200).json({ code: null, message: "OK", payload: { ...Wire, granted_ranks: [] } });
+        return;
+    }
+
     const CharacterId = ResolveRewardCharacter(AccountId);
 
     const Result = ConfirmRank(AccountId, CharacterId, TrackId, Rank, Kind);
@@ -373,6 +427,10 @@ progressionRouter.post("/progression/:userId/:trackId/:rank/confirm/:kind", HasU
 progressionRouter.delete("/progression/:userId/:trackId", HasUndauntedMetagameAuth, ProgressionAction((req: any, res) => {
     const AccountId = AssertGameserver(req);
     const TrackId = req.params.trackId;
+
+    if(IsLinkTrack(TrackId)){
+        throw new RewardError(409, "Slayer Link progress belongs to the link and cannot be reset");
+    }
 
     const Generation = ResetTrack(AccountId, TrackId);
 

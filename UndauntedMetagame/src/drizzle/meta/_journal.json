@@ -134,6 +134,27 @@
       "when": 1790084640826,
       "tag": "0018_sad_reavers",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1790131415111,
+      "tag": "0019_slayer_link_lifecycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1790132368567,
+      "tag": "0020_slayer_link_claim_binding",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1790160189151,
+      "tag": "0021_slayer_link_request_replay",
+      "breakpoints": true
     }
   ]
 }

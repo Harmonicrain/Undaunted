@@ -1,0 +1,497 @@
+{
+ "source": "Decoded read-only from the installed 1.4.4 client: Archon_UI_0-WindowsClient.pak Social/LinkedSlayers/linked_slayer_rewards and linked_slayer_config (DataTables LinkedSlayerTable / LinkedSlayerConfigTable). The gameserver rolls prize pools from these natively; this copy only validates what it stores.",
+ "config": {
+  "classes_to_draw": [
+   5,
+   4,
+   2,
+   1
+  ],
+  "max_rewards": 4
+ },
+ "rewards": [
+  {
+   "row": "Rams_0_00",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 1000,
+   "weight": 100,
+   "class": 0
+  },
+  {
+   "row": "Rams_0_01",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 2000,
+   "weight": 80,
+   "class": 0
+  },
+  {
+   "row": "Rams_0_02",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 3000,
+   "weight": 60,
+   "class": 0
+  },
+  {
+   "row": "VaultCoins_0_00",
+   "catalog_id": "CURRENCY_PRESTIGE",
+   "quantity": 5,
+   "weight": 10,
+   "class": 0
+  },
+  {
+   "row": "AceChips_0_00",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 10,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "Arcstone_Dull_0_00",
+   "catalog_id": "GEM_ALPHA",
+   "quantity": 10,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Arcstone_Dull_0_01",
+   "catalog_id": "GEM_ALPHA",
+   "quantity": 25,
+   "weight": 50,
+   "class": 0
+  },
+  {
+   "row": "Orb_Flame_0_00",
+   "catalog_id": "ORB_FLAME",
+   "quantity": 20,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Orb_Flame_0_01",
+   "catalog_id": "ORB_FLAME",
+   "quantity": 25,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "Orb_Frost_0_00",
+   "catalog_id": "ORB_FROST",
+   "quantity": 20,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Orb_Frost_0_01",
+   "catalog_id": "ORB_FROST",
+   "quantity": 25,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "Orb_Physical_0_00",
+   "catalog_id": "ORB_PHYSICAL",
+   "quantity": 20,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Orb_Physical_0_01",
+   "catalog_id": "ORB_PHYSICAL",
+   "quantity": 25,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "Orb_Shock_0_00",
+   "catalog_id": "ORB_SHOCK",
+   "quantity": 20,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Orb_Shock_0_01",
+   "catalog_id": "ORB_SHOCK",
+   "quantity": 25,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "Orb_Terra_0_00",
+   "catalog_id": "ORB_TERRA",
+   "quantity": 20,
+   "weight": 70,
+   "class": 0
+  },
+  {
+   "row": "Orb_Terra_0_01",
+   "catalog_id": "ORB_TERRA",
+   "quantity": 25,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "BountyToken_0_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 2,
+   "weight": 20,
+   "class": 0
+  },
+  {
+   "row": "BountyToken_0_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 3,
+   "weight": 10,
+   "class": 0
+  },
+  {
+   "row": "PatrolChest_0_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 1,
+   "weight": 60,
+   "class": 0
+  },
+  {
+   "row": "AceChips_1_00",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 10,
+   "weight": 50,
+   "class": 1
+  },
+  {
+   "row": "AceChips_1_01",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 15,
+   "weight": 25,
+   "class": 1
+  },
+  {
+   "row": "AceChips_1_02",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 20,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "Arcstone_Dull_1_00",
+   "catalog_id": "GEM_ALPHA",
+   "quantity": 10,
+   "weight": 100,
+   "class": 1
+  },
+  {
+   "row": "Arcstone_Dull_1_01",
+   "catalog_id": "GEM_ALPHA",
+   "quantity": 15,
+   "weight": 75,
+   "class": 1
+  },
+  {
+   "row": "Arcstone_Shining_1_00",
+   "catalog_id": "GEM_HEROIC",
+   "quantity": 5,
+   "weight": 25,
+   "class": 1
+  },
+  {
+   "row": "Arcstone_Shining_1_01",
+   "catalog_id": "GEM_HEROIC",
+   "quantity": 10,
+   "weight": 100,
+   "class": 1
+  },
+  {
+   "row": "Potion_DamageBlock_1_00",
+   "catalog_id": "QI_DAMAGE_BLOCK_POTION",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "Potion_DamageBlock_1_01",
+   "catalog_id": "QI_DAMAGE_BLOCK_POTION",
+   "quantity": 15,
+   "weight": 5,
+   "class": 1
+  },
+  {
+   "row": "Pylon_Damage_1_00",
+   "catalog_id": "QI_DAMAGE_PYLON",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "Pylon_Damage_1_01",
+   "catalog_id": "QI_DAMAGE_PYLON",
+   "quantity": 15,
+   "weight": 5,
+   "class": 1
+  },
+  {
+   "row": "Pylon_Defence_1_00",
+   "catalog_id": "QI_DEFENSE_PYLON",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "Pylon_Defence_1_01",
+   "catalog_id": "QI_DEFENSE_PYLON",
+   "quantity": 15,
+   "weight": 5,
+   "class": 1
+  },
+  {
+   "row": "Potion_Lifesteal_1_00",
+   "catalog_id": "QI_LIFESTEAL_AOE_POTION",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "Potion_Lifesteal_1_01",
+   "catalog_id": "QI_LIFESTEAL_AOE_POTION",
+   "quantity": 15,
+   "weight": 5,
+   "class": 1
+  },
+  {
+   "row": "Potion_Stamina_1_00",
+   "catalog_id": "QI_STAMINA_POTION_00",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_1_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 2,
+   "weight": 40,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_1_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 3,
+   "weight": 20,
+   "class": 1
+  },
+  {
+   "row": "PatrolChest_1_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 3,
+   "weight": 60,
+   "class": 1
+  },
+  {
+   "row": "PatrolChest_1_01",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 5,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_2_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 2,
+   "weight": 100,
+   "class": 2
+  },
+  {
+   "row": "BountyToken_2_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 3,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "BountyToken_2_02",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT",
+   "quantity": 5,
+   "weight": 10,
+   "class": 2
+  },
+  {
+   "row": "AceChips_2_00",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 25,
+   "weight": 100,
+   "class": 2
+  },
+  {
+   "row": "AceChips_2_01",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 50,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "AceChips_2_02",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 75,
+   "weight": 25,
+   "class": 2
+  },
+  {
+   "row": "VaultCoins_2_00",
+   "catalog_id": "CURRENCY_PRESTIGE",
+   "quantity": 10,
+   "weight": 25,
+   "class": 2
+  },
+  {
+   "row": "VaultCoins_2_01",
+   "catalog_id": "CURRENCY_PRESTIGE",
+   "quantity": 15,
+   "weight": 10,
+   "class": 2
+  },
+  {
+   "row": "Pylon_Defence_2_00",
+   "catalog_id": "QI_DEFENSE_PYLON",
+   "quantity": 10,
+   "weight": 25,
+   "class": 2
+  },
+  {
+   "row": "Pylon_Defence_2_01",
+   "catalog_id": "QI_DEFENSE_PYLON",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "Potion_Expose_2_00",
+   "catalog_id": "QI_EXPOSE_POTION",
+   "quantity": 10,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Potion_Expose_2_01",
+   "catalog_id": "QI_DEFENSE_PYLON",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "Potion_Lantern_2_00",
+   "catalog_id": "QI_LANTERN_POTION",
+   "quantity": 10,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Potion_Lantern_2_01",
+   "catalog_id": "QI_LANTERN_POTION",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "Potion_Stagger_2_00",
+   "catalog_id": "QI_STAGGER_POTION",
+   "quantity": 10,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Potion_Stagger_2_01",
+   "catalog_id": "QI_STAGGER_POTION",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "Potion_Stamina_2_00",
+   "catalog_id": "QI_STAMINA_POTION_00",
+   "quantity": 10,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Potion_Stamina_2_01",
+   "catalog_id": "QI_STAMINA_POTION_00",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "Potion_AttackSpeed_2_00",
+   "catalog_id": "QI_ATTACK_SPEED_POTION",
+   "quantity": 10,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Potion_AttackSpeed_2_01",
+   "catalog_id": "QI_ATTACK_SPEED_POTION",
+   "quantity": 15,
+   "weight": 30,
+   "class": 2
+  },
+  {
+   "row": "VaultCoins_3_00",
+   "catalog_id": "CURRENCY_PRESTIGE",
+   "quantity": 50,
+   "weight": 100,
+   "class": 3
+  },
+  {
+   "row": "VaultCoins_3_01",
+   "catalog_id": "CURRENCY_PRESTIGE",
+   "quantity": 75,
+   "weight": 50,
+   "class": 3
+  },
+  {
+   "row": "Arcstone_Shining_3_00",
+   "catalog_id": "GEM_HEROIC",
+   "quantity": 100,
+   "weight": 100,
+   "class": 3
+  },
+  {
+   "row": "Arcstone_Shining_3_01",
+   "catalog_id": "GEM_HEROIC",
+   "quantity": 125,
+   "weight": 75,
+   "class": 3
+  },
+  {
+   "row": "Arcstone_Peerless_3_00",
+   "catalog_id": "GEM_HEROICPLUS",
+   "quantity": 50,
+   "weight": 80,
+   "class": 3
+  },
+  {
+   "row": "Arcstone_Peerless_3_01",
+   "catalog_id": "GEM_HEROICPLUS",
+   "quantity": 75,
+   "weight": 15,
+   "class": 3
+  },
+  {
+   "row": "PatrolChest_3_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 10,
+   "weight": 15,
+   "class": 3
+  },
+  {
+   "row": "AceChips_4_00",
+   "catalog_id": "CURRENCY_TOKEN_EXCHANGE_SPEED_UP",
+   "quantity": 100,
+   "weight": 75,
+   "class": 3
+  },
+  {
+   "row": "SlayerHalo_00",
+   "catalog_id": "AC_HEAD_CROWN",
+   "quantity": 1,
+   "weight": 100,
+   "class": 3
+  }
+ ]
+}

@@ -33,6 +33,16 @@ export const slayerlinkinvites = sqliteTable("slayerlinkinvites", {
     status: text("status").notNull()
 });
 
+// One row per link generation. linkId is the identity everything else binds
+// to; a slot number is only an address and is reused by later links.
+//
+// progress is the link's shared Hunt Pass XP total and the single authority
+// for the Linked_Slayer_Slot_N tracks (it is never mirrored into the
+// progression table). It only changes together with a slayerlinkxp row.
+//
+// Each side leaves the link independently: *ReleasedAt frees that player's
+// slot once their side is finished, without touching the partner's side.
+// canceledAt ends the whole link, which is only allowed before any XP.
 export const slayerlinks = sqliteTable("slayerlinks", {
     linkId: text("linkId").notNull().primaryKey(),
     senderId: text("senderId").notNull(),
@@ -41,8 +51,55 @@ export const slayerlinks = sqliteTable("slayerlinks", {
     targetSlot: integer("targetSlot").notNull(),
     createdAt: integer("createdAt").notNull(),
     endsAt: integer("endsAt").notNull(),
-    progress: integer("progress").notNull().default(0)
+    progress: integer("progress").notNull().default(0),
+    canceledAt: integer("canceledAt"),
+    senderReleasedAt: integer("senderReleasedAt"),
+    targetReleasedAt: integer("targetReleasedAt"),
+    senderConfirmedRank: integer("senderConfirmedRank").notNull().default(0),
+    targetConfirmedRank: integer("targetConfirmedRank").notNull().default(0)
 });
+
+// The prize pool the gameserver rolled for one participant of one link
+// (PUT /slayerlink/links/rewards). Fixed once written.
+//
+// The claim columns are the entitlement guard: they are written in the same
+// transaction as the inventory grant that delivered the earned rewards, never
+// when the rewards are merely read. servedAt records when the gameserver last
+// read this link's rewards; it binds the grant that follows to this link and
+// consumes nothing.
+export const slayerlinkpools = sqliteTable("slayerlinkpools", {
+    linkId: text("linkId").notNull(),
+    userId: text("userId").notNull(),
+    pool: text("pool").notNull(),
+    poolHash: text("poolHash").notNull(),
+    createdAt: integer("createdAt").notNull(),
+    servedAt: integer("servedAt"),
+    claimTransactionId: text("claimTransactionId"),
+    claimCharacterId: text("claimCharacterId"),
+    claimedRewards: text("claimedRewards"),
+    claimedAt: integer("claimedAt")
+}, (Table) => ({ pk: primaryKey({ columns: [Table.linkId, Table.userId] }) }));
+
+// Gameserver progression requests already applied, keyed by the stable
+// request id the runtime attaches (x-undaunted-request-id). A retried request
+// is answered without awarding its XP a second time.
+export const progressionrequests = sqliteTable("progressionrequests", {
+    requestId: text("requestId").notNull().primaryKey(),
+    userId: text("userId").notNull(),
+    requestHash: text("requestHash").notNull(),
+    appliedAt: integer("appliedAt").notNull()
+});
+
+// Every XP contribution applied to a link. The key makes one source award
+// count at most once per link.
+export const slayerlinkxp = sqliteTable("slayerlinkxp", {
+    eventId: text("eventId").notNull(),
+    linkId: text("linkId").notNull(),
+    sourceUserId: text("sourceUserId").notNull(),
+    amount: integer("amount").notNull(),
+    source: text("source").notNull(),
+    createdAt: integer("createdAt").notNull()
+}, (Table) => ({ pk: primaryKey({ columns: [Table.eventId, Table.linkId] }) }));
 
 export const characters = sqliteTable("characters", {
     characterId: text("characterId").notNull().primaryKey(),
@@ -301,3 +358,13 @@ export const cooldowns = sqliteTable("cooldowns", {
 }, (Table) => ({
     pk: primaryKey({ columns: [Table.userId, Table.cooldownId] })
 }));
+
+// Successful link mutations and their replies commit together. Replaying a
+// processed request must never resolve its slot against a newer link.
+export const slayerlinkrequests = sqliteTable("slayerlinkrequests", {
+    actor: text("actor").notNull(),
+    requestId: text("requestId").notNull(),
+    requestHash: text("requestHash").notNull(),
+    response: text("response").notNull(),
+    appliedAt: integer("appliedAt").notNull()
+}, (Table) => ({ pk: primaryKey({ columns: [Table.actor, Table.requestId] }) }));

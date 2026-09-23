@@ -1,8 +1,11 @@
+import { createHash, randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
-import { progression, progressionobjectives } from "../db/schema";
-import { DeriveRank, GetTrackConfig } from "./huntpass";
+import { progression, progressionobjectives, progressionrequests } from "../db/schema";
+import { DeriveRank, GetActiveHuntPassId, GetTrackConfig } from "./huntpass";
 import { ClaimRanksUpTo, RewardError, RewardKind } from "./huntpassRewards";
+import { IsLinkTrack } from "./slayerLinkConfig";
+import { ApplyHuntPassXpToLinks, IgnoreNativeLinkTrackGrant } from "./slayerLinks";
 import { logger } from "../logger";
 
 // Progression mutation: XP accrual, objective progress, and rank confirmation.
@@ -101,7 +104,17 @@ function UpsertObjective(tx: any, UserId: string, Update: ObjectiveUpdate): bool
 
 // The body of POST /progression/{account}, applied as one unit so a partial
 // failure cannot leave objectives advanced with the track unchanged.
-export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrackUpdate[], Objectives: ObjectiveUpdate[]){
+//
+// Hunt is the gameserver's report of where the award happened and who was
+// connected there. Hunt Pass XP awarded in that context also advances the
+// player's Slayer Links, in this same transaction.
+//
+// RequestId is the gameserver's stable id for this request. A request seen
+// before is answered as a replay without awarding anything again (a reused id
+// with different content is refused), and link XP events derive their ids
+// from it, so a retry can never advance a link twice either. Requests without
+// an id keep the old additive behaviour.
+export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrackUpdate[], Objectives: ObjectiveUpdate[], Hunt?: { world: string, copresentCharacterIds: string[] }, RequestId?: string){
     if(!Array.isArray(Tracks) || !Array.isArray(Objectives)){
         throw new RewardError(400, "Progress tracks and objectives must be arrays");
     }
@@ -113,19 +126,41 @@ export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrack
     }
     const Applied: { trackId: string, totalPoints: number, awarded: number }[] = [];
     const Ignored: string[] = [];
+    let Replayed = false;
 
     GetDb().transaction((tx: any) => {
+        if(RequestId != undefined){
+            const RequestHash = createHash("sha256").update(JSON.stringify({ UserId, Tracks, Objectives })).digest("hex");
+            const Seen = tx.select().from(progressionrequests).where(eq(progressionrequests.requestId, RequestId)).get();
+
+            if(Seen != undefined){
+                if(Seen.requestHash !== RequestHash || Seen.userId !== UserId){
+                    throw new RewardError(409, `Progression request ${RequestId} was already applied with different content`);
+                }
+
+                Replayed = true;
+                return;
+            }
+
+            tx.insert(progressionrequests).values({ requestId: RequestId, userId: UserId, requestHash: RequestHash, appliedAt: Date.now() }).run();
+        }
+
         let ObjectivesAdvanced = false;
         for(const Objective of Objectives){
             ObjectivesAdvanced = UpsertObjective(tx, UserId, Objective) || ObjectivesAdvanced;
         }
 
-        for(const Update of Tracks ?? []){
+        for(const [Index, Update] of (Tracks ?? []).entries()){
             // Native mastery grants carry the absolute objective snapshots
             // that earned them. A replay with no newer snapshot must not add
             // its mastery deltas again. Bare grants (including bounty XP) do
             // not carry that evidence and remain additive.
             if(Update?.progression_id?.startsWith("MasteryTrack_") && Objectives.length > 0 && !ObjectivesAdvanced){
+                continue;
+            }
+            // Link progress is owned by the link, not the progression table.
+            if(IsLinkTrack(Update?.progression_id)){
+                IgnoreNativeLinkTrackGrant(UserId, Update.progression_id, Update.progress);
                 continue;
             }
             const Result = AddProgress(tx, UserId, Update?.progression_id, Update?.progress);
@@ -139,15 +174,25 @@ export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrack
             }
 
             Applied.push({ trackId: Update.progression_id, ...Result });
+
+            if(Update.progression_id === GetActiveHuntPassId()){
+                const Context = Hunt == undefined ? undefined : { world: Hunt.world };
+                const EventId = RequestId != undefined ? `huntpass:${RequestId}:${Index}` : `huntpass:${randomUUID()}`;
+                ApplyHuntPassXpToLinks(tx, UserId, Result.awarded, Context, EventId);
+            }
         }
 
     }, { behavior: "immediate" });
+
+    if(Replayed){
+        logger.info(`Progression request ${RequestId} for ${UserId} was already applied; nothing awarded again`);
+    }
 
     if(Ignored.length > 0){
         logger.warn(`Ignored progress for unconfigured or invalid track(s): ${Ignored.join(", ")}`);
     }
 
-    return { Applied, Ignored };
+    return { Applied, Ignored, Replayed };
 }
 
 // 1.4.4 ConfirmProgressionEndpoint at 0x140b3ab22 maps Normal=1 to "public"

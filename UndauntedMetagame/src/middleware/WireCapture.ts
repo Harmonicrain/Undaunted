@@ -128,6 +128,13 @@ export function WireCapture(req: Request, res: Response, next: NextFunction){
                 path: req.path,
                 query: Object.keys(req.query).length > 0 ? Describe(req.query) : undefined,
                 caller: Caller,
+                // Gameserver context headers added by the runtime (request id,
+                // world, co-present character ids). None of them is a secret.
+                context: Caller === "gameserver" ? {
+                    requestId: req.headers["x-undaunted-request-id"],
+                    world: req.headers["x-undaunted-world"],
+                    copresent: req.headers["x-undaunted-copresent"]
+                } : undefined,
                 body: req.body != undefined && Object.keys(req.body).length > 0 ? Describe(req.body) : undefined,
                 status: res.statusCode,
                 ms: Date.now() - StartedAt,

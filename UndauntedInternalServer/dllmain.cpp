@@ -7,6 +7,9 @@
 #include <ranges>
 #include <cwchar>
 #include <map>
+#include <mutex>
+#include <atomic>
+#include <chrono>
 
 #include "framework.h"
 #include "SDK.hpp"
@@ -315,6 +318,40 @@ void EncounterableSetupHook() {
 
 float TotalNoPlayersTime = 0.0f;
 
+// Character ids of the players connected to this world, refreshed on the game
+// thread and attached to every metagame request (see ProcessRequest). The
+// metagame uses it to tell whether Hunt Pass XP was earned while hunting with
+// a linked partner; the gameserver is the only party that knows who is
+// actually in the instance.
+std::mutex CopresentMutex;
+std::wstring CopresentCharacterIds;
+float CopresentRefreshTime = 0.0f;
+
+void RefreshCopresentPlayers(float DeltaTime) {
+    CopresentRefreshTime += DeltaTime;
+    if (CopresentRefreshTime < 1.0f)
+        return;
+    CopresentRefreshTime = 0.0f;
+
+    std::wstring Ids;
+    for (UNetConnection* Conn : Networking::NetDriver->ClientConnections) {
+        if (!Conn || !Conn->PlayerController || *(uint32_t*)((uintptr_t)Conn + 0x134) != 3)
+            continue;
+        if (!Conn->PlayerController->IsA(AArchonPlayerControllerBase::StaticClass()))
+            continue;
+
+        std::wstring Id = static_cast<AArchonPlayerControllerBase*>(Conn->PlayerController)->CharacterId.ToWString();
+        if (Id.empty() || Id.find(L',') != std::wstring::npos)
+            continue;
+        if (!Ids.empty())
+            Ids += L',';
+        Ids += Id;
+    }
+
+    std::lock_guard<std::mutex> Lock(CopresentMutex);
+    CopresentCharacterIds = Ids;
+}
+
 bool EnableWatchdog = true;
 
 void* OrigGameEngineTick = nullptr;
@@ -353,6 +390,8 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             }
         }
 
+        RefreshCopresentPlayers(DeltaTime);
+
         for (UNetConnection* Conn : Networking::NetDriver->ClientConnections) {
             if (Conn->PlayerController && Conn->PlayerController->Pawn) {
                 ((ABP_PlayerCharacter_C*)Conn->PlayerController->Pawn)->TickStamina(ECityExecFilter::Both, ERemoteExecFilter::All); // TODO: Risky cast, but IsA brutalizes our speed
@@ -372,11 +411,80 @@ void* FixupNetworkNotifyHook(void* a1) {
 
 void* OrigProcessRequest = nullptr;
 
+// Every metagame request from this gameserver carries a stable id, so the
+// metagame can recognise a request it has already applied. The id is stored
+// in the request's own header map (TMap<FString, FString> at +0xC0, the map
+// SetHeader at +0x28AAAA0 adds to), so reprocessing the same request object
+// reuses it while every new request gets a fresh one.
+std::atomic<uint64_t> RequestCounter{ 0 };
+const uint64_t ProcessStartMs = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+    std::chrono::system_clock::now().time_since_epoch()).count());
+
+// Raw read of the UE4 TSet layout behind that TMap: element array {data, num,
+// max}, allocation bit array (four inline words, secondary pointer, NumBits),
+// then free list and hash. Each element is TPair<FString, FString> plus two
+// int32 (40 bytes). Bounds-checked and SEH-guarded with no C++ objects in
+// scope, so an unexpected layout reads as "absent" instead of faulting.
+static bool HasRequestHeader(const uint8_t* Map, const wchar_t* Name) {
+    __try {
+        const uint8_t* Elements = *(const uint8_t* const*)(Map + 0x00);
+        const int32_t Num = *(const int32_t*)(Map + 0x08);
+        const uint32_t* Secondary = *(const uint32_t* const*)(Map + 0x20);
+        const int32_t NumBits = *(const int32_t*)(Map + 0x28);
+        if (Num < 0 || Num > 256 || NumBits < Num || (Num > 0 && !Elements))
+            return false;
+        const uint32_t* Bits = Secondary ? Secondary : (const uint32_t*)(Map + 0x10);
+        for (int32_t Index = 0; Index < Num; Index++) {
+            if (!(Bits[Index / 32] & (1u << (Index % 32))))
+                continue;
+            const uint8_t* Element = Elements + (size_t)Index * 40;
+            const wchar_t* Key = *(const wchar_t* const*)Element;
+            const int32_t KeyNum = *(const int32_t*)(Element + 8);
+            if (Key && KeyNum > 0 && KeyNum < 256 && _wcsicmp(Key, Name) == 0)
+                return true;
+        }
+        return false;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+static void StampRequestIdentity(void* Request) {
+    if (!HasRequestHeader(reinterpret_cast<const uint8_t*>(Request) + 0xC0, L"x-undaunted-request-id")) {
+        std::wstring Id = std::to_wstring(GetCurrentProcessId()) + L"-" + std::to_wstring(ProcessStartMs) + L"-" + std::to_wstring(++RequestCounter);
+        FString IdHeader(L"x-undaunted-request-id");
+        FString IdValue(Id.c_str());
+        reinterpret_cast<void(*)(void*, FString*, FString*)>(Globals::BaseAddress + 0x28AAAA0)(Request, &IdHeader, &IdValue);
+    }
+}
+
+char ClientProcessRequest(void* Request) {
+    StampRequestIdentity(Request);
+    return reinterpret_cast<char(*)(void*)>(OrigProcessRequest)(Request);
+}
+
 char ProcessRequest(void* Request) {
     FString APIHeader(L"x-undaunted-gameserver-apikey");
     FString APIKey(Globals::ServerAPIKey);
 
     reinterpret_cast<void(*)(void*, FString*, FString*)>(Globals::BaseAddress + 0x28AAAA0)(Request, &APIHeader, &APIKey);
+
+    std::wstring Copresent;
+    {
+        std::lock_guard<std::mutex> Lock(CopresentMutex);
+        Copresent = CopresentCharacterIds;
+    }
+
+    StampRequestIdentity(Request);
+
+    FString WorldHeader(L"x-undaunted-world");
+    FString WorldValue(Globals::MapPath ? Globals::MapPath : L"");
+    reinterpret_cast<void(*)(void*, FString*, FString*)>(Globals::BaseAddress + 0x28AAAA0)(Request, &WorldHeader, &WorldValue);
+
+    FString CopresentHeader(L"x-undaunted-copresent");
+    FString CopresentValue(Copresent.c_str());
+    reinterpret_cast<void(*)(void*, FString*, FString*)>(Globals::BaseAddress + 0x28AAAA0)(Request, &CopresentHeader, &CopresentValue);
 
     return reinterpret_cast<char(*)(void*)>(OrigProcessRequest)(Request);
 }
@@ -569,6 +677,26 @@ bool ConfigCacheInitGetStringHook(void* a1, const wchar_t* Section, const wchar_
         *Value = FString(EndpointMap.at(Key).c_str());
 
         return true;
+    }
+
+    // XMPP (friends presence, party and chat rooms). The generic rule below
+    // would turn Domain into "host:60000", which the client rejects as a JID
+    // domain ("Login failed. Invalid Jid"), so presence never logs in. The
+    // metagame's XMPP listener (src/realtime) answers as prod.ol.epicgames.com
+    // on plain TCP 60002.
+    if (std::wstring(Section).starts_with(L"OnlineSubsystemMcp.XMPP")) {
+        const std::wstring K(Key);
+        const std::wstring Host = Globals::MetagameAddress.substr(0, Globals::MetagameAddress.find(L':'));
+        const wchar_t* Override = K == L"Domain" ? L"prod.ol.epicgames.com"
+            : K == L"ServerAddr" ? Host.c_str()
+            : K == L"ServerPort" ? L"60002"
+            : K == L"bUseSSL" ? L"False"
+            : nullptr;
+        if (Override) {
+            *Value = FString(Override);
+            return true;
+        }
+        return reinterpret_cast<bool(*)(void* a1, const wchar_t* Section, const wchar_t* Key, FString * Value, FString * Filename)>(OrigConfigCacheIniGetString)(a1, Section, Key, Value, Filename);
     }
 
     if (std::wstring(Section).contains(L"Mcp")) {
@@ -823,6 +951,155 @@ void InstallHuntDiagHooks() {
 
 void* OrigGetTrackProgress = nullptr;
 
+// The 1.4.4 linked-slayer heartbeat refreshes friend availability but never
+// asks for invitations or the current link slots; the live service pushed
+// those changes instead. Refresh the invitations on every heartbeat
+// (RefreshLinkedSlayerInvitesData, +0x15FAE30).
+//
+// Poll slots too: cancellation and late prize pools need not change the
+// invitation list at all. Deduplicate the social-list add notification below
+// instead of suppressing slot refreshes (which left the partner's UI stale).
+void* OrigRefreshFriendsLinksDisponibility = nullptr;
+void* OrigSocialListUserAdded = nullptr;
+void* OrigSlayerLinkDataReceived = nullptr;
+
+// The service's accepted link is authoritative. Merely polling it updates
+// slot data, but the native pool generator is wired to SlotActivated, which
+// normally depends on an invitation transition and can be missed (or expire
+// while the inviter is offline). Re-arm the native activation marker when a
+// returned link has no pool. The original handler performs all event/RPC/UI
+// work; we neither roll rewards nor synthesize ownership here.
+// 1.4.4 online row: stride 0x68, slot +0x48, pool TArray +0x50,
+// end date +0x30. UArchonLinkedSlayers activation marker: +0x148.
+static void RecoverMissingLinkPool(uint8_t* LinkedSlayers, const uint8_t* Rows) {
+    static const void* LastOwner = nullptr;
+    static uint64_t LastAttempt[3] = {};
+    static int64_t LastEnd[3] = {};
+    __try {
+        if (!LinkedSlayers || !Rows) return;
+        const uint8_t* Data = *(const uint8_t* const*)Rows;
+        const int32_t Num = *(const int32_t*)(Rows + 8);
+        if (!Data || Num < 1 || Num > 3) return;
+        if (LastOwner != LinkedSlayers) {
+            LastOwner = LinkedSlayers;
+            for (int Index = 0; Index < 3; ++Index) { LastAttempt[Index] = 0; LastEnd[Index] = 0; }
+        }
+        const uint64_t Now = GetTickCount64();
+        for (int32_t Index = 0; Index < Num; ++Index) {
+            const uint8_t* Row = Data + (size_t)Index * 0x68;
+            const int32_t Slot = *(const int32_t*)(Row + 0x48);
+            if (Slot < 1 || Slot > 3) continue;
+            const int64_t End = *(const int64_t*)(Row + 0x30);
+            const int32_t PoolNum = *(const int32_t*)(Row + 0x58);
+            if (PoolNum != 0 || End <= 0) continue;
+            const int32_t Marker = *(const int32_t*)(LinkedSlayers + 0x148);
+            if (Marker >= 1 && Marker <= 3 && Marker != Slot) continue;
+            if (LastEnd[Slot - 1] == End && LastAttempt[Slot - 1] && Now - LastAttempt[Slot - 1] < 30000) continue;
+            LastEnd[Slot - 1] = End;
+            LastAttempt[Slot - 1] = Now;
+            *(int32_t*)(LinkedSlayers + 0x148) = Slot;
+            return; // Native has one activation marker; other slots retry on the next poll.
+        }
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) { }
+}
+
+// UArchonLinkedSlayers' invite handler (+0x1607670) compares each response
+// with the invites it already holds and adds a request row to the social UI
+// for every invite it considers new. The live service only called it when
+// something changed; here the heartbeat polls every few seconds. An identical
+// response is skipped as a guard: same count and, per invite
+// (FSlayerLinkInviteOnlineData, 0x50 bytes), the same direction (+0x28),
+// status (+0x29), expiry (+0x30) and link id (FString at +0x38). (The
+// duplicated invite rows seen in testing came from the backend's heartbeat
+// status answering with empty lists, fixed in the metagame.)
+void* OrigSlayerLinkInvitesReceived = nullptr;
+
+static bool InviteRowsSignature(const uint8_t* Rows, uint64_t* Out) {
+    __try {
+        if (!Rows)
+            return false;
+        const uint8_t* Data = *(const uint8_t* const*)Rows;
+        const int32_t Num = *(const int32_t*)(Rows + 8);
+        if (Num < 0 || Num > 64 || (Num > 0 && !Data))
+            return false;
+        uint64_t Hash = 1469598103934665603ull ^ (uint64_t)(uint32_t)Num;
+        for (int32_t Index = 0; Index < Num; ++Index) {
+            const uint8_t* Row = Data + (size_t)Index * 0x50;
+            Hash = (Hash ^ Row[0x28]) * 1099511628211ull;
+            Hash = (Hash ^ Row[0x29]) * 1099511628211ull;
+            Hash = (Hash ^ *(const uint64_t*)(Row + 0x30)) * 1099511628211ull;
+            const wchar_t* LinkId = *(const wchar_t* const*)(Row + 0x38);
+            const int32_t LinkIdNum = *(const int32_t*)(Row + 0x40);
+            if (LinkId && LinkIdNum > 0 && LinkIdNum < 128)
+                for (int32_t Char = 0; Char < LinkIdNum && LinkId[Char]; ++Char)
+                    Hash = (Hash ^ (uint64_t)LinkId[Char]) * 1099511628211ull;
+        }
+        *Out = Hash;
+        return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+void SlayerLinkInvitesReceivedHook(void* LinkedSlayers, void* Rows) {
+    static const void* LastOwner = nullptr;
+    static uint64_t LastSignature = 0;
+    uint64_t Signature = 0;
+    if (InviteRowsSignature(static_cast<const uint8_t*>(Rows), &Signature)) {
+        if (LastOwner == LinkedSlayers && LastSignature == Signature)
+            return;
+        LastOwner = LinkedSlayers;
+        LastSignature = Signature;
+    }
+    reinterpret_cast<void(*)(void*, void*)>(OrigSlayerLinkInvitesReceived)(LinkedSlayers, Rows);
+}
+
+void SlayerLinkDataReceivedHook(void* LinkedSlayers, void* Rows) {
+    RecoverMissingLinkPool(static_cast<uint8_t*>(LinkedSlayers), static_cast<const uint8_t*>(Rows));
+    reinterpret_cast<void(*)(void*, void*)>(OrigSlayerLinkDataReceived)(LinkedSlayers, Rows);
+}
+
+// Verified in 1.4.4 at +0x15BE720: rdx is UArchonSocialUserInternal,
+// +0x168 is its public user. The method blindly appends that pointer to the
+// UArchonSocialUserList::Users array (+0x38), then broadcasts an addition.
+// A repeat notification is a no-op; real additions and native removals still
+// use the original implementation, including its UI notifications.
+static bool SocialListAlreadyContains(const uint8_t* List, const uint8_t* InternalUser) {
+    __try {
+        if (!List || !InternalUser)
+            return false;
+        const void* User = *(const void* const*)(InternalUser + 0x168);
+        const void* const* Users = *(const void* const* const*)(List + 0x38);
+        const int32_t Num = *(const int32_t*)(List + 0x40);
+        const int32_t Max = *(const int32_t*)(List + 0x44);
+        if (!User || Num < 0 || Num > Max || Num > 4096 || (Num && !Users))
+            return false;
+        for (int32_t Index = 0; Index < Num; ++Index)
+            if (Users[Index] == User) return true;
+        return false;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+void SocialListUserAddedHook(void* List, void* InternalUser) {
+    if (!SocialListAlreadyContains(static_cast<const uint8_t*>(List), static_cast<const uint8_t*>(InternalUser)))
+        reinterpret_cast<void(*)(void*, void*)>(OrigSocialListUserAdded)(List, InternalUser);
+}
+
+void RefreshFriendsLinksDisponibilityHook(void* LinkedSlayers) {
+    reinterpret_cast<void(*)(void*)>(OrigRefreshFriendsLinksDisponibility)(LinkedSlayers);
+    if (!LinkedSlayers)
+        return;
+
+    reinterpret_cast<void(*)(void*)>(Globals::BaseAddress + 0x15FAE30)(LinkedSlayers);
+
+    reinterpret_cast<void(*)(void*)>(Globals::BaseAddress + 0x15FAB10)(LinkedSlayers);
+}
+
 __int64 GetTrackProgress(void* a1, FName* a2, void* a3) {
     if (a2) {
         std::cout << a2->ToString() << std::endl;
@@ -835,6 +1112,20 @@ __int64 GetTrackProgress(void* a1, FName* a2, void* a3) {
 
 void InitClientHooks() {
     MH_Initialize();
+
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x28A76C0), ClientProcessRequest, &OrigProcessRequest);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x28A76C0));
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x15BE720), SocialListUserAddedHook, &OrigSocialListUserAdded);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x15BE720));
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x1607E90), SlayerLinkDataReceivedHook, &OrigSlayerLinkDataReceived);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x1607E90));
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x1607670), SlayerLinkInvitesReceivedHook, &OrigSlayerLinkInvitesReceived);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x1607670));
+
+    // This method is called once per linked-slayer heartbeat (about every
+    // five seconds), after the client has initialized its online subsystem.
+    MH_CreateHook((void*)(Globals::BaseAddress + 0x15FA600), RefreshFriendsLinksDisponibilityHook, &OrigRefreshFriendsLinksDisponibility);
+    MH_EnableHook((void*)(Globals::BaseAddress + 0x15FA600));
 
     MH_CreateHook((void*)(Globals::BaseAddress + 0x1528000), HasFinishedLoadingHook, &OrigHasFinishedLoading);
 

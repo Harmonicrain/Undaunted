@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { logger } from "../logger";
 import bundledProgressionConfig from "../vendor/progression_config.json";
+import { LinkTrackPaths } from "./slayerLinkConfig";
 
 // Hunt Pass configuration.
 //
@@ -112,6 +113,16 @@ for(const Path of DiskPaths){
     }
 
     PathsById.set(Path.progression_id, Path);
+}
+
+// Slayer Link slot tracks. The client reads them per slot and the gameserver
+// needs their requirements to roll a prize pool; neither the bundled config
+// nor a season file defines them. Progress on them is owned by the link
+// controller, never by the progression table.
+for(const Path of LinkTrackPaths()){
+    if(!PathsById.has(Path.progression_id)){
+        PathsById.set(Path.progression_id, Path);
+    }
 }
 
 // The active Hunt Pass. ACTIVE_HUNT_PASS is the bootstrap default; an

@@ -2,6 +2,14 @@ import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
 import { GetInventoryForUserIdAndCharacterId, InventoryError, RunInventoryTransaction, UpdateInstancedItem } from "../controllers/inventory";
+import { ApplyLinkRewardGrant, GRANT_SOURCE, SlayerLinkError } from "../controllers/slayerLinks";
+import { GetDb } from "../db";
+
+async function RunSlayerLinkGrant(Auth: any, UserId: string, CharacterId: string, TransactionId: string,
+    AddInstanced: any[], AddStacked: any[], RemoveInstanced: any[], RemoveStacked: any[], SaveInstanced: any[]){
+    return GetDb().transaction((tx) => ApplyLinkRewardGrant(tx, Auth ?? {}, UserId, CharacterId, TransactionId,
+        AddInstanced, AddStacked, RemoveInstanced, RemoveStacked, SaveInstanced), { behavior: "immediate" });
+}
 
 export const inventoryRouter = Router();
 
@@ -60,6 +68,33 @@ inventoryRouter.post("/inventory", HasUndauntedMetagameAuth, async (req: any, re
     const InstancedItemsToRemove = req.body.removeInstancedItems;
     const StackedItemsToRemove = req.body.removeStackedItems;
     const InstancedItemsToSave = req.body.saveInstancedItems;
+
+    // The gameserver's Slayer Link collection (HandleLinkRewardRequest). Each
+    // attempt carries a new transaction id, so the grant is checked against
+    // the link entitlement in the same database transaction.
+    if(req.body.source === GRANT_SOURCE){
+        try{
+            const Result = await RunSlayerLinkGrant(req.AuthData, UserId, CharacterId, TransactionId,
+                InstancedItemsToAdd, StackedItemsToAdd, InstancedItemsToRemove, StackedItemsToRemove, InstancedItemsToSave);
+
+            res.status(200);
+            res.json({
+                createdInstancedItems: Result.Granted ? (InstancedItemsToAdd ?? []) : [],
+                updatedInstancedItems: [],
+                updatedStackedItems: Result.TouchedStackedItems,
+                removedInstancedItems: []
+            });
+        } catch(error: any){
+            const Status = error instanceof SlayerLinkError ? error.status
+                : error?.name === "InventoryValidationError" ? 400
+                : error?.name === "InventoryConflictError" ? 409 : 500;
+            logger.error(`Slayer Link grant ${TransactionId} for userId ${UserId} and characterId ${CharacterId} FAILED (${Status}): ${error?.message}`);
+            res.status(Status);
+            res.send();
+        }
+
+        return;
+    }
 
     const TransactionResult = await RunInventoryTransaction(UserId, CharacterId, TransactionId, InstancedItemsToAdd, StackedItemsToAdd, InstancedItemsToRemove, StackedItemsToRemove, InstancedItemsToSave);
 
