@@ -8,6 +8,9 @@ export const matchmakingRouter = Router();
 
 const QOS_TARGET_URL = process.env.QOS_TARGET_URL;
 const TARGET_CHANGELIST = process.env.TARGET_CHANGELIST;
+// Build id reported for a matched gameserver, e.g. 392819_rel-1.12.0_shipping
+// for the 1.12.0 client. Defaults to the 1.4.4 form used so far.
+const TARGET_BUILD_ID = process.env.TARGET_BUILD_ID || `${TARGET_CHANGELIST}_1.4.4_shipping`;
 
 matchmakingRouter.post("/candidate/player/register", HasUndauntedMetagameAuth, (req: any, res) => {
     logger.info(`userId ${req.AuthData.userId} is registering for matchmaking!`);
@@ -77,7 +80,7 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
                 huntId: MatchmakingResult.HuntId,
                 playerStates,
                 serverInfo: {
-                    buildId: TARGET_CHANGELIST + "_1.4.4_shipping", // TODO: pull the end of the buildstring from somewhere nonstatic
+                    buildId: TARGET_BUILD_ID,
                     gameSessionId: MatchmakingResult.CandidateId,
                     host: MatchmakingResult.Host,
                     port: MatchmakingResult.Port

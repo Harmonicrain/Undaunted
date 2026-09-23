@@ -2,6 +2,10 @@
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
+ * Further modified in September 2026 for the Undaunted fork (Harmonicrain/Undaunted):
+ * the backend address comes from the command line and requests go to the
+ * Undaunted metagame over plain HTTP/WebSocket. Not an official release of
+ * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -28,7 +32,6 @@
 #include "MinHook/MinHook.h"
 #include "constants.h"
 #include "Networking.h"
-#include "deployment_config.generated.h"
 
 #include "SDK/GameplayAbilities_parameters.hpp"
 #include "SDK/Archon_parameters.hpp"
@@ -55,6 +58,9 @@ namespace Globals {
     const wchar_t* ExpectedPlayerString = nullptr;
     int Port = 0;
     const wchar_t* MyIpAndPort = nullptr;
+    // host:port of the Undaunted metagame. Gameservers get it as the
+    // DeployServer's ninth argument, clients as -UndauntedMetagame=host:port.
+    static std::wstring MetagameAddress;
 
     bool EnableLogging = true;
 
@@ -3031,7 +3037,7 @@ void NetConnectionCloseHook(void* Connection) {
 void* OrigProcessRequest = nullptr;
 
 char ProcessRequest(void* Request) {
-    FString APIHeader(L"x-mysticparadox-gameserver-apikey");
+    FString APIHeader(L"x-undaunted-gameserver-apikey");
     FString APIKey(Globals::ServerAPIKey);
 
     
@@ -3069,7 +3075,6 @@ char ProcessRequest(void* Request) {
 
 
 
-static const wchar_t* kMpApiBase = L"https://" MP_PUBLIC_HOST;
 
 void* OrigSetURL = nullptr;
 
@@ -3126,12 +3131,8 @@ static bool MpSplitUrl(const std::wstring& Url, std::wstring& OutHost, std::wstr
 }
 
 static std::wstring MpBuildRedirectUrl(const std::wstring& Host, const std::wstring& Tail) {
-    
-    std::wstring Out = kMpApiBase;
-    Out += L"/__origin/";
-    Out += Host;
-    Out += Tail;
-    return Out;
+    (void)Host;
+    return L"http://" + Globals::MetagameAddress + Tail;
 }
 
 
@@ -3142,9 +3143,11 @@ static bool MpUrlRewriteEnabled() {
     static int Logged = 0;
     if (!Logged) {
         Logged = 1;
-        MpLog("[UrlRedirect] rewrite ENABLED (permanent; allowlisted hosts -> paradox.example.com)");
+        MpLog(Globals::MetagameAddress.empty()
+            ? std::string("[UrlRedirect] no metagame address given; requests are NOT redirected")
+            : "[UrlRedirect] rewrite ENABLED (allowlisted hosts -> http://" + MpNarrow(Globals::MetagameAddress) + ")");
     }
-    return true;
+    return !Globals::MetagameAddress.empty();
 }
 
 
@@ -3271,7 +3274,6 @@ static void InstallSetUrlRedirectHook(const char* Mode) {
 
 
 
-static const wchar_t* kMpXmppWsUrl = L"wss://" MP_PUBLIC_HOST;
 
 static bool MpXmppTraceEnabled() {
     static int Cached = -1;
@@ -3286,7 +3288,7 @@ static bool MpXmppTraceEnabled() {
 
 
 static bool MpXmppRedirectEnabled() {
-    return true;
+    return !Globals::MetagameAddress.empty();
 }
 
 
@@ -3383,7 +3385,7 @@ bool GetConfigStringHook(void* This, const wchar_t* Section, const wchar_t* Key,
         
         struct RawFString { wchar_t* Data; int Num; int Max; };
         RawFString* Raw = reinterpret_cast<RawFString*>(Value);
-        const std::wstring New = kMpXmppWsUrl;
+        const std::wstring New = L"ws://" + Globals::MetagameAddress;
         const int Count = static_cast<int>(New.size()) + 1; 
 
         if (Raw->Max < Count || Raw->Data == nullptr) {
@@ -9523,6 +9525,7 @@ void Init() {
             Globals::MatchmakerHuntIdStorage = Args[5];
             Globals::ExpectedPlayerStringStorage = Args[6];
             Globals::MyIpAndPortStorage = Args[7];
+            if (NumArgs > 9 && Args[8][0] != L'-') Globals::MetagameAddress = Args[8];
 
             Globals::ServerAPIKey = Globals::ServerAPIKeyStorage.c_str();
             Globals::Port = std::stoi(std::wstring(Args[2]));
@@ -9596,6 +9599,13 @@ void Init() {
     }
     else {
         Globals::EnableLogging = true;
+
+        int NumArgs = 0;
+        wchar_t** Args = CommandLineToArgvW(GetCommandLineW(), &NumArgs);
+        const std::wstring Prefix = L"-UndauntedMetagame=";
+        for (int i = 1; Args && i < NumArgs; ++i) {
+            if (_wcsnicmp(Args[i], Prefix.c_str(), Prefix.size()) == 0) Globals::MetagameAddress = Args[i] + Prefix.size();
+        }
 
         InitClientHooks();
     }
