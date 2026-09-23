@@ -150,8 +150,16 @@ export class XMPPSession {
             }
             const ping = childByLocal(el, "ping");
             if (ping) {
-                
-                return { send: [`<iq type="result" id="${escapeXml(id)}"/>`], note: "ping -> pong" };
+                // The 1.4.4 client pings every PingInterval (60 s) and drops
+                // the connection if no pong arrives within PingTimeout (30 s).
+                // A bare result was not taken as the pong, so every session
+                // reconnected every ~90 s and friends saw the player go
+                // offline and online again. Answer as the server it pinged.
+                const from = attrs["to"] || this.domain;
+                const to = this.accountId ? `${this.accountId}@${this.domain}${this.boundResource ? `/${this.boundResource}` : ""}` : "";
+                const pong = `<iq type="result" id="${escapeXml(id)}" from="${escapeXml(from)}"` +
+                    (to ? ` to="${escapeXml(to)}"` : "") + `/>`;
+                return { send: [pong], note: "ping -> pong" };
             }
             if (type === "set" || type === "get") {
                 

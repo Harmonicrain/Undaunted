@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { friendblocks, friends, users } from "../db/schema";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
-import { notifyFriendshipAccepted, isLocallyOnline } from "../realtime/PresenceService";
+import { notifyFriendEntries, notifyFriendshipAccepted, isLocallyOnline } from "../realtime/PresenceService";
 
 export const friendsRouter = Router();
 
@@ -54,6 +54,7 @@ friendsRouter.post("/friends/api/public/friends/:accountId/:friendId", HasUndaun
         }
         return { status: 204, accepted: current?.direction === "INBOUND" };
     }, { behavior: "immediate" });
+    if(result.status === 204) notifyFriendEntries(ownerId, friendId);
     if(result.accepted) notifyFriendshipAccepted(ownerId, friendId);
     res.sendStatus(result.status);
 });
@@ -66,6 +67,7 @@ friendsRouter.delete("/friends/api/public/friends/:accountId/:friendId", HasUnda
     const ownerId = Owner(req), friendId = req.params.friendId as string;
     if(req.params.accountId !== ownerId){ res.sendStatus(403); return; }
     GetDb().transaction((tx) => DeleteEdges(tx, ownerId, friendId), { behavior: "immediate" });
+    notifyFriendEntries(ownerId, friendId);
     res.sendStatus(204);
 });
 
@@ -87,6 +89,7 @@ friendsRouter.post("/friends/api/public/blocklist/:accountId/:blockedId", HasUnd
             .onConflictDoNothing().run();
         return 204;
     }, { behavior: "immediate" });
+    if(result === 204) notifyFriendEntries(ownerId, blockedId);
     res.sendStatus(result);
 });
 
