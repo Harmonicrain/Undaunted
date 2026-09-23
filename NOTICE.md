@@ -8,7 +8,8 @@ Mystic Paradox material identified below (see `ADDITIONAL_TERMS.md`).
 ## Modification notice
 
 This fork (https://github.com/Harmonicrain/Undaunted) modifies Undaunted for
-preserving the Dauntless `1.4.4_shipping` (CL239827) client. Modifications were
+preserving the Dauntless `1.4.4_shipping` (CL239827) client, and is being extended
+to the `1.12.0` (CL392819) client. Modifications were
 made in September 2026 and are recorded in this repository's commit history.
 It is not an official release of Undaunted or of Mystic Paradox.
 
@@ -39,6 +40,11 @@ presence/chat services), all under `UndauntedMetagame/src/realtime/`:
 | --- | --- |
 | `XMPPProtocol.ts`, `XMPPSession.ts`, `SessionRegistry.ts`, `authThrottle.ts`, `saslPlain.ts`, `types.ts`, `xml.ts`, `ltx.d.ts` | Unmodified copies |
 | `RealtimeGateway.ts`, `XMPPAuth.ts`, `XMPPConnection.ts`, `PresenceService.ts`, `index.ts` | Modified in this fork (1.4.4 client, SQLite persistence, raw TCP listener); each file header says so |
+
+The 1.12.0 client runtime in `UndauntedRuntime-1.12/` is imported from Mystic
+Paradox's `ParadoxRuntime/` (commit `355934c`) and is being adapted for this
+fork; `UndauntedRuntime-1.12/PROVENANCE.md` records the source and which files
+have been modified since the import.
 
 `RawXMPPConnection.ts` and `RawXMPPGateway.ts` are new work for this fork that use
 the derived session code. The remaining social code in this fork (friends, blocks,
