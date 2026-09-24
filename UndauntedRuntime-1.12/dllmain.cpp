@@ -4,7 +4,9 @@
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
  * Further modified in September 2026 for the Undaunted fork (Harmonicrain/Undaunted):
  * the backend address comes from the command line and requests go to the
- * Undaunted metagame over plain HTTP/WebSocket. Not an official release of
+ * Undaunted metagame over plain HTTP/WebSocket; the PlayerController
+ * pre-channel guard reads ReplicateSingleActor's arguments in the executable's
+ * order. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -24,6 +26,7 @@
 #include <cstdlib>   
 #include <vector>
 #include <thread>
+#include <atomic>
 #include <iostream>
 #include <ranges>
 
@@ -3641,9 +3644,15 @@ static int SafeCallGraphServerReplicate(void* graph, float dt) {
 
 
 void* OrigRepGraphReplicateSingleActor = nullptr;
+// Undaunted: the connection map comes fifth and the connection manager sixth
+// (UReplicationGraph::ReplicateSingleActor, RVA 0x00ECEC50 in 1.12.0: it loads
+// its sixth argument at +0x00ECEC81 and reads NetConnection at +0x28 of it at
+// +0x00ECECA0). Upstream read them the other way round, so the guard compared
+// the controller against a field of the map and blocked the owning connection
+// from its own PlayerController, whose components then never replicated.
 uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
     void* Graph, void* Actor, void* ConnActorInfo, void* GlobalInfo,
-    void* ConnManager, void* ActorInfoMap, uint32_t Frame) {
+    void* ActorInfoMap, void* ConnManager, uint32_t Frame) {
     if (Actor && ConnManager
         && IsReadablePointer(Actor, 0x420)
         && IsReadablePointer(ConnManager, 0x30)
@@ -3686,13 +3695,22 @@ uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
             }
             return 0;
         }
+
+        static std::atomic<uint32_t> AllowedCount{ 0 };
+        if (AllowedCount.fetch_add(1, std::memory_order_relaxed) < 4) {
+            MpLog("[PlayerControllerPreChannelGuard] ALLOW actor=" + MpPtr(Actor)
+                + " actorNetConnection=" + MpPtr(ActorConnection)
+                + " targetConnection=" + MpPtr(Connection)
+                + " targetPC=" + MpPtr(ConnectionPC)
+                + " frame=" + std::to_string(Frame));
+        }
     }
 
     return reinterpret_cast<uint64_t(__fastcall*)(
         void*, void*, void*, void*, void*, void*, uint32_t)>(
             OrigRepGraphReplicateSingleActor)(
                 Graph, Actor, ConnActorInfo, GlobalInfo,
-                ConnManager, ActorInfoMap, Frame);
+                ActorInfoMap, ConnManager, Frame);
 }
 
 // Final fail-closed ownership invariant. The native function returns a 64-bit replication count,
@@ -9602,6 +9620,20 @@ void Init() {
 
         int NumArgs = 0;
         wchar_t** Args = CommandLineToArgvW(GetCommandLineW(), &NumArgs);
+        // With -log, give the client a console before the engine starts so its
+        // log output is readable (as the 1.4.4 runtime does).
+        for (int i = 1; Args && i < NumArgs; ++i) {
+            if (_wcsicmp(Args[i], L"-log") == 0) {
+                AllocConsole();
+                FILE* Dummy;
+                freopen_s(&Dummy, "CONOUT$", "w", stdout);
+                freopen_s(&Dummy, "CONOUT$", "w", stderr);
+                // Wide, deep buffer so long log lines and a whole session survive.
+                COORD Size{ 400, 32000 };
+                SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), Size);
+                break;
+            }
+        }
         const std::wstring Prefix = L"-UndauntedMetagame=";
         for (int i = 1; Args && i < NumArgs; ++i) {
             if (_wcsnicmp(Args[i], Prefix.c_str(), Prefix.size()) == 0) Globals::MetagameAddress = Args[i] + Prefix.size();
