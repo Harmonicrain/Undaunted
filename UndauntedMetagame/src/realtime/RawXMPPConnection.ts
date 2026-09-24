@@ -121,7 +121,7 @@ export class RawXMPPConnection {
         }
         if(action.presence && this.accountId && this.resource){
             if(action.presence.available && !this.available){ this.available = true; await onResourceAvailable(this.accountId, this.resource); }
-            if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId); }
+            if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId, this.resource); }
         }
         if((action.room || action.direct) && this.accountId && this.resource) ApplyChatAction(this, this.accountId, this.resource, action);
         if(action.close) this.close(action.close.code, action.close.reason);
@@ -131,10 +131,11 @@ export class RawXMPPConnection {
     private teardown(){
         if(this.closed) return;
         this.closed = true;
+        logger.info(`[XMPP-TCP] ${this.connId} closed account=${this.accountId ?? "-"}`);
         LeaveAllRooms(this);
         if(this.accountId && this.resource){
             sessionRegistry.unbind(this.accountId, this.resource, this);
-            void onResourceUnavailable(this.accountId);
+            void onResourceUnavailable(this.accountId, this.resource);
         }
         this.onClosed(this);
     }

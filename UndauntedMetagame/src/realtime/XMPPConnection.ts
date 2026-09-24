@@ -3,8 +3,9 @@
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
  * Further modified in September 2026 for the Undaunted 1.4.4 preservation fork
  * (Harmonicrain/Undaunted): adapted to the 1.4.4 client, SQLite persistence and
- * a raw TCP XMPP listener; text chat rooms for the 1.12.0 client. Not an
- * official release of either upstream project.
+ * a raw TCP XMPP listener; text chat rooms for the 1.12.0 client; closed
+ * sessions are logged and go offline from their full JID. Not an official
+ * release of either upstream project.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -61,7 +62,7 @@ export class XMPPConnection {
         }
         if(action.presence && this.accountId && this.resource){
             if(action.presence.available && !this.available){ this.available = true; await onResourceAvailable(this.accountId, this.resource); }
-            if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId); }
+            if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId, this.resource); }
         }
         if((action.room || action.direct) && this.accountId && this.resource) ApplyChatAction(this, this.accountId, this.resource, action);
         if(action.close) this.close(action.close.code, action.close.reason);
@@ -72,8 +73,9 @@ export class XMPPConnection {
         if(this.closed) return;
         this.closed = true;
         this.state = XmppState.Closed;
+        logger.info(`[XMPP] ${this.connId} closed account=${this.accountId ?? "-"}`);
         LeaveAllRooms(this);
-        if(this.accountId && this.resource){ sessionRegistry.unbind(this.accountId, this.resource, this); void onResourceUnavailable(this.accountId); }
+        if(this.accountId && this.resource){ sessionRegistry.unbind(this.accountId, this.resource, this); void onResourceUnavailable(this.accountId, this.resource); }
         this.onClosed(this);
     }
 }

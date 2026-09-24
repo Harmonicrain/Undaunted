@@ -3,7 +3,9 @@
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
  * Further modified in September 2026 for the Undaunted 1.4.4 preservation fork
  * (Harmonicrain/Undaunted): adapted to the 1.4.4 client, SQLite persistence and
- * a raw TCP XMPP listener. Not an official release of either upstream project.
+ * a raw TCP XMPP listener; for the 1.12.0 client, offline presence comes from
+ * the full JID of the session that ended. Not an official release of either
+ * upstream project.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -23,7 +25,10 @@ import { escapeXml } from "./xml";
 const DOMAIN = "prod.ol.epicgames.com";
 const jid = (id: string, resource?: string) => `${escapeXml(id)}@${DOMAIN}${resource ? `/${escapeXml(resource)}` : ""}`;
 const available = (from: string, resource: string, to: string) => `<presence from="${jid(from, resource)}" to="${jid(to)}"/>`;
-const unavailable = (from: string, to: string) => `<presence type="unavailable" from="${jid(from)}" to="${jid(to)}"/>`;
+// From the full JID of the session that ended (RFC 6121 4.5.2). Sent from the
+// bare JID it did not match the full JID friends saw come online, and the
+// 1.12.0 friends list kept showing the player as online.
+const unavailable = (from: string, resource: string | undefined, to: string) => `<presence type="unavailable" from="${jid(from, resource)}" to="${jid(to)}"/>`;
 const rosterPush = (owner: string, friend: string) => `<iq type="set" to="${jid(owner)}" id="friend-${Date.now()}"><query xmlns="jabber:iq:roster"><item jid="${jid(friend)}" subscription="both"/></query></iq>`;
 
 function accepted(accountId: string){
@@ -59,14 +64,26 @@ export async function onResourceAvailable(accountId: string, resource: string){
     logger.info(`[XMPP] ${accountId} online; delivered ${sent} friend presence pair(s)`);
 }
 
-export async function onResourceUnavailable(accountId: string, graceMs: number = OFFLINE_GRACE_MS){
-    if(sessionRegistry.isOnline(accountId) || pendingOffline.has(accountId)) return;
+export async function onResourceUnavailable(accountId: string, resource?: string, graceMs: number = OFFLINE_GRACE_MS){
+    if(sessionRegistry.isOnline(accountId)){
+        logger.info(`[XMPP] ${accountId} resource ${resource ?? "-"} gone; still online on another resource`);
+        return;
+    }
+    if(pendingOffline.has(accountId)) return;
     const announce = () => {
         pendingOffline.delete(accountId);
-        if(sessionRegistry.isOnline(accountId)) return;
-        for(const friendId of accepted(accountId)){
-            for(const connection of sessionRegistry.connectionsFor(friendId)) connection.send(unavailable(accountId, friendId));
+        if(sessionRegistry.isOnline(accountId)){
+            logger.info(`[XMPP] ${accountId} back online within the grace period; offline not announced`);
+            return;
         }
+        let sent = 0;
+        for(const friendId of accepted(accountId)){
+            for(const connection of sessionRegistry.connectionsFor(friendId)){
+                connection.send(unavailable(accountId, resource, friendId));
+                sent++;
+            }
+        }
+        logger.info(`[XMPP] ${accountId} offline; told ${sent} friend connection(s)`);
     };
     if(graceMs <= 0){ announce(); return; }
     const timer = setTimeout(announce, graceMs);

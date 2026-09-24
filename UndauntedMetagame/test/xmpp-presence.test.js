@@ -57,7 +57,7 @@ test("a reconnect inside the grace period never announces the player offline", a
     await Presence.onResourceAvailable(A.UserId, "a1");
     // Connection drops...
     Registry.unbind(A.UserId, "a1", First);
-    await Presence.onResourceUnavailable(A.UserId, 80);
+    await Presence.onResourceUnavailable(A.UserId, "a1", 80);
     // ...and comes back before the grace period ends.
     await wait(20);
     const Second = FakeConnection(A, "a2");
@@ -67,8 +67,11 @@ test("a reconnect inside the grace period never announces the player offline", a
     assert.equal(Watcher.sent.filter(Frame => Frame.includes('type="unavailable"')).length, 0);
     // A real departure is still announced once the grace period passes.
     Registry.unbind(A.UserId, "a2", Second);
-    await Presence.onResourceUnavailable(A.UserId, 40);
+    await Presence.onResourceUnavailable(A.UserId, "a2", 40);
     await wait(80);
-    assert.equal(Watcher.sent.filter(Frame => Frame.includes('type="unavailable"')).length, 1);
+    const Offline = Watcher.sent.filter(Frame => Frame.includes('type="unavailable"'));
+    assert.equal(Offline.length, 1);
+    // From the full JID that came online, so the client matches the two.
+    assert.ok(Offline[0].includes(`from="${A.UserId}@prod.ol.epicgames.com/a2"`), Offline[0]);
     Registry.unbind(B.UserId, "b", Watcher);
 });
