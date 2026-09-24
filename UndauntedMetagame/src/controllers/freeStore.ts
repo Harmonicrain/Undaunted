@@ -1,9 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, ne } from "drizzle-orm";
 import { GetDb } from "../db";
 import { characters, entitlements, inventory, storepurchases } from "../db/schema";
 import { ApplyInventoryTransaction } from "./inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
+import { CreditWallet, IsCurrency } from "./wallet";
 
 export class StoreError extends Error {
     constructor(public status: number, message: string) { super(message); }
@@ -68,10 +69,42 @@ function IsRepeatable(offer: any) {
     return items.length > 0 && items.every(item => REPEATABLE_ITEMS.has(item.catalogId));
 }
 
+// A daily offer ("daily": true) is the Bazaar fountain's free bundle
+// (tag fountain_daily_free_bundle): tossing a coin claims it, once per account
+// per UTC day. Live it paid a Fountain Core and 4 Bounty Tokens; the game opens
+// the core itself at the Core Breaker, rolling its own drop tables. Unlike the
+// storefront it hands out cores, tokens and currencies, so it is validated and
+// granted on its own terms, the way Hunt Pass rank rewards are.
+const IsDaily = (offer: any) => offer?.daily === true;
+
+export function DailyResetAt(now: number) {
+    const day = new Date(now);
+    return Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate());
+}
+
+function ClaimedToday(db: any, userId: string, skuId: string, now: number, exceptTokenHash?: string) {
+    const conditions = [eq(storepurchases.userId, userId), eq(storepurchases.skuId, skuId),
+        gte(storepurchases.redeemedAt, DailyResetAt(now))];
+    if (exceptTokenHash) conditions.push(ne(storepurchases.tokenHash, exceptTokenHash));
+    return db.select().from(storepurchases).where(and(...conditions)).get() !== undefined;
+}
+
+function DailyOffer(offer: any) {
+    const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
+    if (offer.platinumPrice !== 0) throw new StoreError(409, "Offer is not free");
+    if (!items.length || (offer.entitlements ?? []).length) throw new StoreError(409, "Daily offers grant cores, tokens and currencies only");
+    if (items.some(item => typeof item.catalogId !== "string" || !/^(CONTAINER|CURRENCY|TOKEN)_[A-Z0-9_]+$/.test(item.catalogId) ||
+        !Number.isSafeInteger(item.quantity) || item.quantity <= 0)) {
+        throw new StoreError(409, "Offer is not a supported daily bundle");
+    }
+    return offer;
+}
+
 function offerFor(skuId: string, currency: string) {
     if (!IsPlatinum(currency)) throw new StoreError(400, "Unsupported store currency");
     const offer = offers.find(item => item.id === skuId);
     if (!offer) throw new StoreError(404, "Unknown store offer");
+    if (IsDaily(offer)) return DailyOffer(offer);
     // Free offers only. Supported grants are permanent cosmetics, repeatable
     // consumables and entitlements; currencies still need their own logic.
     const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
@@ -135,6 +168,7 @@ function OwnershipMarker(userId: string, characterId: string) {
         .where(eq(entitlements.userId, userId)).all().map(row => row.entitlement));
 
     return (offer: any) => {
+        if (IsDaily(offer)) return { ...offer, remaining: ClaimedToday(GetDb(), userId, offer.id, Date.now()) ? 0 : 1 };
         if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
 
         const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
@@ -179,6 +213,9 @@ export function GetOfferById(userId: string, skuId: string) {
 export function CreateFreePurchase(userId: string, currency: string, skuId: string) {
     const char = character(userId);
     const offer = offerFor(skuId, currency);
+    if (IsDaily(offer) && ClaimedToday(GetDb(), userId, skuId, Date.now())) {
+        throw new StoreError(409, "Already claimed today");
+    }
     const token = randomBytes(32).toString("hex");
     GetDb().insert(storepurchases).values({
         tokenHash: hash(token), userId, characterId: char.characterId, skuId,
@@ -204,7 +241,21 @@ export function RedeemFreePurchase(userId: string, currency: string, token: unkn
         if (offerHash(offer) !== purchase.offerHash) throw new StoreError(409, "Offer changed; request a new token");
         const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
 
-        if (items.length) {
+        if (IsDaily(offer)) {
+            // Checked again here, inside the write transaction: two tokens
+            // fetched the same day must not both pay out.
+            if (ClaimedToday(tx, userId, purchase.skuId, Date.now(), purchase.tokenHash)) {
+                throw new StoreError(409, "Already claimed today");
+            }
+            const stacked = items.filter(item => !IsCurrency(item.catalogId));
+            if (stacked.length) {
+                ApplyInventoryTransaction(tx, userId, purchase.characterId, `store:${purchase.tokenHash}`, [], stacked, [], [], []);
+            }
+            for (const item of items.filter(item => IsCurrency(item.catalogId))) {
+                CreditWallet(tx, userId, item.catalogId, item.quantity);
+            }
+        }
+        else if (items.length) {
             const row = tx.select().from(inventory).where(eq(inventory.characterId, purchase.characterId)).get();
             const held = HeldCatalogIds(row);
             // Cosmetics are unlocks. Overlapping bundles and fresh tokens must
