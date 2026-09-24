@@ -3,7 +3,7 @@ import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth
 import { logger } from "../logger";
 import { GetUsernameForUserId } from "../controllers/login";
 import { AcceptPartyInvite, GetInvitesForPlayer, GetOrCreateParty, GetPartyForPlayer, InviteToParty, KickPartyMember, LeaveParty, PartyError, PromotePartyMember } from "../controllers/party";
-import { CancelCandidateForPlayer, CheckAndUpdateQueueStatus } from "../controllers/matchmaking";
+import { CancelPendingCandidateForPlayer, CheckAndUpdateQueueStatus } from "../controllers/matchmaking";
 
 export const partyRouter = Router();
 
@@ -51,20 +51,20 @@ partyRouter.put("/party/invite/accept/:inviteId", HasUndauntedMetagameAuth, (req
     try{
         const oldMembers = GetPartyForPlayer(req.AuthData.userId)?.members.slice() ?? [req.AuthData.userId];
         const party = AcceptPartyInvite(req.AuthData.userId, String(req.params.inviteId));
-        for(const member of [...oldMembers, ...party.members]) CancelCandidateForPlayer(member);
+        for(const member of [...oldMembers, ...party.members]) CancelPendingCandidateForPlayer(member);
         res.json({});
     }
     catch(error){ Fail(res, error); }
 });
 partyRouter.delete("/party/member", HasUndauntedMetagameAuth, (req: any, res) => {
-    for(const member of GetPartyForPlayer(req.AuthData.userId)?.members ?? [req.AuthData.userId]) CancelCandidateForPlayer(member);
+    for(const member of GetPartyForPlayer(req.AuthData.userId)?.members ?? [req.AuthData.userId]) CancelPendingCandidateForPlayer(member);
     LeaveParty(req.AuthData.userId); res.json({});
 });
 partyRouter.delete("/party/member/:memberId", HasUndauntedMetagameAuth, (req: any, res) => {
     try{
         const members = GetPartyForPlayer(req.AuthData.userId)?.members.slice() ?? [];
         KickPartyMember(req.AuthData.userId, String(req.params.memberId));
-        for(const member of members) CancelCandidateForPlayer(member);
+        for(const member of members) CancelPendingCandidateForPlayer(member);
         res.json({});
     }
     catch(error){ Fail(res, error); }

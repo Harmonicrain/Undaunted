@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
-import { CheckAndUpdateQueueStatus, HandlePlayerMatchmaking } from "../controllers/matchmaking";
+import { CheckAndUpdateQueueStatus, HandlePlayerMatchmaking, WorldSessionId } from "../controllers/matchmaking";
 import { GetPartyForPlayer } from "../controllers/party";
 
 export const matchmakingRouter = Router();
@@ -61,7 +61,7 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
             res.json({
                 candidateId: MatchmakingResult.CandidateId,
                 candidateStatusPeriodMillis: 10000,
-                gameMode: "ISLAND",
+                gameMode: MatchmakingResult.GameMode,
                 huntId: MatchmakingResult.HuntId,
                 playerStates,
                 status: "FAILED",
@@ -76,12 +76,12 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
             res.json({
                 candidateId: MatchmakingResult.CandidateId,
                 candidateStatusPeriodMillis: 10000,
-                gameMode: "ISLAND",
+                gameMode: MatchmakingResult.GameMode,
                 huntId: MatchmakingResult.HuntId,
                 playerStates,
                 serverInfo: {
                     buildId: TARGET_BUILD_ID,
-                    gameSessionId: MatchmakingResult.CandidateId,
+                    gameSessionId: WorldSessionId(MatchmakingResult.Host, MatchmakingResult.Port),
                     host: MatchmakingResult.Host,
                     port: MatchmakingResult.Port
                 },
@@ -97,7 +97,7 @@ matchmakingRouter.get("/candidate/status", HasUndauntedMetagameAuth, async (req:
             res.json({
                 candidateId: MatchmakingResult.CandidateId,
                 candidateStatusPeriodMillis: 10000,
-                gameMode: "ISLAND",
+                gameMode: MatchmakingResult.GameMode,
                 huntId: MatchmakingResult.HuntId,
                 playerStates,
                 status : "MATCHING",

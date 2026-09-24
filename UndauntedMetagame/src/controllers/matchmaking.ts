@@ -19,6 +19,9 @@ type MatchmakingResult = {
     // host and port 0, which sent players travelling to nowhere.
     Failed: boolean,
     FailureReason: string | null,
+    // The mode the client asked for (CITY, SHARED or ISLAND), echoed by the
+    // status route. It always answered ISLAND, even for a return to Ramsgate.
+    GameMode: string,
     HuntId: string,
     CandidateId: string,
     Host: string,
@@ -106,6 +109,18 @@ async function LaunchGameOnDeployserver(GameMode: string, GameArgs: string, Hunt
     };
 }
 
+// The game session a player is sent to, as the client sees it
+// (serverInfo.gameSessionId): the same for everyone in one world, so the
+// world's chat room is shared. It was each player's own random candidate id,
+// so two players who travelled to Ramsgate separately were put in different
+// City chat rooms and never saw each other's messages. Derived from the
+// world's address, a UUID in form.
+export function WorldSessionId(Host: string, Port: number){
+    const Hash = crypto.createHash("sha1").update(`world:${Host}:${Port}`).digest("hex");
+    const Variant = ((parseInt(Hash[16], 16) & 3) | 8).toString(16);
+    return `${Hash.slice(0, 8)}-${Hash.slice(8, 12)}-5${Hash.slice(13, 16)}-${Variant}${Hash.slice(17, 20)}-${Hash.slice(20, 32)}`;
+}
+
 function ApplyLaunch(Result: MatchmakingResult, Launch: Awaited<ReturnType<typeof LaunchGameOnDeployserver>>){
     Result.Host = Launch.host;
     Result.Port = Launch.port;
@@ -154,7 +169,7 @@ export async function CheckAndUpdateQueueStatus(PlayerId: string){
     return PlayerMatchmakingResult;
 }
 
-async function QueuePlayers(HuntId: string, PlayerIds: string[]){
+async function QueuePlayers(GameMode: string, HuntId: string, PlayerIds: string[]){
     const current = MatchmakingQueueMap.get(HuntId);
     if(current?.Resolved) return false;
     const novel = PlayerIds.filter(id => !current?.Players.includes(id));
@@ -166,15 +181,21 @@ async function QueuePlayers(HuntId: string, PlayerIds: string[]){
     const candidateId = crypto.randomUUID();
     for(const id of PlayerIds){
         MatchmakingResultMap.set(id, { Ready: false, Failed: false, FailureReason: null,
-            CandidateId: candidateId, HuntId, Host: "", Port: 0 });
+            GameMode, CandidateId: candidateId, HuntId, Host: "", Port: 0 });
     }
     if(queue.Players.length >= 4) await PopQueue(HuntId);
     return true;
 }
 
-export function CancelCandidateForPlayer(PlayerId: string){
+// Party changes abandon matchmaking that has not produced a world yet. A
+// candidate that has one (Ready) is a hunt the other members may already be
+// playing: cancelling it when someone left the party turned every remaining
+// member's status checks into 404s for the rest of the hunt, and their
+// return to Ramsgate never started. A Ready candidate is replaced by the
+// player's next join instead.
+export function CancelPendingCandidateForPlayer(PlayerId: string){
     const result = MatchmakingResultMap.get(PlayerId);
-    if(!result) return;
+    if(!result || result.Ready) return;
     for(const [id, other] of MatchmakingResultMap){
         if(other.CandidateId === result.CandidateId) MatchmakingResultMap.delete(id);
     }
@@ -203,6 +224,7 @@ export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string
 
             const Result: MatchmakingResult = {
                 Ready: false, Failed: false, FailureReason: null,
+                GameMode,
                 CandidateId: crypto.randomUUID(),
                 HuntId: LaunchHuntId,
                 Host: "",
@@ -214,7 +236,7 @@ export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string
             return true;
         }
         else{
-            return await QueuePlayers(HuntId, players);
+            return await QueuePlayers(GameMode, HuntId, players);
         }
     }
     else{

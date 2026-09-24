@@ -105,3 +105,74 @@ test("party leader allocates one world and one candidate for both members", asyn
     assert.equal(a.Host, b.Host);
     assert.equal(a.Port, b.Port);
 });
+
+function PartyOf(...Names) {
+    const [Leader, ...Rest] = Names.map(Name => Harness.SeedAccount(Context, Name));
+    Party.GetOrCreateParty(Leader.UserId, "test-build");
+    for (const Member of Rest) {
+        Party.InviteToParty(Leader.UserId, Member.UserId, "test-build");
+        Party.AcceptPartyInvite(Member.UserId, Party.GetInvitesForPlayer(Member.UserId)[0].inviteId);
+    }
+    return [Leader, ...Rest];
+}
+// What DELETE /party/member does for the player who leaves.
+function Leave(Player) {
+    for (const Member of Party.GetPartyForPlayer(Player.UserId)?.members ?? [Player.UserId]) Matchmaking.CancelPendingCandidateForPlayer(Member);
+    Party.LeaveParty(Player.UserId);
+}
+
+test("someone leaving the party mid-hunt leaves the others' running hunt alone", async () => {
+    DeployReply = () => ({ status: 200, body: { host: "127.0.0.1", port: 8787 } });
+    const [John, Manda, Todd] = PartyOf("LeaveJohn", "LeaveManda", "LeaveTodd");
+    await Matchmaking.HandlePlayerMatchmaking("ISLAND", "", "Ramsgate_Hub", John.UserId);
+    Leave(Todd);
+    // John and Manda are still in that hunt: their status still answers.
+    for (const Player of [John, Manda]) {
+        const Result = await Matchmaking.CheckAndUpdateQueueStatus(Player.UserId);
+        assert.ok(Result, Player.UserId);
+        assert.equal(Result.Ready, true);
+        assert.equal(Result.Port, 8787);
+    }
+    // Returning to Ramsgate afterwards replaces the hunt with the city.
+    DeployReply = () => ({ status: 200, body: { host: "127.0.0.1", port: 8789 } });
+    Leave(Manda);
+    await Matchmaking.HandlePlayerMatchmaking("CITY", "", "", John.UserId);
+    const Back = await Matchmaking.CheckAndUpdateQueueStatus(John.UserId);
+    assert.equal(Back.Port, 8789);
+    assert.equal(Back.GameMode, "CITY");
+});
+
+test("a party change still cancels a queue that has not found a world", async () => {
+    DeployReply = () => ({ status: 200, body: { host: "127.0.0.1", port: 8786 } });
+    const [Leader, Member] = PartyOf("QueueLeader", "QueueMember");
+    await Matchmaking.HandlePlayerMatchmaking("ISLAND", "", "Escalation_Leave_Hunt", Leader.UserId);
+    assert.equal((await Matchmaking.CheckAndUpdateQueueStatus(Member.UserId)).Ready, false);
+    Leave(Member);
+    assert.equal(await Matchmaking.CheckAndUpdateQueueStatus(Leader.UserId), undefined);
+    assert.equal(await Matchmaking.CheckAndUpdateQueueStatus(Member.UserId), undefined);
+});
+
+test("the candidate keeps the mode the client asked for", async () => {
+    DeployReply = () => ({ status: 200, body: { host: "127.0.0.1", port: 8789 } });
+    const [City, Island] = [Player(), Player()];
+    await Matchmaking.HandlePlayerMatchmaking("CITY", "", "", City);
+    await Matchmaking.HandlePlayerMatchmaking("ISLAND", "", "Ramsgate_Hub", Island);
+    assert.equal((await Matchmaking.CheckAndUpdateQueueStatus(City)).GameMode, "CITY");
+    assert.equal((await Matchmaking.CheckAndUpdateQueueStatus(Island)).GameMode, "ISLAND");
+});
+
+test("two players who travel to the same world separately share its game session, and so its chat room", async () => {
+    DeployReply = () => ({ status: 200, body: { host: "192.168.1.10", port: 8789 } });
+    const [A, B] = [Player(), Player()];
+    await Matchmaking.HandlePlayerMatchmaking("CITY", "", "", A);
+    await Matchmaking.HandlePlayerMatchmaking("CITY", "", "", B);
+    const [RA, RB] = [await Matchmaking.CheckAndUpdateQueueStatus(A), await Matchmaking.CheckAndUpdateQueueStatus(B)];
+    // Each keeps its own matchmaking candidate...
+    assert.notEqual(RA.CandidateId, RB.CandidateId);
+    // ...but the world's session id is the same for both, and a UUID.
+    const [SA, SB] = [Matchmaking.WorldSessionId(RA.Host, RA.Port), Matchmaking.WorldSessionId(RB.Host, RB.Port)];
+    assert.equal(SA, SB);
+    assert.match(SA, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    // Another world has another session.
+    assert.notEqual(Matchmaking.WorldSessionId("192.168.1.10", 8788), SA);
+});
