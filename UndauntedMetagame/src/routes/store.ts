@@ -3,7 +3,7 @@ import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { GetNotesForUser } from "../controllers/store";
 import { GetWallet } from "../controllers/wallet";
-import storeCatalog from "../vendor/store_catalog.json";
+import { StoreCatalog as storeCatalog, StoreOfferFormat } from "../controllers/storeCatalog";
 import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, RedeemFreePurchase, StoreError } from "../controllers/freeStore";
 import { RequestHandler } from "express";
 
@@ -114,9 +114,40 @@ storeRouter.get("/balance", HasUndauntedMetagameAuth, async (req: any, res) => {
 // The 1.4.4 client needs flat price fields AND its own category tags (e.g.
 // feature, skin_armour). A 200 response with only webstore-tagged offers leaves
 // the store without visible categories. Verified in the running client.
-// Tags come from src/vendor/store_catalog.json so an owner can add offers
-// without editing TypeScript. Keys starting with "_" are documentation.
+// Tags come from src/vendor/store_catalog.json (or STORE_DATA_DIR) so an owner
+// can add offers without editing TypeScript. Keys starting with "_" are
+// documentation.
 const StoreCatalog = storeCatalog as Record<string, any>;
+
+// 1.12.0 wire shape, the field set its executable parses: prices as
+// [{currencyId, price, salesPrice}] priced in the store's own currency ids
+// (id_currency_platinum, ...), images {standard, feature}, and a progression
+// grant it names skuProgression. The flat 1.4.4 price fields are not sent: the
+// 1.12.0 client has no parser for them.
+function ToPricesFormat(offer: any){
+    return {
+        id: offer.id,
+        displayName: offer.displayName,
+        displayDescription: offer.displayDescription,
+        displayPriority: offer.displayPriority,
+        prices: [{ currencyId: "id_currency_platinum", price: offer.platinumPrice ?? 0, salesPrice: offer.platinumSalePrice ?? null }],
+        maxAllowed: offer.maxAllowed,
+        remaining: offer.remaining,
+        images: {},
+        tags: offer.tags,
+        items: offer.items ?? [],
+        entitlements: offer.entitlements ?? [],
+        skuProgression: null,
+        loadoutSlots: offer.loadoutSlots ?? null,
+        availableFrom: offer.availableFrom ?? null,
+        availableTo: offer.availableTo ?? null,
+        timeAvailabilityReason: offer.timeAvailabilityReason ?? null,
+        platformOfferId: offer.platformOfferId ?? null,
+        missingEntitlementNames: offer.missingEntitlementNames ?? null
+    };
+}
+
+const ToWire = (offer: any) => StoreOfferFormat === "prices" ? ToPricesFormat(offer) : offer;
 
 const KNOWN_STORE_TAGS = Object.keys(StoreCatalog).filter((Key) => !Key.startsWith("_"));
 
@@ -135,7 +166,7 @@ const StoreAction = (handler: RequestHandler): RequestHandler => (req: any, res,
 };
 
 storeRouter.get("/product/sku/:skuId", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
-    res.json(GetOfferById(req.AuthData.userId, req.params.skuId));
+    res.json(ToWire(GetOfferById(req.AuthData.userId, req.params.skuId)));
 }));
 
 storeRouter.get("/token/:currency/:skuId", HasUndauntedMetagameAuth, StoreAction((req: any, res) => {
@@ -175,5 +206,5 @@ storeRouter.get("/product/skus/public", HasUndauntedMetagameAuth, StoreAction((r
     }
 
     res.status(200);
-    res.json(Offers);
+    res.json(Offers.map(ToWire));
 }));

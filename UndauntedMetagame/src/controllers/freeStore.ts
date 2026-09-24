@@ -3,8 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { characters, entitlements, inventory, storepurchases } from "../db/schema";
 import { ApplyInventoryTransaction } from "./inventory";
-import catalog from "../vendor/store_catalog.json";
-import itemKinds from "../vendor/store_item_kinds.json";
+import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
 
 export class StoreError extends Error {
     constructor(public status: number, message: string) { super(message); }
@@ -34,28 +33,33 @@ function character(userId: string) {
     return rows[0];
 }
 
-// Which item types the store may hand out at all. Anything else - currencies,
-// boosts, weapons proper - is refused even if an offer lists it.
-const COSMETIC_PREFIXES = ["AR_", "WP_", "EM_", "DYE_", "QI_FLARE_", "BNC_FABRIC_", "BNC_STANDARD_", "BNC_SIGIL_", "LT_"];
-
 // Consumables that may be bought any number of times and in any quantity.
 // TOKEN_BOUNTY_DRAFT_PREMIUM is the premium_bounty_token_id served by
 // /bounty/game-data: the purchased kind, which persists into the next season.
-const REPEATABLE_ITEMS = new Set(["TOKEN_BOUNTY_DRAFT_PREMIUM"]);
+// A generated catalogue lists its own under _repeatableItems (1.12.0 adds tonics).
+const REPEATABLE_ITEMS = new Set<string>(Array.isArray(catalog._repeatableItems)
+    ? catalog._repeatableItems : ["TOKEN_BOUNTY_DRAFT_PREMIUM"]);
 
 // How each item is granted, stacked or instanced. A per-type prefix rule got
 // this wrong for individual items: most weapon skins and a few arrivals are
 // instanced, a few fabrics and lanterns are stacked. The live ArchonCatalog
 // stackable flag decides it, and the real season09b config agrees with that
 // flag for every item it grants. store_item_kinds.json records the flag for
-// every item the catalogue sells.
+// every item the catalogue sells - and only those, so it is also the list of
+// what the store may hand out at all. Anything else (currencies, boosts,
+// weapons proper) is refused even if an offer lists it. For the 1.4.4
+// catalogue this is the same set the old cosmetic prefix rule allowed.
 const ITEM_KINDS = itemKinds as Record<string, string>;
 
 export function GrantKind(catalogId: string): "stacked" | "instanced" | undefined {
-    if (!REPEATABLE_ITEMS.has(catalogId) && !COSMETIC_PREFIXES.some(prefix => catalogId.startsWith(prefix))) return undefined;
     const kind = ITEM_KINDS[catalogId];
     return kind === "stacked" || kind === "instanced" ? kind : undefined;
 }
+
+// The client names the purchase currency in the token and notification paths.
+// 1.4.4 sends "platinum"; the 1.12.0 offers price in id_currency_platinum.
+const PLATINUM = new Set(["platinum", "id_currency_platinum", "currency_platinum"]);
+const IsPlatinum = (currency: string) => PLATINUM.has(String(currency).toLowerCase());
 
 // A repeatable offer sells consumables only. It is never "owned", and each
 // purchase grants its full quantity again.
@@ -65,7 +69,7 @@ function IsRepeatable(offer: any) {
 }
 
 function offerFor(skuId: string, currency: string) {
-    if (currency !== "platinum") throw new StoreError(400, "Unsupported store currency");
+    if (!IsPlatinum(currency)) throw new StoreError(400, "Unsupported store currency");
     const offer = offers.find(item => item.id === skuId);
     if (!offer) throw new StoreError(404, "Unknown store offer");
     // Free offers only. Supported grants are permanent cosmetics, repeatable
@@ -122,32 +126,31 @@ function HeldCatalogIds(row: { stackedItems?: string; instancedItems?: string } 
 
 // An offer is "owned" when everything it grants is already held: all of its
 // items, and all of its entitlements. Entitlement-only offers such as the Hunt
-// Pass pass have no items, so items alone cannot decide this.
-function MarkOwnership(userId: string, characterId: string, offer: any) {
-    if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
+// Pass pass have no items, so items alone cannot decide this. The inventory and
+// entitlements are read once per request: a 1.12.0 storefront has thousands of
+// offers, and reading them per offer made one request thousands of queries.
+function OwnershipMarker(userId: string, characterId: string) {
+    const held = HeldCatalogIds(GetDb().select().from(inventory).where(eq(inventory.characterId, characterId)).get());
+    const entitled = new Set(GetDb().select({ entitlement: entitlements.entitlement }).from(entitlements)
+        .where(eq(entitlements.userId, userId)).all().map(row => row.entitlement));
 
-    const row = GetDb().select().from(inventory).where(eq(inventory.characterId, characterId)).get();
-    const held = HeldCatalogIds(row);
+    return (offer: any) => {
+        if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
 
-    const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
-    const grants: { name: string }[] = offer.entitlements ?? [];
+        const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
+        const grants: { name: string }[] = offer.entitlements ?? [];
 
-    const itemsOwned = items.length > 0 && items.every(item => held.has(item.catalogId));
+        const owned = (items.length > 0 || grants.length > 0)
+            && items.every(item => held.has(item.catalogId))
+            && grants.every(grant => entitled.has(grant.name));
 
-    const grantsOwned = grants.length > 0 && grants.every(grant =>
-        GetDb().select().from(entitlements)
-            .where(and(eq(entitlements.userId, userId), eq(entitlements.entitlement, grant.name))).get() != undefined);
-
-    const owned = (items.length > 0 || grants.length > 0)
-        && (items.length === 0 || itemsOwned)
-        && (grants.length === 0 || grantsOwned);
-
-    return { ...offer, remaining: owned ? 0 : 1 };
+        return { ...offer, remaining: owned ? 0 : 1 };
+    };
 }
 
 export function GetFreeStoreOffers(userId: string) {
     const char = character(userId);
-    return webstoreOffers.map((offer: any) => MarkOwnership(userId, char.characterId, offer));
+    return webstoreOffers.map(OwnershipMarker(userId, char.characterId));
 }
 
 // Offers for any tag, not just the storefront. The Hunt Pass pass and rank
@@ -158,7 +161,7 @@ export function GetOffersForTag(userId: string, tag: string) {
 
     if (!Array.isArray(forTag)) return [];
 
-    return forTag.map((offer: any) => MarkOwnership(userId, char.characterId, offer));
+    return forTag.map(OwnershipMarker(userId, char.characterId));
 }
 
 // Single offer lookup. This searched the storefront list only, so any SKU under
@@ -170,7 +173,7 @@ export function GetOfferById(userId: string, skuId: string) {
 
     if (!offer) throw new StoreError(404, "Unknown store offer");
 
-    return MarkOwnership(userId, char.characterId, offer);
+    return OwnershipMarker(userId, char.characterId)(offer);
 }
 
 export function CreateFreePurchase(userId: string, currency: string, skuId: string) {
@@ -186,7 +189,7 @@ export function CreateFreePurchase(userId: string, currency: string, skuId: stri
 
 export function RedeemFreePurchase(userId: string, currency: string, token: unknown) {
     player(userId);
-    if (currency !== "platinum" || typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
+    if (!IsPlatinum(currency) || typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
         throw new StoreError(400, "Invalid purchase token or currency");
     }
     GetDb().transaction(tx => {
