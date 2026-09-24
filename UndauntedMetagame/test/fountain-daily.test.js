@@ -27,7 +27,9 @@ before(async () => {
                 { catalogId: 'CONTAINER_CORE_REWARD_DAILY_02', quantity: 1 },
                 { catalogId: 'TOKEN_BOUNTY_DRAFT', quantity: 4 },
                 { catalogId: 'CURRENCY_NOTES', quantity: 1000 },
-                { catalogId: 'CURRENCY_PJM_WEAPON', quantity: 25 }
+                { catalogId: 'CURRENCY_PJM_WEAPON', quantity: 25 },
+                { catalogId: 'CURRENCY_TOKEN_EXCHANGE_SPEED_UP', quantity: 5 },
+                { catalogId: 'CURRENCY_PLATINUM', quantity: 20 }
             ],
             entitlements: [], maxAllowed: 1, remaining: 1, loadoutSlots: null
         }]
@@ -71,7 +73,7 @@ const claim = a => {
 };
 const held = (a, id) => Harness.StackedQuantity(Harness.ReadInventory(context, a.CharacterId), id);
 
-test('the fountain offer is listed, claimable once, and pays items to the character and currency to the wallet', async () => {
+test('the fountain offer is listed, claimable once, and pays the character and the wallet as the game keeps them', async () => {
     const a = Harness.SeedAccount(context);
     const [offer] = await listed(a);
     assert.equal(offer.id, SKU);
@@ -82,8 +84,14 @@ test('the fountain offer is listed, claimable once, and pays items to the charac
     assert.equal(held(a, 'CONTAINER_CORE_REWARD_DAILY_02'), 1);
     assert.equal(held(a, 'TOKEN_BOUNTY_DRAFT'), 4);
     assert.equal(held(a, 'CURRENCY_NOTES'), 1000);
-    assert.equal(held(a, 'CURRENCY_PJM_WEAPON'), 0);
-    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PJM_WEAPON, 25);
+    // Combat Merits are an inventory stack (the game spends them from there);
+    // Ace Chips are on the balance sheet.
+    assert.equal(held(a, 'CURRENCY_PJM_WEAPON'), 25);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PJM_WEAPON, undefined);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 5);
+    // The daily Platinum lands in the wallet the store charges from.
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PLATINUM, 20);
+    assert.equal(wallet.GetWallet(a.UserId).id_currency_platinum, 20);
 
     assert.equal((await listed(a))[0].remaining, 0);
     assert.throws(() => store.CreateFreePurchase(a.UserId, 'id_currency_platinum', SKU), { status: 409 });
@@ -110,5 +118,6 @@ test('the fountain refills at the next UTC midnight and grants add up', async ()
     claim(a);
     assert.equal(held(a, 'CONTAINER_CORE_REWARD_DAILY_02'), 2);
     assert.equal(held(a, 'CURRENCY_NOTES'), 2000);
-    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PJM_WEAPON, 50);
+    assert.equal(held(a, 'CURRENCY_PJM_WEAPON'), 50);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 10);
 });

@@ -28,11 +28,27 @@ export function CanonicaliseCurrency(CurrencyId: string){
     return CURRENCY_ALIASES[CurrencyId] ?? CurrencyId;
 }
 
+// The currencies the live service kept in its balance service: the GET
+// /balance sheet captured from it (routes/store.ts). Only these are account
+// wallet balances. Every other CURRENCY_ item is a character inventory stack:
+// the 1.12.0 game grants Combat Merits (CURRENCY_PJM_WEAPON) and Aethersparks
+// (CURRENCY_PJM_PRESTIGE_EMPTY) into the inventory itself and spends Slayer's
+// Path costs from it, so merits credited to the wallet could never be spent.
+const BALANCE_CURRENCIES = new Set([
+    "CURRENCY_PLATINUM", "CURRENCY_CELLDUST", "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", "CURRENCY_WEAPON_TOKEN",
+    "CURRENCY_MARKS_STEEL", "CURRENCY_MARKS_GILDED", "CURRENCY_PRESTIGE", "CURRENCY_REWARDCACHE",
+    "CURRENCY_SEASONAL_COIN", "CURRENCY_GAUNTLET_COIN", "CURRENCY_GAUNTLET_COIN_FADED", "CURRENCY_S13_DAILY",
+    "CURRENCY_S13_COIN", "CURRENCY_S14_COIN", "CURRENCY_S15_COIN", "CURRENCY_S16_COIN", "CURRENCY_S17_COIN",
+    "CURRENCY_S18_COIN", "CURRENCY_S19_COIN", "CURRENCY_S20_COIN",
+    "CURRENCY_EVENT_DARKHARVEST", "CURRENCY_EVENT_FROSTFALL", "CURRENCY_EVENT_RAMSGIVING",
+    "CURRENCY_EVENT_SAINTSBOND", "CURRENCY_EVENT_SPRINGTIDE"
+]);
+
 export function IsCurrency(CatalogId: string){
-    // Rams are held/spent as CURRENCY_NOTES in the 1.4.4 character inventory.
-    // Live inventories contain these balances; users.notes is a legacy field.
-    // Sending mastery Rams to the account wallet makes them unspendable there.
-    return CatalogId.startsWith("CURRENCY_") && CatalogId !== "CURRENCY_NOTES";
+    // Rams are on the balance sheet too, but are held/spent as CURRENCY_NOTES
+    // in the character inventory; users.notes is a legacy field. Sending
+    // mastery Rams to the account wallet makes them unspendable there.
+    return typeof CatalogId === "string" && BALANCE_CURRENCIES.has(CanonicaliseCurrency(CatalogId));
 }
 
 // Synchronous and transaction-scoped, to match ApplyInventoryTransaction: a
@@ -61,6 +77,34 @@ export function CreditWallet(tx: any, UserId: string, CurrencyId: string, Amount
     }
 
     return Updated;
+}
+
+export function WalletBalance(tx: any, UserId: string, CurrencyId: string){
+    return tx.select().from(wallets)
+        .where(and(eq(wallets.userId, UserId), eq(wallets.currencyId, CanonicaliseCurrency(CurrencyId)))).get()?.amount ?? 0;
+}
+
+export class InsufficientFundsError extends Error {}
+
+// The spending side, for priced store offers. Transaction-scoped like
+// CreditWallet, so a purchase's charge and its grant commit or roll back
+// together. A balance never goes below zero.
+export function DebitWallet(tx: any, UserId: string, CurrencyId: string, Amount: number){
+    if(!Number.isSafeInteger(Amount) || Amount <= 0){
+        throw new Error(`Refusing to debit ${Amount} of ${CurrencyId}: expected a positive integer`);
+    }
+
+    const Canonical = CanonicaliseCurrency(CurrencyId);
+    const Balance = WalletBalance(tx, UserId, Canonical);
+
+    if(Balance < Amount){
+        throw new InsufficientFundsError(`${UserId} has ${Balance} ${Canonical}, needs ${Amount}`);
+    }
+
+    tx.update(wallets).set({ amount: Balance - Amount, updatedAt: Date.now() })
+        .where(and(eq(wallets.userId, UserId), eq(wallets.currencyId, Canonical))).run();
+
+    return Balance - Amount;
 }
 
 export function GetWallet(UserId: string): Record<string, number> {

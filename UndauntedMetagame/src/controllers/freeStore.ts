@@ -4,7 +4,8 @@ import { GetDb } from "../db";
 import { characters, entitlements, inventory, storepurchases } from "../db/schema";
 import { ApplyInventoryTransaction } from "./inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
-import { CreditWallet, IsCurrency } from "./wallet";
+import { CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
+import { IsEntitlementActive } from "./entitlements";
 
 export class StoreError extends Error {
     constructor(public status: number, message: string) { super(message); }
@@ -60,6 +61,9 @@ export function GrantKind(catalogId: string): "stacked" | "instanced" | undefine
 // The client names the purchase currency in the token and notification paths.
 // 1.4.4 sends "platinum"; the 1.12.0 offers price in id_currency_platinum.
 const PLATINUM = new Set(["platinum", "id_currency_platinum", "currency_platinum"]);
+// The wallet balance a priced offer is paid from: Hunt Pass ranks and the
+// fountain pay Platinum into it.
+const PLATINUM_WALLET = "CURRENCY_PLATINUM";
 const IsPlatinum = (currency: string) => PLATINUM.has(String(currency).toLowerCase());
 
 // A repeatable offer sells consumables only. It is never "owned", and each
@@ -105,12 +109,13 @@ function offerFor(skuId: string, currency: string) {
     const offer = offers.find(item => item.id === skuId);
     if (!offer) throw new StoreError(404, "Unknown store offer");
     if (IsDaily(offer)) return DailyOffer(offer);
-    // Free offers only. Supported grants are permanent cosmetics, repeatable
-    // consumables and entitlements; currencies still need their own logic.
+    // Supported grants are permanent cosmetics, repeatable consumables and
+    // entitlements (permanent, or timed in hours). Most offers are free; an
+    // offer with a platinumPrice charges that much Platinum from the wallet.
     const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
     const grants: { name: string; duration?: number }[] = offer.entitlements ?? [];
 
-    if (offer.platinumPrice !== 0) throw new StoreError(409, "Offer is not free");
+    if (!Number.isSafeInteger(offer.platinumPrice) || offer.platinumPrice < 0) throw new StoreError(409, "Offer has an invalid price");
     if (!items.length && !grants.length) throw new StoreError(409, "Offer grants nothing");
     const repeatable = IsRepeatable(offer);
     if (repeatable && grants.length) throw new StoreError(409, "Repeatable offers cannot grant entitlements");
@@ -118,9 +123,10 @@ function offerFor(skuId: string, currency: string) {
         REPEATABLE_ITEMS.has(item.catalogId) !== repeatable ||
         (repeatable ? GrantKind(item.catalogId) !== "stacked" || !Number.isSafeInteger(item.quantity) || item.quantity <= 0
             : item.quantity !== 1))) {
-        throw new StoreError(409, "Offer is not a supported free item");
+        throw new StoreError(409, "Offer is not a supported store item");
     }
-    if (grants.some(grant => typeof grant.name !== "string" || !grant.name)) {
+    if (grants.some(grant => typeof grant.name !== "string" || !grant.name ||
+        !Number.isSafeInteger(grant.duration ?? 0) || (grant.duration ?? 0) < 0)) {
         throw new StoreError(409, "Offer has an unusable entitlement");
     }
     return offer;
@@ -164,12 +170,15 @@ function HeldCatalogIds(row: { stackedItems?: string; instancedItems?: string } 
 // offers, and reading them per offer made one request thousands of queries.
 function OwnershipMarker(userId: string, characterId: string) {
     const held = HeldCatalogIds(GetDb().select().from(inventory).where(eq(inventory.characterId, characterId)).get());
-    const entitled = new Set(GetDb().select({ entitlement: entitlements.entitlement }).from(entitlements)
-        .where(eq(entitlements.userId, userId)).all().map(row => row.entitlement));
+    const entitled = new Set(GetDb().select().from(entitlements).where(eq(entitlements.userId, userId)).all()
+        .filter(row => IsEntitlementActive(row)).map(row => row.entitlement));
 
     return (offer: any) => {
         if (IsDaily(offer)) return { ...offer, remaining: ClaimedToday(GetDb(), userId, offer.id, Date.now()) ? 0 : 1 };
         if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
+        // A timed entitlement (a Slayers Club membership) can always be
+        // bought again: it extends the time left.
+        if ((offer.entitlements ?? []).some((grant: any) => (grant.duration ?? 0) > 0)) return { ...offer, remaining: 1 };
 
         const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
         const grants: { name: string }[] = offer.entitlements ?? [];
@@ -216,6 +225,10 @@ export function CreateFreePurchase(userId: string, currency: string, skuId: stri
     if (IsDaily(offer) && ClaimedToday(GetDb(), userId, skuId, Date.now())) {
         throw new StoreError(409, "Already claimed today");
     }
+    // Checked again, and charged, when the purchase is confirmed.
+    if (offer.platinumPrice > 0 && WalletBalance(GetDb(), userId, PLATINUM_WALLET) < offer.platinumPrice) {
+        throw new StoreError(409, "Not enough Platinum");
+    }
     const token = randomBytes(32).toString("hex");
     GetDb().insert(storepurchases).values({
         tokenHash: hash(token), userId, characterId: char.characterId, skuId,
@@ -240,6 +253,18 @@ export function RedeemFreePurchase(userId: string, currency: string, token: unkn
         const offer = offerFor(purchase.skuId, currency);
         if (offerHash(offer) !== purchase.offerHash) throw new StoreError(409, "Offer changed; request a new token");
         const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
+
+        // The charge commits with the grant: if anything below fails, the
+        // Platinum is not taken, and a confirmed purchase is never charged twice
+        // (a retry returns above, at redeemedAt).
+        if (offer.platinumPrice > 0) {
+            try {
+                DebitWallet(tx, userId, PLATINUM_WALLET, offer.platinumPrice);
+            } catch (error) {
+                if (error instanceof InsufficientFundsError) throw new StoreError(409, "Not enough Platinum");
+                throw error;
+            }
+        }
 
         if (IsDaily(offer)) {
             // Checked again here, inside the write transaction: two tokens
@@ -288,18 +313,26 @@ export function RedeemFreePurchase(userId: string, currency: string, token: unkn
             }
         }
 
+        const now = Date.now();
         for (const grant of (offer.entitlements ?? []) as { name: string; duration?: number }[]) {
-            const already = tx.select().from(entitlements)
-                .where(and(eq(entitlements.userId, userId), eq(entitlements.entitlement, grant.name))).get();
+            const duration = grant.duration ?? 0;
+            const source = `store:${purchase.skuId}`;
+            const where = and(eq(entitlements.userId, userId), eq(entitlements.entitlement, grant.name));
+            const already = tx.select().from(entitlements).where(where).get();
 
             if (!already) {
-                tx.insert(entitlements).values({
-                    userId,
-                    entitlement: grant.name,
-                    duration: grant.duration ?? 0,
-                    activatedAt: Date.now(),
-                    source: `store:${purchase.skuId}`
-                }).run();
+                tx.insert(entitlements).values({ userId, entitlement: grant.name, duration, activatedAt: now, source }).run();
+            }
+            else if (duration === 0) {
+                // Permanent: already permanent stays as is; a timed one becomes permanent.
+                if (already.duration > 0) tx.update(entitlements).set({ duration: 0, activatedAt: now, source }).where(where).run();
+            }
+            else if (already.duration > 0) {
+                // Timed (a Slayers Club membership) stacks: bought while it runs,
+                // it adds its hours; bought after it ended, a new term starts now.
+                tx.update(entitlements).set(IsEntitlementActive(already, now)
+                    ? { duration: already.duration + duration, source }
+                    : { duration, activatedAt: now, source }).where(where).run();
             }
         }
         tx.update(storepurchases).set({ redeemedAt: Date.now() })
