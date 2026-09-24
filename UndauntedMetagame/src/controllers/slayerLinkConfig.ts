@@ -1,4 +1,16 @@
-import nativeRewardTable from "../vendor/linked_slayer_rewards.json";
+import { readFileSync } from "node:fs";
+import bundledRewardTable from "../vendor/linked_slayer_rewards.json";
+
+// The rewards table the gameserver rolls prize pools from. The bundled copy is
+// 1.4.4's; each client version has its own (1.12.0 pays different amounts, e.g.
+// 15000 Rams, and adds Combat Merits and Aethersparks), and a pool rolled from
+// one is refused by the other. LINKED_SLAYER_REWARDS_FILE points at the table
+// decoded from the client being served, in the same shape, kept outside the
+// repo because it is game data.
+const RewardTableFile = process.env.LINKED_SLAYER_REWARDS_FILE;
+const nativeRewardTable: any = RewardTableFile != undefined && RewardTableFile.length > 0
+    ? JSON.parse(readFileSync(RewardTableFile, "utf8"))
+    : bundledRewardTable;
 
 // Slayer Link constants and the progression tracks the 1.4.4 client reads.
 //
@@ -72,13 +84,13 @@ export function DeriveLinkRank(TotalPoints: number){
 }
 
 export const MAX_LINK_RANK = LINK_RANK_COSTS.length;
-export const MAX_LINK_REWARDS: number = (nativeRewardTable as any).config.max_rewards;
+export const MAX_LINK_REWARDS: number = nativeRewardTable.config.max_rewards;
 
 // Every catalogue id and amount the native rewards table can produce. A pool
 // write naming anything else did not come from the native generator.
 const AllowedAmounts = new Map<string, Set<number>>();
 
-for(const Row of (nativeRewardTable as any).rewards as { catalog_id: string, quantity: number }[]){
+for(const Row of nativeRewardTable.rewards as { catalog_id: string, quantity: number }[]){
     if(!AllowedAmounts.has(Row.catalog_id)){
         AllowedAmounts.set(Row.catalog_id, new Set());
     }
@@ -92,5 +104,5 @@ export function IsKnownLinkReward(CatalogId: unknown, Quantity: unknown){
 }
 
 // The largest pool the native generator can draw (sum of ClassesToDraw).
-export const MAX_POOL_SIZE: number = ((nativeRewardTable as any).config.classes_to_draw as number[])
+export const MAX_POOL_SIZE: number = (nativeRewardTable.config.classes_to_draw as number[])
     .reduce((Sum, Count) => Sum + Count, 0);

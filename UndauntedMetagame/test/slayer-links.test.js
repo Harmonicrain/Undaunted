@@ -265,36 +265,39 @@ test("link XP: any Hunt Pass XP earned while partied with the online linked part
     // Bounty XP is paid in Ramsgate after the party returns; it counts too.
     await Award(A, 20, Ramsgate(A));
     assert.equal(LinkRow(Id).progress, 170);
-    // Ineligible: partner offline, no gameserver context, forged by a player.
+    // Ineligible: partner offline, forged by a player.
     Online.delete(B.UserId);
     await Award(A, 100, HuntHeaders(A, B));
     Online.add(B.UserId);
-    await Award(A, 100, {});
     assert.equal((await Award(A, 100, HuntHeaders(A, B), false)).status, 403);
     assert.equal(LinkRow(Id).progress, 170);
+    // The 1.12.0 runtime sends no hunt headers: the gameserver key alone makes
+    // it a gameserver award, and the party rule decides.
+    await Award(A, 30, {});
+    assert.equal(LinkRow(Id).progress, 200);
     // Direct link-track grants are ignored rather than doubling progress.
     await Call(`/progression/${A.UserId}/Linked_Slayer_Slot_1/500`, { gameserver: true, method: "POST" });
     await Call(`/progression/${A.UserId}`, { gameserver: true, method: "POST", body: { progress_tracks: [{ progression_id: "Linked_Slayer_Slot_1", progress: 500 }], objectives: [] } });
-    assert.equal(LinkRow(Id).progress, 170);
+    assert.equal(LinkRow(Id).progress, 200);
     // Bulk grants follow the same rule.
     await Call(`/progression/${A.UserId}`, { gameserver: true, method: "POST", headers: HuntHeaders(A, B),
         body: { progress_tracks: [{ progression_id: HuntPass(), progress: 5 }], objectives: [] } });
-    assert.equal(LinkRow(Id).progress, 175);
+    assert.equal(LinkRow(Id).progress, 205);
     // The same source award applies once per link.
     Db.transaction(tx => Links.ApplyHuntPassXpToLinks(tx, A.UserId, 10, { world: "islands/x" }, "event-1"));
     Db.transaction(tx => Links.ApplyHuntPassXpToLinks(tx, A.UserId, 10, { world: "islands/x" }, "event-1"));
-    assert.equal(LinkRow(Id).progress, 185);
-    assert.equal(Db.select().from(Schema.slayerlinkxp).all().filter(R => R.linkId === Id).length, 5);
+    assert.equal(LinkRow(Id).progress, 215);
+    assert.equal(Db.select().from(Schema.slayerlinkxp).all().filter(R => R.linkId === Id).length, 6);
     // After the partner leaves the party, nothing more is shared.
     Party.LeaveParty(B.UserId);
     await Award(A, 100, HuntHeaders(A, B));
-    assert.equal(LinkRow(Id).progress, 185);
+    assert.equal(LinkRow(Id).progress, 215);
     // Nothing is earned after the link ends.
     Party.InviteToParty(A.UserId, B.UserId, "test-build");
     Party.AcceptPartyInvite(B.UserId, Party.GetInvitesForPlayer(B.UserId)[0].inviteId);
     Clock += 7 * DAY;
     await Award(A, 100, HuntHeaders(A, B));
-    assert.equal(LinkRow(Id).progress, 185);
+    assert.equal(LinkRow(Id).progress, 215);
     Party.LeaveParty(A.UserId); Party.LeaveParty(B.UserId);
     Links.SetSlayerLinkOnlineCheck();
 });

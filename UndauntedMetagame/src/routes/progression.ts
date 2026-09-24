@@ -240,6 +240,11 @@ function ResolveRewardCharacter(UserId: string){
 // Where a gameserver award happened and who was connected there, reported by
 // the runtime on every gameserver request (dllmain.cpp ProcessRequest). Only
 // a gameserver's word counts; a player cannot claim to be hunting with anyone.
+//
+// The gameserver's API key is what makes it a gameserver award; the headers
+// only describe it. The 1.12.0 runtime does not send them yet, and requiring
+// them meant no 1.12.0 award ever advanced a Slayer Link. Link XP follows the
+// party rule, which needs neither.
 function HuntContextFrom(req: any){
     if(req.AuthData?.IsGameserver !== true){
         return undefined;
@@ -248,13 +253,10 @@ function HuntContextFrom(req: any){
     const World = req.headers["x-undaunted-world"];
     const Present = req.headers["x-undaunted-copresent"];
 
-    if(typeof World !== "string" || typeof Present !== "string"){
-        return undefined;
-    }
-
     return {
-        world: World,
-        copresentCharacterIds: Present.split(",").map((Id) => Id.trim()).filter((Id) => Id.length > 0)
+        world: typeof World === "string" && World.length > 0 ? World : "unreported",
+        copresentCharacterIds: typeof Present === "string"
+            ? Present.split(",").map((Id) => Id.trim()).filter((Id) => Id.length > 0) : []
     };
 }
 
