@@ -3,6 +3,7 @@ import { GetDb } from "../db";
 import { characters } from "../db/schema";
 import { GetUsernameForUserId } from "./login";
 import { logger } from "../logger";
+import { NormalizeReturningPlayer, SKIP_FTUE } from "./returningPlayer";
 
 const TARGET_CHANGELIST = process.env.TARGET_CHANGELIST;
 
@@ -10,7 +11,7 @@ function TransformDbCharacterToWireCharacter(DbCharacter: any){
     return {
         accountId: DbCharacter.userId,
         createdDate: DbCharacter.createdDate,
-        data: DbCharacter.data,
+        data: SKIP_FTUE ? NormalizeReturningPlayer(DbCharacter.data) : DbCharacter.data,
         id: DbCharacter.characterId,
         lastModifiedDate: DbCharacter.lastModifiedDate,
         name: DbCharacter.name,
@@ -109,7 +110,7 @@ export async function UpdateCharacterForUid(CharacterId: string, UserId: string,
         return false;
     }
 
-    CharacterDataToUpdateWith = ProcessTriggers(CharacterDataToUpdateWith);
+    CharacterDataToUpdateWith = ProcessTriggers(SKIP_FTUE ? NormalizeReturningPlayer(CharacterDataToUpdateWith) : CharacterDataToUpdateWith);
 
     await GetDb().update(characters).set({
         data: CharacterDataToUpdateWith,

@@ -368,3 +368,13 @@ export const slayerlinkrequests = sqliteTable("slayerlinkrequests", {
     response: text("response").notNull(),
     appliedAt: integer("appliedAt").notNull()
 }, (Table) => ({ pk: primaryKey({ columns: [Table.actor, Table.requestId] }) }));
+
+// Player Journey (Slayer's Path) node map for the 1.12.0 client. The
+// gameserver saves the whole map with an update_version (POST /pjm/{account});
+// the client and the gameserver read it back (GET /pjm, GET /pjm/{account}).
+export const playerjourney = sqliteTable("playerjourney", {
+    userId: text("userId").notNull().primaryKey(),
+    nodes: text("nodes").notNull(),
+    updateVersion: integer("updateVersion").notNull(),
+    updatedAt: integer("updatedAt").notNull()
+});

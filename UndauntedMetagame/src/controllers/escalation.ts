@@ -74,8 +74,16 @@ function ReadState(tx: any, UserId: string, Season: EscalationSeason): WireSeaso
     };
 }
 
+// A season this server has no table for (1.12.0 asks for ESC_SEASON_6 while
+// loading every player) reads as the native default. A 404 there fails the
+// gameserver's player data load and the player is dropped from the world.
+// Writes to it are still refused, and it never shows another season's data.
 export function GetEscalationState(UserId: string, SeasonId: string): WireSeason {
-    const Season = SeasonOrThrow(SeasonId);
+    const Season = GetEscalationSeason(SeasonId);
+
+    if(Season == undefined){
+        return { escalation_level: 0, next_level_xp: 0, talents_progress: [], unlock_progress: [], update_version: 0 };
+    }
 
     return ReadState(GetDb(), UserId, Season);
 }

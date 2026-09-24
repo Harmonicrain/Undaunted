@@ -155,6 +155,13 @@
       "when": 1790160189151,
       "tag": "0021_slayer_link_request_replay",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1790176715603,
+      "tag": "0022_player_journey",
+      "breakpoints": true
     }
   ]
 }

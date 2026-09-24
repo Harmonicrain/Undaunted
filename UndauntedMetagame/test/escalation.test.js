@@ -89,9 +89,13 @@ test("a fresh account reads the native default for every season and no row is cr
     assert.equal(Count("escalationprogression", A.UserId), 0);
 });
 
-test("an unknown season is a 404, not another season's data", async () => {
+test("an unknown season reads as the empty default, never another season's data, and refuses writes", async () => {
     const A = Harness.SeedAccount(Context);
-    assert.equal((await Read(A, "ESC_SEASON_9")).status, 404);
+    assert.equal((await Write(A, Snap({ escalation_level: 1, next_level_xp: 10 }))).status, 200);
+    const Unknown = await Read(A, "ESC_SEASON_9");
+    assert.equal(Unknown.status, 200);
+    assert.deepEqual(Unknown.body.payload, { escalation_level: 0, next_level_xp: 0, talents_progress: [], unlock_progress: [], update_version: 0 });
+    assert.equal((await Write(A, Snap({ escalation_level: 1 }), "ESC_SEASON_9")).status, 404);
 });
 
 test("a player reads only their own season; a gameserver reads the named account", async () => {

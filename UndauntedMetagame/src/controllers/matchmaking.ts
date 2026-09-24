@@ -28,6 +28,20 @@ type MatchmakingResult = {
 let MatchmakingQueueMap: Map<string, MatchmakingQueueData> = new Map<string, MatchmakingQueueData>(); // Key is HuntID
 let MatchmakingResultMap: Map<string, MatchmakingResult> = new Map<string, MatchmakingResult>(); // Key is PlayerID
 
+// Hunt id to give the world when the client asked for one without it: the
+// city is ShatteredIsles_ReturnToRamsgate and the first island (FTUE,
+// dia_moss_triforce) is ShatteredIsles_IslandA. The gameserver sets each
+// player's hunt id from it (runtime HuntIdBackfill); left empty, the 1.12.0
+// client leaves the island a second after joining. Mapping as in Mystic
+// Paradox's ParadoxBackend (pranav158/Mystic-Paradox@355934c
+// src/controllers/matchmaking.ts GetFallbackHuntId); see NOTICE.md.
+export function FallbackHuntId(GameMode: string, GameArgs: string | undefined, HuntId: string | undefined){
+    if(HuntId != undefined && HuntId.trim().length > 0) return HuntId;
+    if(GameMode === "CITY") return "ShatteredIsles_ReturnToRamsgate";
+    if(GameArgs?.includes("/Game/Maps/islands/1705/dia_moss_triforce")) return "ShatteredIsles_IslandA";
+    return HuntId;
+}
+
 function HuntIdRequiresMatchmaking(HuntId: string){
     return !HuntId.includes("Ramsgate") && !HuntId.includes("Dojo");
     //return HuntId.includes("CR19") || HuntId.includes("11A") || HuntId.includes("Story");
@@ -184,12 +198,13 @@ export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string
         }
         const players = party?.members.slice() ?? [PlayerId];
         if(HuntId == undefined || HuntId.trim().length == 0 || !HuntIdRequiresMatchmaking(HuntId)){
-            const GameOnDeployServer = await LaunchGameOnDeployserver(GameMode, GameArgs, HuntId, players);
+            const LaunchHuntId = FallbackHuntId(GameMode, GameArgs, HuntId) ?? HuntId;
+            const GameOnDeployServer = await LaunchGameOnDeployserver(GameMode, GameArgs, LaunchHuntId, players);
 
             const Result: MatchmakingResult = {
                 Ready: false, Failed: false, FailureReason: null,
                 CandidateId: crypto.randomUUID(),
-                HuntId: HuntId,
+                HuntId: LaunchHuntId,
                 Host: "",
                 Port: 0
             };

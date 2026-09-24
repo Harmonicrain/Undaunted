@@ -1,3 +1,5 @@
+import { playerJourneyRouter } from "./routes/playerJourney";
+import { client112Router } from "./routes/client112";
 import express from "express";
 import { loginRouter } from "./routes/login.js";
 import { logger } from "./logger.js";
@@ -28,6 +30,9 @@ app.use(express.urlencoded({ extended: true }));
 // actually sends to the stubbed routes without altering any response.
 app.use(WireCapture);
 
+// 1.12.0-only routes; ahead of progressionRouter so /progression/tracked_objectives wins.
+app.use("/", client112Router);
+app.use("/", playerJourneyRouter);
 app.use("/", loginRouter);
 app.use("/", eosRouter);
 app.use("/", systemRouter);
