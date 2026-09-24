@@ -101,6 +101,11 @@ function TransformExpectedPlayerArgs(ExpectedPlayers: ExpectedPlayer[]){
 }
 
 export async function CleanupServer(ServerToShutdown: Gameserver){
+    // Called from both the exit handler and the watchdog: clean up once.
+    if(!Gameservers.includes(ServerToShutdown)){
+        return;
+    }
+
     Gameservers = Gameservers.filter(Server => Server !== ServerToShutdown);
 
     if(ServerToShutdown.isRamsgate){
@@ -180,7 +185,17 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
     }
 
     Child.on("error", error => logger.error({ error, port: Port }, "Gameserver process failed"));
-    Child.on("exit", (code, signal) => logger.warn({ pid: Child.pid, port: Port, code, signal }, "Gameserver exited"));
+    // A world that ends frees its port at once (or, for Ramsgate and the
+    // Training Grounds, is restarted). Only the watchdog did this, and with it
+    // off every island's port stayed taken: after 8 islands, every hunt failed
+    // with "No free ports left!" until the deploy server was restarted.
+    Child.on("exit", (code, signal) => {
+        logger.warn({ pid: Child.pid, port: Port, code, signal }, "Gameserver exited");
+        const Exited = Gameservers.find(Server => Server.processId === Child.pid);
+        if(Exited != undefined){
+            CleanupServer(Exited).catch(error => logger.error({ err: error }, "Could not clean up an exited gameserver"));
+        }
+    });
 
     Child.unref();
 

@@ -26,7 +26,7 @@ export async function HandleMatchmakingRequest(GameMode: string, GameArgs: strin
                 return await StartupGameserverWithHuntIdAndPlayers(HuntId, ExpectedPlayers!);
             }
             catch(error){
-                logger.error({ error }, `Could not start hunt ${HuntId}`);
+                logger.error({ err: error }, `Could not start hunt ${HuntId}`);
             }
         }
     }
