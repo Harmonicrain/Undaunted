@@ -95,6 +95,30 @@ function IsFullReset(DraftData: any){
         && DraftData.gold_count === 0;
 }
 
+// 1.12.0 keeps three kinds of bounty in one list, each numbering its own slots
+// from 0: drafted bounties (Bounty_*, draft_data), the daily challenge
+// (Challenge_Daily_*, draft_data_daily, always slot 0) and the season
+// challenges (Challenge_Season_*-seasonNN-W, draft_data_weekly, slots 0-9 for
+// every week at once). A slot therefore only identifies a bounty within its
+// kind: displacing across kinds let each world load's season challenges and
+// daily challenge wipe the player's drafted bounties. Season challenges of
+// different weeks share slot numbers while all being held, so they are
+// replaced by id alone. 1.4.4 only has drafted bounties.
+type BountyKind = "drafted" | "daily" | "challenge";
+
+function KindOf(Entry: any): BountyKind {
+    const Id = typeof Entry?.bounty_id === "string" ? Entry.bounty_id : "";
+    if(Id.startsWith("Challenge_Daily_")) return "daily";
+    if(Id.startsWith("Challenge_")) return "challenge";
+    return "drafted";
+}
+
+function Displaces(Incoming: any, Stored: any){
+    if(Incoming?.bounty_id === Stored?.bounty_id) return true;
+    const Kind = KindOf(Incoming);
+    return Kind !== "challenge" && Kind === KindOf(Stored) && Incoming?.slot_index === Stored?.slot_index;
+}
+
 function MergeBounties(Stored: any, Incoming: any){
     const Merged = { ...Stored, ...Incoming };
 
@@ -113,8 +137,10 @@ function MergeBounties(Stored: any, Incoming: any){
     // while every id was rejected as disabled; once bounty_data enabled them,
     // they came back on the next login as ghosts the player had already been
     // refunded for.
+    // draft_data describes the drafted board only, so its reset clears only
+    // drafted bounties; the challenges are not part of that board.
     if(IncomingBounties.length === 0 && IsFullReset(Incoming?.draft_data)){
-        Merged.bounties = [];
+        Merged.bounties = StoredBounties.filter((Entry) => KindOf(Entry) !== "drafted");
 
         return Merged;
     }
@@ -128,13 +154,10 @@ function MergeBounties(Stored: any, Incoming: any){
         return Merged;
     }
 
-    const IncomingIds = new Set(IncomingBounties.map((Entry) => Entry?.bounty_id));
-    const IncomingSlots = new Set(IncomingBounties.map((Entry) => Entry?.slot_index));
-
-    // A slot holds one bounty, so an incoming entry displaces whatever shared
-    // its id or its slot.
+    // A slot holds one bounty of its kind, so an incoming entry displaces
+    // whatever shared its id, or its slot within the same kind.
     const Kept = StoredBounties.filter((Entry) =>
-        !IncomingIds.has(Entry?.bounty_id) && !IncomingSlots.has(Entry?.slot_index));
+        !IncomingBounties.some((Incoming) => Displaces(Incoming, Entry)));
 
     Merged.bounties = [...Kept, ...IncomingBounties];
 

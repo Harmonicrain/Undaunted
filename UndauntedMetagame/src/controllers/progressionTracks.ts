@@ -108,9 +108,16 @@ export function GetWireTrack(UserId: string, TrackId: string){
     return ToWireTrack(UserId, GetTrackState(UserId, TrackId));
 }
 
+// The per-player tracks the client reads on login. 1.12.0 adds weapon skill
+// and player XP (ExperienceTrack_*) and weapon prestige (PrestigeTrack_*)
+// beside the mastery tracks; left out, the client showed 0 XP in every newly
+// loaded world until the next award returned the real total. The 1.4.4
+// configuration has no tracks with those prefixes.
+const LOGIN_TRACK_PREFIXES = ["MasteryTrack_", "ExperienceTrack_", "PrestigeTrack_"];
+
 export function GetWireMasteryTracks(UserId: string){
     const States = new Map(GetAllTrackStates(UserId).map((State) => [State.trackId, State]));
-    return GetAllTrackIds().filter((Id) => Id.startsWith("MasteryTrack_"))
+    return GetAllTrackIds().filter((Id) => LOGIN_TRACK_PREFIXES.some((Prefix) => Id.startsWith(Prefix)))
         .map((Id) => ToWireTrack(UserId, States.get(Id) ?? DefaultState(Id)));
 }
 

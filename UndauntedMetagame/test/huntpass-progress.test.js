@@ -299,6 +299,50 @@ test("re-posting a bounty updates it in place", () => {
     assert.equal(Stored.bounties[0].objectives[0].progress, 5);
 });
 
+// 1.12.0 keeps drafted bounties, the daily challenge and the season
+// challenges in one list, each kind numbering its slots from 0. A world load
+// posts the season challenges and a daily challenge; displacing by slot across
+// kinds wiped every drafted bounty on reload.
+const Entry = (Id, Slot) => ({ bounty_id: Id, slot_index: Slot, objectives: [{ objective_id: Id, progress: 0 }], update_version: 0 });
+const Ids = (UserId) => Bounties.GetBountiesForUser(UserId).bounties.map((Bounty) => Bounty.bounty_id).sort();
+
+test("season and daily challenges do not displace drafted bounties sharing their slots", () => {
+    const Account = Harness.SeedAccount(Context);
+    const Drafted = ["Bounty_Bronze_StaggerDamageReduce", "Bounty_Bronze_HuntsSwordTwo", "Bounty_Bronze_HuntsChainbladesTwo"];
+    Drafted.forEach((Id, Slot) => Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Entry(Id, Slot)] }));
+
+    const Challenges = ["Challenge_Season_Quest_S19a_01-season19-0", "Challenge_Season_Kills_Raging-season19-1",
+        "Challenge_Season_Break_Snowflake-season19-2"];
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: Challenges.map((Id) => Entry(Id, 0)) });
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Entry("Challenge_Daily_Bronze_PartDamageReduce", 0)] });
+    // A later update to one week's challenge keeps the other weeks' challenges in that slot.
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [{ ...Entry(Challenges[1], 0), update_version: 3 }] });
+
+    assert.deepEqual(Ids(Account.UserId), [...Drafted, ...Challenges, "Challenge_Daily_Bronze_PartDamageReduce"].sort());
+});
+
+test("a bounty still replaces one of its own kind in its slot", () => {
+    const Account = Harness.SeedAccount(Context);
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Entry("Bounty_Bronze_Old", 0), Entry("Challenge_Daily_Bronze_Old", 0)] });
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Entry("Bounty_Silver_New", 0)] });
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Entry("Challenge_Daily_Bronze_New", 0)] });
+
+    assert.deepEqual(Ids(Account.UserId), ["Bounty_Silver_New", "Challenge_Daily_Bronze_New"]);
+});
+
+test("a drafted-board reset clears drafted bounties and keeps the challenges", () => {
+    const Account = Harness.SeedAccount(Context);
+    Bounties.SaveBountiesForUser(Account.UserId, {
+        bounties: [Entry("Bounty_Bronze_Held", 0), Entry("Challenge_Season_Quest_S19a_01-season19-0", 0)]
+    });
+    Bounties.SaveBountiesForUser(Account.UserId, {
+        bounties: [],
+        draft_data: { current_draft_choices: [], previous_draft_selections: [], bronze_count: 0, silver_count: 0, gold_count: 0 }
+    });
+
+    assert.deepEqual(Ids(Account.UserId), ["Challenge_Season_Quest_S19a_01-season19-0"]);
+});
+
 // ------------------------------------------------------------ authorisation
 
 test("a player token cannot award itself progression", async () => {
