@@ -3,7 +3,7 @@ import { logger } from "../logger";
 import { GetUserIDForAPIKey, SignMetagameJWTForUid, ValidateMetagameJWTAndGetPayload } from "../controllers/auth";
 import { GetDb } from "../db";
 import { users } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { HasOptionalUndauntedMetagameAuth } from "../middleware/HasOptionalUndauntedMetagameAuth";
 import { GetUsernameForUserId } from "../controllers/login";
@@ -152,12 +152,28 @@ async function BuildAccountInfo(UserId: string){
     };
 }
 
+// Epic's bulk account lookup: GET ?accountId=A&accountId=B, answered with an
+// ARRAY of public accounts, one per known id. The client's social layer builds
+// every player's display name from it. Answered with a single object - always
+// the requester's own - it parsed nothing, so the client fell back to the
+// launcher name and labelled every player "[No Epic Account]": in chat, the
+// friends list, the party and the online notices.
 eosRouter.get("/account/api/public/account", HasUndauntedMetagameAuth, async (req: any, res) => {
-    const UserId = req.AuthData.userId;
+    const Requested = ([] as unknown[]).concat(req.query.accountId ?? [])
+        .filter((Id): Id is string => typeof Id === "string" && Id.length > 0).slice(0, 100);
 
-    logger.info(`Account info for userId ${UserId}`);
+    if(Requested.length === 0){
+        // No ids: the requester's own account, as before.
+        res.json(await BuildAccountInfo(req.AuthData.userId));
 
-    res.json(await BuildAccountInfo(UserId));
+        return;
+    }
+
+    const Known = GetDb().select().from(users).where(inArray(users.userId, Requested)).all();
+
+    logger.info(`Account lookup for ${Requested.length} id(s): ${Known.length} known`);
+
+    res.json(Known.map((Row) => ({ id: Row.userId, displayName: Row.name, externalAuths: {} })));
 });
 
 // The runtime builds this lookup by pasting the metagame address straight onto

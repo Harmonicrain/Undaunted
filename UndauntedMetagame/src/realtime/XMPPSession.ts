@@ -1,6 +1,9 @@
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
+ * Further modified in September 2026 for the Undaunted fork
+ * (Harmonicrain/Undaunted): keep-alive pongs, and text chat room and direct
+ * message stanzas. Not an official release of either upstream project.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -164,7 +167,10 @@ export class XMPPSession {
             if (type === "set" || type === "get") {
                 
                 
-                return { send: [`<iq type="result" id="${escapeXml(id)}"/>`], nextState: XmppState.SessionReady, note: `IQ ${type} -> result` };
+                // Answered as the entity asked, so a room configuration request
+                // is acknowledged by that room rather than by nobody.
+                const asked = attrs["to"];
+                return { send: [`<iq type="result" id="${escapeXml(id)}"${asked ? ` from="${escapeXml(asked)}"` : ""}/>`], nextState: XmppState.SessionReady, note: `IQ ${type} -> result` };
             }
             return undefined;
         }

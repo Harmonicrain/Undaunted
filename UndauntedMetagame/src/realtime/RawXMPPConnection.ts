@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 import type { Socket } from "node:net";
 import { logger } from "../logger";
 import { onResourceAvailable, onResourceUnavailable } from "./PresenceService";
+import { ApplyChatAction, LeaveAllRooms } from "./RoomService";
 import { sessionRegistry } from "./SessionRegistry";
 import { XMPPSession, type SessionAction } from "./XMPPSession";
 
@@ -122,6 +123,7 @@ export class RawXMPPConnection {
             if(action.presence.available && !this.available){ this.available = true; await onResourceAvailable(this.accountId, this.resource); }
             if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId); }
         }
+        if((action.room || action.direct) && this.accountId && this.resource) ApplyChatAction(this, this.accountId, this.resource, action);
         if(action.close) this.close(action.close.code, action.close.reason);
         logger.info(`[XMPP-TCP] ${this.connId} ${action.note}`);
     }
@@ -129,6 +131,7 @@ export class RawXMPPConnection {
     private teardown(){
         if(this.closed) return;
         this.closed = true;
+        LeaveAllRooms(this);
         if(this.accountId && this.resource){
             sessionRegistry.unbind(this.accountId, this.resource, this);
             void onResourceUnavailable(this.accountId);

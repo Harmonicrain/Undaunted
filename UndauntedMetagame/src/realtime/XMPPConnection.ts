@@ -3,7 +3,8 @@
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
  * Further modified in September 2026 for the Undaunted 1.4.4 preservation fork
  * (Harmonicrain/Undaunted): adapted to the 1.4.4 client, SQLite persistence and
- * a raw TCP XMPP listener. Not an official release of either upstream project.
+ * a raw TCP XMPP listener; text chat rooms for the 1.12.0 client. Not an
+ * official release of either upstream project.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -15,6 +16,7 @@ import type { WebSocket } from "ws";
 import { logger } from "../logger";
 import { sessionRegistry } from "./SessionRegistry";
 import { onResourceAvailable, onResourceUnavailable } from "./PresenceService";
+import { ApplyChatAction, LeaveAllRooms } from "./RoomService";
 import { summarizeFrame } from "./XMPPProtocol";
 import { XMPPSession } from "./XMPPSession";
 import { ConnectionInfo, RealtimeConfig, XmppState } from "./types";
@@ -61,6 +63,7 @@ export class XMPPConnection {
             if(action.presence.available && !this.available){ this.available = true; await onResourceAvailable(this.accountId, this.resource); }
             if(!action.presence.available && this.available){ this.available = false; await onResourceUnavailable(this.accountId); }
         }
+        if((action.room || action.direct) && this.accountId && this.resource) ApplyChatAction(this, this.accountId, this.resource, action);
         if(action.close) this.close(action.close.code, action.close.reason);
         logger.info(`[XMPP] ${this.connId} ${action.note}`);
     }
@@ -69,6 +72,7 @@ export class XMPPConnection {
         if(this.closed) return;
         this.closed = true;
         this.state = XmppState.Closed;
+        LeaveAllRooms(this);
         if(this.accountId && this.resource){ sessionRegistry.unbind(this.accountId, this.resource, this); void onResourceUnavailable(this.accountId); }
         this.onClosed(this);
     }

@@ -75,7 +75,10 @@ friendsRouter.get("/friends/api/public/blocklist/:accountId", HasUndauntedMetaga
     const ownerId = Owner(req);
     if(req.params.accountId !== ownerId){ res.sendStatus(403); return; }
     const blocked = GetDb().select().from(friendblocks).where(eq(friendblocks.ownerId, ownerId)).all();
-    res.json({ blocklistedUsers: blocked.map((row) => row.blockedId) });
+    const blockedIds = blocked.map((row) => row.blockedId);
+    // 1.4.4 reads blocklistedUsers. 1.12.0 parses the newer BlockListDTO,
+    // blockedUsers, and logs "Field blockedUsers was not found" without it.
+    res.json({ blocklistedUsers: blockedIds, blockedUsers: blockedIds });
 });
 
 friendsRouter.post("/friends/api/public/blocklist/:accountId/:blockedId", HasUndauntedMetagameAuth, (req: any, res) => {

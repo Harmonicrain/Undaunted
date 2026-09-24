@@ -47,7 +47,9 @@ test("friend invitation, acceptance, removal and block survive persisted reads",
     assert.equal((await request(john, `${friends(john)}/${manda.UserId}`, "DELETE")).status, 204);
     assert.deepEqual(await (await request(manda, friends(manda))).json(), []);
     assert.equal((await request(john, `/friends/api/public/blocklist/${john.UserId}/${manda.UserId}`, "POST")).status, 204);
-    assert.deepEqual((await (await request(john, `/friends/api/public/blocklist/${john.UserId}`)).json()).blocklistedUsers, [manda.UserId]);
+    const blocklist = await (await request(john, `/friends/api/public/blocklist/${john.UserId}`)).json();
+    assert.deepEqual(blocklist.blocklistedUsers, [manda.UserId]);
+    assert.deepEqual(blocklist.blockedUsers, [manda.UserId]);
     assert.equal((await request(manda, `${friends(manda)}/${john.UserId}`, "POST")).status, 403);
     assert.equal((await request(john, `/friends/api/public/blocklist/${john.UserId}/${manda.UserId}`, "DELETE")).status, 204);
     assert.equal((await request(manda, `${friends(manda)}/${john.UserId}`, "POST")).status, 204);
@@ -60,6 +62,14 @@ test("account lookup and OAuth verification use the signed local identity", asyn
     assert.equal(named.id, manda.UserId);
     const byId = await (await request(john, `/account/api/public/account/${manda.UserId}`)).json();
     assert.equal(byId.displayName, "LookupManda");
+    // The bulk lookup the social layer uses answers with a list, one entry per
+    // known requested id - not the requester's own account.
+    const bulk = await (await request(john, `/account/api/public/account?accountId=${manda.UserId}&accountId=${john.UserId}&accountId=UID-unknown`)).json();
+    assert.ok(Array.isArray(bulk));
+    assert.deepEqual(bulk.map((entry) => [entry.id, entry.displayName]).sort(),
+        [[john.UserId, "LookupJohn"], [manda.UserId, "LookupManda"]].sort());
+    const single = await (await request(john, `/account/api/public/account?accountId=${manda.UserId}`)).json();
+    assert.deepEqual(single.map((entry) => entry.displayName), ["LookupManda"]);
     const verified = await (await request(john, "/account/api/oauth/verify")).json();
     assert.equal(verified.account_id, john.UserId);
     assert.equal((await fetch(base + "/account/api/oauth/verify")).status, 401);
