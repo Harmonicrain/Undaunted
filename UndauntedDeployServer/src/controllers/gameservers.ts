@@ -7,10 +7,7 @@ import crypto from "node:crypto";
 import { createWriteStream, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-import PlayerHuntTable from "../vendor/player_hunts_table.json";
-import MatchmakerHuntTable from "../vendor/matchmaker_hunts_table.json";
-import TrialsHardHuntTable from "../vendor/trials_hard_table.json";
-import TrialsEliteHuntTable from "../vendor/trials_elite_table.json";
+import { MatchmakerHunts, PlayerHunts, TrialsHunts } from "./huntTables";
 import { kill } from "node:process";
 import { logger } from "../logger";
 
@@ -261,11 +258,32 @@ export async function GetTrainingDojoConnectionDetails(){
     };
 }
 
-export async function StartupGameserverWithArgs(GameArgs: string){
-    const Map = GameArgs.split("?")[0];
-    const Behemoth = GameArgs.split("?")[2].split("=")[1];
+function GetArgValue(GameArgs: string, Name: string){
+    for(const Part of GameArgs.split("?").slice(1)){
+        const Eq = Part.indexOf("=");
+        if(Eq > 0 && Part.slice(0, Eq).toLowerCase() === Name.toLowerCase()) return Part.slice(Eq + 1);
+    }
+    return undefined;
+}
 
-    const GameServerToReturn = await StartServer(Map, Behemoth, undefined, undefined, false, false);
+// A world launched from explicit GameArgs (the first island) still needs the
+// players' hunt id: the runtime sets each player's PlayerHuntId from the
+// expected-player list, and the 1.12.0 client leaves a world where it stays
+// empty. Behaviour as in Mystic Paradox's ParadoxDirector
+// (pranav158/Mystic-Paradox@355934c src/controllers/gameservers.ts); see NOTICE.md.
+export async function StartupGameserverWithArgs(GameArgs: string, HuntId?: string, ExpectedPlayers?: string[]){
+    const Map = GameArgs.split("?")[0];
+    const Behemoth = GetArgValue(GameArgs, "MonsterClass");
+    let MatchmakerHuntId = GetArgValue(GameArgs, "HuntID");
+    if((MatchmakerHuntId == undefined || MatchmakerHuntId.length === 0) && HuntId != undefined && HuntId.trim().length > 0){
+        try{ MatchmakerHuntId = GetMatchmakerHuntIdFromPlayerHuntId(HuntId); }
+        catch{ MatchmakerHuntId = undefined; }
+    }
+    const Players = HuntId != undefined && HuntId.trim().length > 0 && ExpectedPlayers != undefined && ExpectedPlayers.length > 0
+        ? ExpectedPlayers.map((PlayerId) => ({ playerUid: PlayerId, playerHuntId: HuntId }))
+        : undefined;
+
+    const GameServerToReturn = await StartServer(Map, Behemoth, MatchmakerHuntId, Players, false, false);
 
     return {
         host: MY_IP,
@@ -274,7 +292,14 @@ export async function StartupGameserverWithArgs(GameArgs: string){
 }
 
 function GetMatchmakerHuntIdFromPlayerHuntId(PlayerHuntId: string){
-    const MatchmakerHuntIDs = (PlayerHuntTable[0].Rows as any)[PlayerHuntId].MatchmakerHuntIDs;
+    const PlayerHunt = PlayerHunts[PlayerHuntId];
+
+    if(PlayerHunt == undefined){
+        throw new Error(`Unknown player hunt ${PlayerHuntId}`);
+    }
+
+    // Skips the table's empty "None" slots.
+    const MatchmakerHuntIDs = PlayerHunt.MatchmakerHuntIDs.filter((Entry: any) => Entry.RowName in MatchmakerHunts);
 
     let MatchmakerHuntObject;
 
@@ -285,14 +310,24 @@ function GetMatchmakerHuntIdFromPlayerHuntId(PlayerHuntId: string){
     return MatchmakerHuntObject?.RowName;
 }
 
+function GetMatchmakerHunt(MatchmakerHuntId: string){
+    const MatchmakerHuntObject = MatchmakerHunts[MatchmakerHuntId];
+
+    if(MatchmakerHuntObject == undefined){
+        throw new Error(`Unknown matchmaker hunt ${MatchmakerHuntId}`);
+    }
+
+    return MatchmakerHuntObject;
+}
+
 function GetBehemothPathFromMatchmakerHuntId(MatchmakerHuntId: string): string{
-    const MatchmakerHuntObject = (MatchmakerHuntTable[0].Rows as any)[MatchmakerHuntId];
+    const MatchmakerHuntObject = GetMatchmakerHunt(MatchmakerHuntId);
 
     return MatchmakerHuntObject.SpecificBehemoth.BehemothAsset.AssetPathName;
 }
 
 function GetMapPathFromMatchmakerHuntId(MatchmakerHuntId: string): string{
-    const MatchmakerHuntObject = (MatchmakerHuntTable[0].Rows as any)[MatchmakerHuntId];
+    const MatchmakerHuntObject = GetMatchmakerHunt(MatchmakerHuntId);
 
     const MapList = MatchmakerHuntObject.MapList;
 
@@ -300,7 +335,7 @@ function GetMapPathFromMatchmakerHuntId(MatchmakerHuntId: string): string{
 }
 
 function GetGameModeOverrideFromMatchmakerHuntId(MatchmakerHuntId: string): string{
-    const MatchmakerHuntObject = (MatchmakerHuntTable[0].Rows as any)[MatchmakerHuntId];
+    const MatchmakerHuntObject = GetMatchmakerHunt(MatchmakerHuntId);
 
     return MatchmakerHuntObject.GameModeOverride.replaceAll("Archon/Content", "/Game");
 }
@@ -310,14 +345,18 @@ type TrialsData = {
     TrialsHuntId: string;
 }
 
-function RandomlyGenTrialsData(IsElite: boolean): TrialsData{
-    const RandomTrialNum = String(crypto.randomInt(1, 89)).padStart(3, "0");
+function RandomlyGenTrialsData(PlayerHuntId: string): TrialsData{
+    const Difficulty = PlayerHuntId.includes("Elite") ? "Elite" : PlayerHuntId.includes("Easy") ? "Easy" : "Hard";
 
-    const Difficulty = IsElite ? "Elite" : "Hard";
+    const Table = TrialsHunts[Difficulty];
 
-    const TrialsHuntId = `Arena_MatchmakerHunt_${Difficulty}_${RandomTrialNum}`;
+    // The numbered trials (1.4.4: 001-088; 1.12.0: 001-181, and Easy 001-027),
+    // not the test rows beside them.
+    const TrialsHuntIds = Object.keys(Table).filter((Id) => /^Arena_MatchmakerHunt_[A-Za-z]+_\d+$/.test(Id));
 
-    const Row = IsElite ? (TrialsEliteHuntTable[0].Rows as any)[TrialsHuntId] : (TrialsHardHuntTable[0].Rows as any)[TrialsHuntId];
+    const TrialsHuntId = TrialsHuntIds[crypto.randomInt(0, TrialsHuntIds.length)];
+
+    const Row = Table[TrialsHuntId];
 
     const Behemoth = Row.SpecificBehemoth.BehemothAsset.AssetPathName;
 
@@ -327,10 +366,12 @@ function RandomlyGenTrialsData(IsElite: boolean): TrialsData{
     };
 }
 
-export async function StartupGameserverWithHuntIdAndPlayers(HuntId: string, ExpectedPlayers: string[]){
-    const TrialsData = HuntId.includes("Arena") ? RandomlyGenTrialsData(HuntId.includes("Elite")) : undefined;
+// The world a player hunt launches: its map (with any game mode override), its
+// behemoth, and the matchmaker hunt it was drawn from.
+export function ResolveHuntLaunch(HuntId: string){
+    const TrialsData = HuntId.includes("Arena") ? RandomlyGenTrialsData(HuntId) : undefined;
     const MatchmakerHuntId = TrialsData == undefined ? GetMatchmakerHuntIdFromPlayerHuntId(HuntId) : TrialsData.TrialsHuntId;
-    let BehemothPath = TrialsData == undefined ? GetBehemothPathFromMatchmakerHuntId(MatchmakerHuntId!) : TrialsData.Behemoth;
+    const BehemothPath = TrialsData == undefined ? GetBehemothPathFromMatchmakerHuntId(MatchmakerHuntId!) : TrialsData.Behemoth;
     let MapPath = TrialsData == undefined ? GetMapPathFromMatchmakerHuntId(MatchmakerHuntId!) : TRIALS_MAP_PATH;
 
     if(MatchmakerHuntId != undefined && !MatchmakerHuntId.includes("Arena")){
@@ -341,6 +382,12 @@ export async function StartupGameserverWithHuntIdAndPlayers(HuntId: string, Expe
             MapPath = `${MapPath}?game=${OverrideGameMode}`;
         }
     }
+
+    return { MatchmakerHuntId, BehemothPath, MapPath };
+}
+
+export async function StartupGameserverWithHuntIdAndPlayers(HuntId: string, ExpectedPlayers: string[]){
+    const { MatchmakerHuntId, BehemothPath, MapPath } = ResolveHuntLaunch(HuntId);
 
     const GameServerToReturn = await StartServer(MapPath, BehemothPath, MatchmakerHuntId, ExpectedPlayers.map((PlayerId) => {
         return {

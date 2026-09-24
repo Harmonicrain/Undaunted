@@ -16,11 +16,18 @@ export async function HandleMatchmakingRequest(GameMode: string, GameArgs: strin
     }
     else if(GameMode === "ISLAND"){
         if(GameArgs != undefined && GameArgs.trim().length > 0){
-            return await StartupGameserverWithArgs(GameArgs);
+            return await StartupGameserverWithArgs(GameArgs, HuntId, ExpectedPlayers);
         }
 
         if(HuntId != undefined && HuntId.trim().length > 0 && ExpectedPlayers != undefined){
-            return await StartupGameserverWithHuntIdAndPlayers(HuntId, ExpectedPlayers!);
+            // A hunt the tables do not have (a newer client's) falls through
+            // to Ramsgate below rather than failing the request.
+            try{
+                return await StartupGameserverWithHuntIdAndPlayers(HuntId, ExpectedPlayers!);
+            }
+            catch(error){
+                logger.error({ error }, `Could not start hunt ${HuntId}`);
+            }
         }
     }
 
