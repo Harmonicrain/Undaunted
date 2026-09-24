@@ -6,7 +6,8 @@
  * the backend address comes from the command line and requests go to the
  * Undaunted metagame over plain HTTP/WebSocket; the PlayerController
  * pre-channel guard reads ReplicateSingleActor's arguments in the executable's
- * order. Not an official release of
+ * order; the client skips the legendary-ability HUD's weapon update until a
+ * weapon is equipped. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -7535,6 +7536,25 @@ static void ExecGetViewportSizeHook(void* ctx, void* stack, void* result) {
 }
 
 
+// UHUDLegendaryAbilityWidget::HandleWeaponEquipped(AArchonWeapon* InWeapon).
+// NativeConstruct binds this handler to the pawn's OnWeaponEquipped and then
+// calls it once with the pawn's current Weapon, which it reads as
+// InWeapon->ItemId without a null check. A client that builds the HUD before
+// its weapon is equipped (seen when joining an island that is already
+// running) crashes there. Skip that call; the pawn broadcasts
+// OnWeaponEquipped when it equips the weapon, and the bound handler updates
+// the widget then.
+static constexpr uintptr_t kHudLegendaryHandleWeaponEquippedRva = 0x01DF77C0;
+static void* OrigHudLegendaryHandleWeaponEquipped = nullptr;
+static void HudLegendaryHandleWeaponEquippedHook(void* Widget, void* InWeapon) {
+    if (!InWeapon) {
+        static std::atomic<int> s_skipped{ 0 };
+        if (s_skipped.fetch_add(1, std::memory_order_relaxed) < 20)
+            MpLog("[HudLegendaryGuard] HandleWeaponEquipped with no weapon skipped widget=" + MpPtr(Widget));
+        return;
+    }
+    reinterpret_cast<void(*)(void*, void*)>(OrigHudLegendaryHandleWeaponEquipped)(Widget, InWeapon);
+}
 
 void InitClientHooks() {
     MH_STATUS InitStatus = MH_Initialize();
@@ -7606,6 +7626,17 @@ void InitClientHooks() {
         MpLog(std::string("[InitClientHooks] ApplyPlayerRole hook create=")
             + MH_StatusToString(AprCreate) + " enable=" + MH_StatusToString(AprEnable)
             + " target=+" + MpHex(0x01A4B790));
+    }
+
+    {
+        MH_STATUS HudCreate = MH_CreateHook(
+            (void*)(Globals::BaseAddress + kHudLegendaryHandleWeaponEquippedRva),
+            HudLegendaryHandleWeaponEquippedHook,
+            &OrigHudLegendaryHandleWeaponEquipped);
+        MH_STATUS HudEnable = MH_EnableHook((void*)(Globals::BaseAddress + kHudLegendaryHandleWeaponEquippedRva));
+        MpLog(std::string("[InitClientHooks] HudLegendaryHandleWeaponEquipped create=")
+            + MH_StatusToString(HudCreate) + " enable=" + MH_StatusToString(HudEnable)
+            + " target=+" + MpHex(kHudLegendaryHandleWeaponEquippedRva));
     }
 
     
