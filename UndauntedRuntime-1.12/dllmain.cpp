@@ -7,7 +7,8 @@
  * Undaunted metagame over plain HTTP/WebSocket; the PlayerController
  * pre-channel guard reads ReplicateSingleActor's arguments in the executable's
  * order; the client skips the legendary-ability HUD's weapon update until a
- * weapon is equipped. Not an official release of
+ * weapon is equipped; the seasonal event feature flags the metagame lists are
+ * forced on. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -30,6 +31,8 @@
 #include <atomic>
 #include <iostream>
 #include <ranges>
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
 
 #include "framework.h"
 #include "SDK.hpp"
@@ -7556,6 +7559,126 @@ static void HudLegendaryHandleWeaponEquippedHook(void* Widget, void* InWeapon) {
     reinterpret_cast<void(*)(void*, void*)>(OrigHudLegendaryHandleWeaponEquipped)(Widget, InWeapon);
 }
 
+// UFeatureFlag::IsEnabled() const: RVA 0x00E57820 in 1.12.0, slot +0x270 of
+// UFeatureFlag's vtable (RVA 0x04EEAB88). Every feature-flag check ends here:
+// UFeatureFlagBlueprintLibrary::IsFeatureEnabled (0x00E57DA0; party overrides
+// are applied on top of this result) and IsLocalFeatureEnabled (0x00E58120)
+// take the flag class's default object and call it, as do native callers.
+//
+// Some content is behind flags baked off in the paks. Ramsgate's persistent
+// level streams in its seasonal event levels only when their flags are on:
+// city_01_event_dark_harvest (the decorations and the Unseen, who gives the
+// event's quests) with city_event_dark_harvest_bpff, city_01_event_stall (Ozz,
+// the event vendor) with city_event_stall_bpff. The metagame lists the flags of
+// the events it is running (GET /undaunted/feature_flags); the client and the
+// gameserver each ask once, on their first flag check, and those flags then
+// read as enabled. With no metagame address, or no answer, nothing is forced.
+//
+// Win32 INIT_ONCE and SRWLOCK, not std::call_once / std::mutex: this DLL is
+// built with a newer MSVC than the MSVCP140.dll the game loads, and the
+// standard library's locks crashed inside that older runtime (seen on the
+// gameserver: access violation in MSVCP140.dll on the first flag check).
+static constexpr uintptr_t kFeatureFlagIsEnabledRva = 0x00E57820;
+using FeatureFlagIsEnabledFn = bool(__fastcall*)(void* This);
+static FeatureFlagIsEnabledFn OrigFeatureFlagIsEnabled = nullptr;
+static INIT_ONCE g_ForcedFeatureFlagsOnce = INIT_ONCE_STATIC_INIT;
+static std::set<std::string> g_ForcedFeatureFlags;  // flag class names without "_C"
+static SRWLOCK g_FeatureFlagLogLock = SRWLOCK_INIT;
+static std::set<std::string> g_LoggedFeatureFlags;
+
+static std::string HttpGetFromMetagame(const std::wstring& Path) {
+    std::wstring Host = Globals::MetagameAddress;
+    INTERNET_PORT Port = INTERNET_DEFAULT_HTTP_PORT;
+    const size_t Colon = Host.rfind(L':');
+    if (Colon != std::wstring::npos) {
+        Port = static_cast<INTERNET_PORT>(_wtoi(Host.c_str() + Colon + 1));
+        Host.resize(Colon);
+    }
+    std::string Body;
+    HINTERNET Session = WinHttpOpen(L"UndauntedRuntime/1.12", WINHTTP_ACCESS_TYPE_NO_PROXY,
+        WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (!Session) return Body;
+    WinHttpSetTimeouts(Session, 1500, 1500, 1500, 1500);
+    HINTERNET Connect = WinHttpConnect(Session, Host.c_str(), Port, 0);
+    HINTERNET Request = Connect ? WinHttpOpenRequest(Connect, L"GET", Path.c_str(), nullptr,
+        WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0) : nullptr;
+    if (Request
+        && WinHttpSendRequest(Request, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0)
+        && WinHttpReceiveResponse(Request, nullptr)) {
+        DWORD Status = 0, StatusSize = sizeof(Status);
+        WinHttpQueryHeaders(Request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+            WINHTTP_HEADER_NAME_BY_INDEX, &Status, &StatusSize, WINHTTP_NO_HEADER_INDEX);
+        DWORD Available = 0;
+        while (Status == 200 && WinHttpQueryDataAvailable(Request, &Available) && Available > 0 && Body.size() < 65536) {
+            std::string Chunk(Available, '\0');
+            DWORD Read = 0;
+            if (!WinHttpReadData(Request, Chunk.data(), Available, &Read) || Read == 0) break;
+            Body.append(Chunk.data(), Read);
+        }
+    }
+    if (Request) WinHttpCloseHandle(Request);
+    if (Connect) WinHttpCloseHandle(Connect);
+    WinHttpCloseHandle(Session);
+    return Body;
+}
+
+// {"payload":{"enabled":["city_event_dark_harvest_bpff", ...]}}
+static void LoadForcedFeatureFlags() {
+    if (Globals::MetagameAddress.empty()) {
+        MpLog("[FeatureFlags] no metagame address; no flags forced");
+        return;
+    }
+    const std::string Body = HttpGetFromMetagame(L"/undaunted/feature_flags");
+    const size_t Key = Body.find("\"enabled\"");
+    const size_t Open = Key == std::string::npos ? std::string::npos : Body.find('[', Key);
+    const size_t Close = Open == std::string::npos ? std::string::npos : Body.find(']', Open);
+    if (Close == std::string::npos) {
+        MpLog("[FeatureFlags] no answer from the metagame (" + std::to_string(Body.size()) + " bytes); no flags forced");
+        return;
+    }
+    std::string Forced;
+    for (size_t At = Body.find('"', Open); At != std::string::npos && At < Close; ) {
+        const size_t End = Body.find('"', At + 1);
+        if (End == std::string::npos || End > Close) break;
+        const std::string Name = Body.substr(At + 1, End - At - 1);
+        if (!Name.empty()) {
+            g_ForcedFeatureFlags.insert(Name);
+            Forced += (Forced.empty() ? "" : ", ") + Name;
+        }
+        At = Body.find('"', End + 1);
+    }
+    MpLog("[FeatureFlags] forced on: " + (Forced.empty() ? std::string("none") : Forced));
+}
+
+static BOOL CALLBACK LoadForcedFeatureFlagsOnce(PINIT_ONCE, PVOID, PVOID*) {
+    LoadForcedFeatureFlags();
+    return TRUE;
+}
+
+static bool __fastcall FeatureFlagIsEnabledHook(void* This) {
+    const bool Baked = OrigFeatureFlagIsEnabled(This);
+    InitOnceExecuteOnce(&g_ForcedFeatureFlagsOnce, LoadForcedFeatureFlagsOnce, nullptr, nullptr);
+    if (!This || !IsReadablePointer(This, 0x20)) return Baked;
+    SDK::UClass* Class = reinterpret_cast<SDK::UObject*>(This)->Class;
+    if (!Class || !IsReadablePointer(Class, 0x20)) return Baked;
+    std::string Name = Class->GetName();
+    if (Name.size() > 2 && Name.compare(Name.size() - 2, 2, "_C") == 0) Name.resize(Name.size() - 2);
+    const bool Forced = !Baked && g_ForcedFeatureFlags.count(Name) > 0;
+    AcquireSRWLockExclusive(&g_FeatureFlagLogLock);
+    const bool First = g_LoggedFeatureFlags.insert(Name).second;
+    ReleaseSRWLockExclusive(&g_FeatureFlagLogLock);
+    if (First) MpLog("[FeatureFlags] " + Name + " baked=" + (Baked ? "1" : "0") + (Forced ? " -> forced on" : ""));
+    return Baked || Forced;
+}
+
+static void InstallFeatureFlagHook(const char* Side) {
+    MH_STATUS Create = MH_CreateHook((void*)(Globals::BaseAddress + kFeatureFlagIsEnabledRva),
+        FeatureFlagIsEnabledHook, reinterpret_cast<LPVOID*>(&OrigFeatureFlagIsEnabled));
+    MH_STATUS Enable = MH_EnableHook((void*)(Globals::BaseAddress + kFeatureFlagIsEnabledRva));
+    MpLog(std::string("[") + Side + "] FeatureFlagIsEnabled create=" + MH_StatusToString(Create)
+        + " enable=" + MH_StatusToString(Enable) + " target=+" + MpHex(kFeatureFlagIsEnabledRva));
+}
+
 void InitClientHooks() {
     MH_STATUS InitStatus = MH_Initialize();
     MpLog(std::string("[InitClientHooks] MH_Initialize=") + MH_StatusToString(InitStatus));
@@ -7638,6 +7761,8 @@ void InitClientHooks() {
             + MH_StatusToString(HudCreate) + " enable=" + MH_StatusToString(HudEnable)
             + " target=+" + MpHex(kHudLegendaryHandleWeaponEquippedRva));
     }
+
+    InstallFeatureFlagHook("InitClientHooks");
 
     
     
@@ -9188,6 +9313,8 @@ void InitServerHooks() {
     
     MH_CreateHook((void*)(Globals::BaseAddress + 0x026A9890), ProcessEventHook, &OrigProcessEvent);
     MH_EnableHook((void*)(Globals::BaseAddress + 0x026A9890));
+
+    InstallFeatureFlagHook("InitServerHooks");
 
     
     MH_CreateHook((void*)(Globals::BaseAddress + 0x01B690F0), OnPlayerDataLoadCompleteHook, &OrigOnPlayerDataLoadComplete);
