@@ -4,7 +4,7 @@ import { GetDb } from "../db";
 import { characters, entitlements, inventory, storepurchases } from "../db/schema";
 import { ApplyInventoryTransaction } from "./inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
-import { CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
+import { CanonicaliseCurrency, CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
 import { IsEntitlementActive } from "./entitlements";
 
 export class StoreError extends Error {
@@ -58,13 +58,25 @@ export function GrantKind(catalogId: string): "stacked" | "instanced" | undefine
     return kind === "stacked" || kind === "instanced" ? kind : undefined;
 }
 
-// The client names the purchase currency in the token and notification paths.
-// 1.4.4 sends "platinum"; the 1.12.0 offers price in id_currency_platinum.
-const PLATINUM = new Set(["platinum", "id_currency_platinum", "currency_platinum"]);
-// The wallet balance a priced offer is paid from: Hunt Pass ranks and the
-// fountain pay Platinum into it.
+// What an offer costs, paid from the wallet: platinumPrice in Platinum (Hunt
+// Pass ranks and the fountain pay Platinum in), or, for an offer naming a
+// priceCurrency, price in that currency - the Reward Cache sells for the
+// season's coin (CURRENCY_S19_COIN), which challenges pay in.
 const PLATINUM_WALLET = "CURRENCY_PLATINUM";
-const IsPlatinum = (currency: string) => PLATINUM.has(String(currency).toLowerCase());
+export function OfferPrice(offer: any): { currency: string; amount: number } {
+    return typeof offer?.priceCurrency === "string"
+        ? { currency: CanonicaliseCurrency(offer.priceCurrency), amount: offer.price }
+        : { currency: PLATINUM_WALLET, amount: offer?.platinumPrice };
+}
+
+// The client names the purchase currency in the token and notification paths:
+// 1.4.4 sends "platinum", 1.12.0 the price's currencyId (id_currency_platinum,
+// id_currency_s19_coin, ...). A purchase must be paid in the offer's currency.
+function PathCurrency(currency: unknown) {
+    const name = String(currency).toLowerCase();
+    return CanonicaliseCurrency(name === "platinum" ? PLATINUM_WALLET : name.replace(/^id_/, "").toUpperCase());
+}
+const PaysIn = (offer: any, currency: unknown) => PathCurrency(currency) === OfferPrice(offer).currency;
 
 // A repeatable offer sells consumables only. It is never "owned", and each
 // purchase grants its full quantity again.
@@ -73,49 +85,82 @@ function IsRepeatable(offer: any) {
     return items.length > 0 && items.every(item => REPEATABLE_ITEMS.has(item.catalogId));
 }
 
-// A daily offer ("daily": true) is the Bazaar fountain's free bundle
-// (tag fountain_daily_free_bundle): tossing a coin claims it, once per account
-// per UTC day. Live it paid a Fountain Core and 4 Bounty Tokens; the game opens
-// the core itself at the Core Breaker, rolling its own drop tables. Unlike the
-// storefront it hands out cores, tokens and currencies, so it is validated and
-// granted on its own terms, the way Hunt Pass rank rewards are.
-const IsDaily = (offer: any) => offer?.daily === true;
+// A limited offer is bought once per window: "limit": "daily" per UTC day
+// ("daily": true, the fountain's form, means the same) or "weekly" from
+// Thursday 00:00 UTC, the day the live weekly challenges rolled over.
+type Limit = "daily" | "weekly";
+function LimitOf(offer: any): Limit | undefined {
+    if (offer?.limit === "daily" || offer?.daily === true) return "daily";
+    if (offer?.limit === "weekly") return "weekly";
+    return undefined;
+}
 
 export function DailyResetAt(now: number) {
     const day = new Date(now);
     return Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate());
 }
 
-function ClaimedToday(db: any, userId: string, skuId: string, now: number, exceptTokenHash?: string) {
-    const conditions = [eq(storepurchases.userId, userId), eq(storepurchases.skuId, skuId),
-        gte(storepurchases.redeemedAt, DailyResetAt(now))];
+export function LimitWindowStart(limit: Limit, now: number) {
+    const day = DailyResetAt(now);
+    if (limit === "daily") return day;
+    const sinceThursday = (new Date(day).getUTCDay() - 4 + 7) % 7;
+    return day - sinceThursday * 24 * 60 * 60 * 1000;
+}
+
+function BoughtThisWindow(db: any, userId: string, offer: any, now: number, exceptTokenHash?: string) {
+    const limit = LimitOf(offer);
+    if (!limit) return false;
+    const conditions = [eq(storepurchases.userId, userId), eq(storepurchases.skuId, offer.id),
+        gte(storepurchases.redeemedAt, LimitWindowStart(limit, now))];
     if (exceptTokenHash) conditions.push(ne(storepurchases.tokenHash, exceptTokenHash));
     return db.select().from(storepurchases).where(and(...conditions)).get() !== undefined;
 }
 
-function DailyOffer(offer: any) {
+// A bundle hands out cores, tokens and currencies: the Bazaar fountain's daily
+// gift (tag fountain_daily_free_bundle; the game opens the Fountain Core itself
+// at the Core Breaker) and the Reward Cache's Rams, Combat Merits, Patrol Keys
+// and Aethersparks. Unlike the storefront's cosmetics it is validated and
+// granted on its own terms, the way Hunt Pass rank rewards are, and can be
+// bought again - once per window when it is limited.
+const IsBundle = (offer: any) => offer?.bundle === true || LimitOf(offer) !== undefined;
+
+function BundleOffer(offer: any) {
     const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
-    if (offer.platinumPrice !== 0) throw new StoreError(409, "Offer is not free");
-    if (!items.length || (offer.entitlements ?? []).length) throw new StoreError(409, "Daily offers grant cores, tokens and currencies only");
+    if (!items.length || (offer.entitlements ?? []).length) throw new StoreError(409, "Bundles grant cores, tokens and currencies only");
     if (items.some(item => typeof item.catalogId !== "string" || !/^(CONTAINER|CURRENCY|TOKEN)_[A-Z0-9_]+$/.test(item.catalogId) ||
         !Number.isSafeInteger(item.quantity) || item.quantity <= 0)) {
-        throw new StoreError(409, "Offer is not a supported daily bundle");
+        throw new StoreError(409, "Offer is not a supported bundle");
     }
     return offer;
 }
 
+// Priced offers must not charge for nothing: a cosmetic the character already
+// holds is not granted again, and a timed entitlement does not change a
+// permanent one.
+function GrantsNothing(offer: any, held: Set<string>, active: { entitlement: string; duration: number }[]) {
+    if (IsBundle(offer) || IsRepeatable(offer)) return false;
+    const items: { catalogId: string }[] = offer.items ?? [];
+    const grants: { name: string; duration?: number }[] = offer.entitlements ?? [];
+    return items.every(item => held.has(item.catalogId)) &&
+        grants.every(grant => active.some(row => row.entitlement === grant.name && row.duration === 0));
+}
+
 function offerFor(skuId: string, currency: string) {
-    if (!IsPlatinum(currency)) throw new StoreError(400, "Unsupported store currency");
     const offer = offers.find(item => item.id === skuId);
     if (!offer) throw new StoreError(404, "Unknown store offer");
-    if (IsDaily(offer)) return DailyOffer(offer);
+    const price = OfferPrice(offer);
+    if (!Number.isSafeInteger(price.amount) || price.amount < 0 ||
+        (price.currency !== PLATINUM_WALLET && (price.amount === 0 || !IsCurrency(price.currency)))) {
+        throw new StoreError(409, "Offer has an invalid price");
+    }
+    if (!PaysIn(offer, currency)) throw new StoreError(400, "Unsupported store currency");
+    if (IsBundle(offer)) return BundleOffer(offer);
     // Supported grants are permanent cosmetics, repeatable consumables and
-    // entitlements (permanent, or timed in hours). Most offers are free; an
-    // offer with a platinumPrice charges that much Platinum from the wallet.
+    // entitlements (permanent, or timed in hours). Most offers are free; a
+    // priced one charges its price from the wallet.
     const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
     const grants: { name: string; duration?: number }[] = offer.entitlements ?? [];
 
-    if (!Number.isSafeInteger(offer.platinumPrice) || offer.platinumPrice < 0) throw new StoreError(409, "Offer has an invalid price");
     if (!items.length && !grants.length) throw new StoreError(409, "Offer grants nothing");
     const repeatable = IsRepeatable(offer);
     if (repeatable && grants.length) throw new StoreError(409, "Repeatable offers cannot grant entitlements");
@@ -174,7 +219,7 @@ function OwnershipMarker(userId: string, characterId: string) {
         .filter(row => IsEntitlementActive(row)).map(row => row.entitlement));
 
     return (offer: any) => {
-        if (IsDaily(offer)) return { ...offer, remaining: ClaimedToday(GetDb(), userId, offer.id, Date.now()) ? 0 : 1 };
+        if (IsBundle(offer)) return { ...offer, remaining: BoughtThisWindow(GetDb(), userId, offer, Date.now()) ? 0 : 1 };
         if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
         // A timed entitlement (a Slayers Club membership) can always be
         // bought again: it extends the time left.
@@ -219,15 +264,29 @@ export function GetOfferById(userId: string, skuId: string) {
     return OwnershipMarker(userId, char.characterId)(offer);
 }
 
+// What the character holds and which entitlements are active, for the
+// "charges for nothing" check.
+function Holdings(db: any, userId: string, characterId: string) {
+    return {
+        held: HeldCatalogIds(db.select().from(inventory).where(eq(inventory.characterId, characterId)).get()),
+        active: db.select().from(entitlements).where(eq(entitlements.userId, userId)).all()
+            .filter((row: any) => IsEntitlementActive(row))
+    };
+}
+
+const LimitReached = (offer: any) => new StoreError(409, LimitOf(offer) === "weekly" ? "Already bought this week" : "Already claimed today");
+const TooPoor = (currency: string) => new StoreError(409, currency === PLATINUM_WALLET ? "Not enough Platinum" : "Not enough coins");
+
 export function CreateFreePurchase(userId: string, currency: string, skuId: string) {
     const char = character(userId);
     const offer = offerFor(skuId, currency);
-    if (IsDaily(offer) && ClaimedToday(GetDb(), userId, skuId, Date.now())) {
-        throw new StoreError(409, "Already claimed today");
-    }
+    if (BoughtThisWindow(GetDb(), userId, offer, Date.now())) throw LimitReached(offer);
     // Checked again, and charged, when the purchase is confirmed.
-    if (offer.platinumPrice > 0 && WalletBalance(GetDb(), userId, PLATINUM_WALLET) < offer.platinumPrice) {
-        throw new StoreError(409, "Not enough Platinum");
+    const price = OfferPrice(offer);
+    if (price.amount > 0) {
+        const { held, active } = Holdings(GetDb(), userId, char.characterId);
+        if (GrantsNothing(offer, held, active)) throw new StoreError(409, "Already owned");
+        if (WalletBalance(GetDb(), userId, price.currency) < price.amount) throw TooPoor(price.currency);
     }
     const token = randomBytes(32).toString("hex");
     GetDb().insert(storepurchases).values({
@@ -239,7 +298,7 @@ export function CreateFreePurchase(userId: string, currency: string, skuId: stri
 
 export function RedeemFreePurchase(userId: string, currency: string, token: unknown) {
     player(userId);
-    if (!IsPlatinum(currency) || typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
+    if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) {
         throw new StoreError(400, "Invalid purchase token or currency");
     }
     GetDb().transaction(tx => {
@@ -255,23 +314,24 @@ export function RedeemFreePurchase(userId: string, currency: string, token: unkn
         const items: { catalogId: string; quantity: number }[] = offer.items ?? [];
 
         // The charge commits with the grant: if anything below fails, the
-        // Platinum is not taken, and a confirmed purchase is never charged twice
+        // price is not taken, and a confirmed purchase is never charged twice
         // (a retry returns above, at redeemedAt).
-        if (offer.platinumPrice > 0) {
+        const price = OfferPrice(offer);
+        if (price.amount > 0) {
+            const { held, active } = Holdings(tx, userId, purchase.characterId);
+            if (GrantsNothing(offer, held, active)) throw new StoreError(409, "Already owned");
             try {
-                DebitWallet(tx, userId, PLATINUM_WALLET, offer.platinumPrice);
+                DebitWallet(tx, userId, price.currency, price.amount);
             } catch (error) {
-                if (error instanceof InsufficientFundsError) throw new StoreError(409, "Not enough Platinum");
+                if (error instanceof InsufficientFundsError) throw TooPoor(price.currency);
                 throw error;
             }
         }
 
-        if (IsDaily(offer)) {
+        if (IsBundle(offer)) {
             // Checked again here, inside the write transaction: two tokens
-            // fetched the same day must not both pay out.
-            if (ClaimedToday(tx, userId, purchase.skuId, Date.now(), purchase.tokenHash)) {
-                throw new StoreError(409, "Already claimed today");
-            }
+            // fetched in one window must not both pay out.
+            if (BoughtThisWindow(tx, userId, offer, Date.now(), purchase.tokenHash)) throw LimitReached(offer);
             const stacked = items.filter(item => !IsCurrency(item.catalogId));
             if (stacked.length) {
                 ApplyInventoryTransaction(tx, userId, purchase.characterId, `store:${purchase.tokenHash}`, [], stacked, [], [], []);

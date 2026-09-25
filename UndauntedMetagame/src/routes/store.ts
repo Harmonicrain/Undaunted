@@ -4,7 +4,7 @@ import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth
 import { GetNotesForUser } from "../controllers/store";
 import { GetWallet } from "../controllers/wallet";
 import { StoreCatalog as storeCatalog, StoreOfferFormat } from "../controllers/storeCatalog";
-import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, RedeemFreePurchase, StoreError } from "../controllers/freeStore";
+import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, OfferPrice, RedeemFreePurchase, StoreError } from "../controllers/freeStore";
 import { RequestHandler } from "express";
 
 export const storeRouter = Router();
@@ -124,13 +124,24 @@ const StoreCatalog = storeCatalog as Record<string, any>;
 // (id_currency_platinum, ...), images {standard, feature}, and a progression
 // grant it names skuProgression. The flat 1.4.4 price fields are not sent: the
 // 1.12.0 client has no parser for them.
+// The offer's price in its own currency: Platinum, or the seasonal coin a
+// Reward Cache offer is sold for (CURRENCY_S19_COIN -> id_currency_s19_coin).
+function PriceFor(offer: any){
+    const Price = OfferPrice(offer);
+    return {
+        currencyId: `id_${Price.currency.toLowerCase()}`,
+        price: Price.amount ?? 0,
+        salesPrice: Price.currency === "CURRENCY_PLATINUM" ? offer.platinumSalePrice ?? null : null
+    };
+}
+
 function ToPricesFormat(offer: any){
     return {
         id: offer.id,
         displayName: offer.displayName,
         displayDescription: offer.displayDescription,
         displayPriority: offer.displayPriority,
-        prices: [{ currencyId: "id_currency_platinum", price: offer.platinumPrice ?? 0, salesPrice: offer.platinumSalePrice ?? null }],
+        prices: [PriceFor(offer)],
         maxAllowed: offer.maxAllowed,
         remaining: offer.remaining,
         images: {},
