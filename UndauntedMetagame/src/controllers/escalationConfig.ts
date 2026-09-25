@@ -1,7 +1,18 @@
-import registry from "../vendor/escalation/seasons.json";
+import { readFileSync } from "node:fs";
+import bundledRegistry from "../vendor/escalation/seasons.json";
 
 // The Escalation season registry, exported from the installed client's own
 // tables (see the _comment in seasons.json and research/escalation/PROTOCOL.md).
+//
+// The bundled copy is 1.4.4's. Each client version has its own: 1.12.0 enables
+// Frost (ESC_SEASON_5) with different talents and adds Radiant (ESC_SEASON_6),
+// and a snapshot for a season this registry lacks or disables is refused.
+// ESCALATION_SEASONS_FILE points at the registry exported from the client being
+// served, in the same shape, kept outside the repo because it is game data.
+const RegistryFile = process.env.ESCALATION_SEASONS_FILE;
+const registry: any = RegistryFile != undefined && RegistryFile.length > 0
+    ? JSON.parse(readFileSync(RegistryFile, "utf8"))
+    : bundledRegistry;
 //
 // The world server does the arithmetic. These values exist so the backend can
 // refuse a snapshot that no legitimate native state could produce; they are
