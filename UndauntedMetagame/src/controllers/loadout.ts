@@ -83,10 +83,14 @@ function MakeDefaultLoadoutSlot(SlotIndex: number){
             instance_id: "LT_BASIC",
             instance_data: DEFAULT_INSTANCE_DATA
         },
+        // Empty until the character owns a Lantern Core (they are quest and
+        // store rewards). This equipped PR_DARKNESS (Revenant), which a new
+        // character does not own: the gameserver could not resolve it
+        // ("PlayerRoleClass is null") and the player had no core at all while
+        // the loadout showed one. The empty form is the one the client writes.
         player_role: {
-            item_id: "PR_DARKNESS",
-            instance_id: "PR_DARKNESS",
-            instance_data: DEFAULT_INSTANCE_DATA
+            instance_id: "",
+            instance_data: ""
         },
         subweapon: null,
         appearance: "{\"CreationState\":\"EArchonCharacterCreationState::NewCharacter\",\"Data\":[],\"AssetReferences\":[],\"StringData\":[]}",
