@@ -51,6 +51,14 @@ export function IsCurrency(CatalogId: string){
     return typeof CatalogId === "string" && BALANCE_CURRENCIES.has(CanonicaliseCurrency(CatalogId));
 }
 
+// The seasonal coins (Elemental Coin is CURRENCY_S19_COIN). The 1.12.0
+// gameserver pays a claimed challenge's coins into the character inventory,
+// but the Reward Cache shows and spends the balance: seen in game, a player
+// holding 600 coins in the inventory and 200 in the wallet was shown 200.
+export function IsSeasonalCoin(CatalogId: string){
+    return typeof CatalogId === "string" && /^CURRENCY_(S\d+_(COIN|DAILY)|REWARDCACHE|SEASONAL_COIN)$/.test(CatalogId);
+}
+
 // Synchronous and transaction-scoped, to match ApplyInventoryTransaction: a
 // rank claim grants items, currencies and entitlements as one unit, so none of
 // these may suspend.

@@ -4,6 +4,7 @@ import { inventory, inventorytransactions } from "../db/schema";
 import { createHash } from "node:crypto";
 import { logger } from "../logger";
 import { DoesCharacterBelongToUserId } from "./character";
+import { CreditWallet, DebitWallet, InsufficientFundsError, IsSeasonalCoin, WalletBalance } from "./wallet";
 
 export type InventoryError = "forbidden" | "not_found" | "conflict" | "invalid_inventory_item" | "invalid_inventory_data" | "db_error";
 export type InventoryResult<T = void> = { success: true, data?: T } | { success: false, error: InventoryError };
@@ -207,6 +208,40 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 }
             }
 
+            // Seasonal coins are an account balance, not inventory. The 1.12.0
+            // gameserver pays a claimed challenge's Elemental Coins as a
+            // stacked add to the character's inventory, but the client shows
+            // and spends the balance (GET /balance), so coins stacked here
+            // could be neither seen nor spent. They go to the wallet instead -
+            // after the replay check, so a retried transaction does not pay
+            // twice - and the response reports each one at its new balance.
+            const CurrencyTouched: string[] = [];
+            const ToWallet = (Item: any) => IsSeasonalCoin(Item?.catalogId);
+
+            for(const ItemToRemove of StackedItemsToRemove.filter(ToWallet)){
+                const Quantity = AssertValidStackedQuantity(ItemToRemove, "remove");
+
+                try{
+                    DebitWallet(tx, UserId, ItemToRemove.catalogId, Quantity);
+                }
+                catch(error){
+                    if(error instanceof InsufficientFundsError){
+                        throw new InventoryValidationError(`Refusing to remove ${Quantity} of ${ItemToRemove.catalogId} for characterId ${CharacterId}: ${error.message}`);
+                    }
+                    throw error;
+                }
+                CurrencyTouched.push(ItemToRemove.catalogId);
+            }
+
+            for(const ItemToAdd of StackedItemsToAdd.filter(ToWallet)){
+                CreditWallet(tx, UserId, ItemToAdd.catalogId, AssertValidStackedQuantity(ItemToAdd, "add"));
+                CurrencyTouched.push(ItemToAdd.catalogId);
+            }
+
+            const StackedToRemove = StackedItemsToRemove.filter((Item) => !ToWallet(Item));
+            const StackedToAdd = StackedItemsToAdd.filter((Item) => !ToWallet(Item));
+            const ShouldTouchInventoryStacks = StackedToRemove.length > 0 || StackedToAdd.length > 0;
+
             let CurrentInventory = tx.query.inventory.findFirst({where: eq(inventory.characterId, CharacterId)}).sync();
 
             if(CurrentInventory == undefined){
@@ -274,7 +309,7 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 }
             }
 
-            if(ShouldTouchStackedItems){
+            if(ShouldTouchInventoryStacks){
                 const StackedItems: any[] = JSON.parse(CurrentInventory.stackedItems);
 
                 // Every stack this transaction changed, in first-touched order.
@@ -288,7 +323,7 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                     }
                 };
 
-                for(const ItemToRemove of StackedItemsToRemove){
+                for(const ItemToRemove of StackedToRemove){
                     const QuantityToRemove = AssertValidStackedQuantity(ItemToRemove, "remove");
 
                     const ItemIndex = StackedItems.findIndex((Item) => Item.catalogId === ItemToRemove.catalogId);
@@ -316,7 +351,7 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                     }
                 }
 
-                for(const ItemToAdd of StackedItemsToAdd){
+                for(const ItemToAdd of StackedToAdd){
                     const QuantityToAdd = AssertValidStackedQuantity(ItemToAdd, "add");
 
                     const ItemIndex = StackedItems.findIndex((Item) => Item.catalogId === ItemToAdd.catalogId);
@@ -341,6 +376,10 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 });
 
                 Update.stackedItems = JSON.stringify(StackedItems);
+            }
+
+            for(const CatalogId of [...new Set(CurrencyTouched)]){
+                TouchedStackedItems.push({ catalogId: CatalogId, quantity: WalletBalance(tx, UserId, CatalogId) });
             }
 
             if(Object.keys(Update).length > 0){
