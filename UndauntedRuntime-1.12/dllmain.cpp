@@ -8,7 +8,8 @@
  * pre-channel guard reads ReplicateSingleActor's arguments in the executable's
  * order; the client skips the legendary-ability HUD's weapon update until a
  * weapon is equipped; the seasonal event feature flags the metagame lists are
- * forced on. Not an official release of
+ * forced on; world servers answer event schedule checks from the metagame's
+ * seasonal event schedule. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -23,6 +24,7 @@
 #include <tlhelp32.h>
 #include <string>
 #include <set>
+#include <map>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>   
@@ -7679,6 +7681,133 @@ static void InstallFeatureFlagHook(const char* Side) {
         + " enable=" + MH_StatusToString(Enable) + " target=+" + MpHex(kFeatureFlagIsEnabledRva));
 }
 
+// The seasonal event schedule on world servers.
+//
+// UTuningDataStatics::IsScheduledItemActive (0x01C98C50) answers from
+// UTuningDataProvider::SeasonalEventSchedule, and only the client fills that:
+// it fetches /game_tuning/seasonal_event_schedule after logging in, and world
+// servers never do (read from memory on 2026-09-25: one row on the client,
+// none on the Ramsgate and Training Grounds servers). The world server decides
+// which quests a player is offered, dropping a quest whose EventId is not
+// active (QueryQuests via 0x01C13590, and UQuest::EvaluateUnlockConditions at
+// 0x01BFC9D0), and it runs the hunts' event loot, so all of that stayed off.
+// On world servers, an item the native schedule doesn't list is answered from
+// the metagame's schedule instead, fetched once on the first check. The
+// caller's time is still compared, so an event ends on its own.
+//
+// Native: bool(UObject* WorldContext, FName ID, FDateTime Now), with the FName
+// and the FDateTime's ticks passed by value in rdx and r8.
+static constexpr uintptr_t kIsScheduledItemActiveRva = 0x01C98C50;
+using IsScheduledItemActiveFn = bool(__fastcall*)(void* WorldContext, uint64_t Id, int64_t NowTicks);
+static IsScheduledItemActiveFn OrigIsScheduledItemActive = nullptr;
+struct FMetagameScheduleRow { std::string Name; int64_t StartTicks; int64_t EndTicks; };
+static INIT_ONCE g_MetagameScheduleOnce = INIT_ONCE_STATIC_INIT;
+static std::vector<FMetagameScheduleRow> g_MetagameSchedule;
+static SRWLOCK g_ScheduleNameLock = SRWLOCK_INIT;
+static std::map<uint64_t, std::string> g_ScheduleNames;  // FName bits -> name
+static std::set<std::string> g_LoggedScheduleAnswers;
+
+// "2026-09-25T00:00:00.000Z" -> FDateTime ticks (100 ns since 0001-01-01), or -1.
+static int64_t IsoUtcToTicks(const std::string& Iso) {
+    int Y = 0, Mo = 0, D = 0, H = 0, Mi = 0, S = 0;
+    if (sscanf_s(Iso.c_str(), "%d-%d-%dT%d:%d:%d", &Y, &Mo, &D, &H, &Mi, &S) != 6) return -1;
+    if (Mo < 1 || Mo > 12 || D < 1 || D > 31) return -1;
+    const size_t Dot = Iso.find('.');
+    const int Ms = Dot == std::string::npos ? 0 : atoi(Iso.substr(Dot + 1, 3).c_str());
+    // Days since 1970-01-01 (H. Hinnant's days_from_civil).
+    const int Yr = Y - (Mo <= 2 ? 1 : 0);
+    const int Era = (Yr >= 0 ? Yr : Yr - 399) / 400;
+    const int Yoe = Yr - Era * 400;
+    const int Doy = (153 * (Mo + (Mo > 2 ? -3 : 9)) + 2) / 5 + D - 1;
+    const int Doe = Yoe * 365 + Yoe / 4 - Yoe / 100 + Doy;
+    const int64_t Days = static_cast<int64_t>(Era) * 146097 + Doe - 719468;
+    const int64_t Seconds = Days * 86400 + H * 3600 + Mi * 60 + S;
+    return 621355968000000000LL + Seconds * 10000000LL + static_cast<int64_t>(Ms) * 10000LL;
+}
+
+static std::string JsonStringField(const std::string& Json, const char* Key) {
+    const std::string Pattern = std::string("\"") + Key + "\":\"";
+    const size_t At = Json.find(Pattern);
+    if (At == std::string::npos) return {};
+    const size_t Start = At + Pattern.size();
+    const size_t End = Json.find('"', Start);
+    return End == std::string::npos ? std::string() : Json.substr(Start, End - Start);
+}
+
+// {"payload":{"ScheduledItems":[{"Name":"EVENT_DARKHARVEST","StartTime":"...",
+//   "EndTime":"...", ..., "ScheduledItems":[{"ID":"EVENT_DARKHARVEST"}], ...}]}}
+static void LoadMetagameSchedule() {
+    if (Globals::MetagameAddress.empty()) {
+        MpLog("[Schedule] no metagame address; native schedule only");
+        return;
+    }
+    const std::string Body = HttpGetFromMetagame(L"/game_tuning/seasonal_event_schedule");
+    std::string Loaded;
+    for (size_t Row = Body.find("\"Name\":\""); Row != std::string::npos; ) {
+        const size_t Next = Body.find("\"Name\":\"", Row + 1);
+        const std::string Part = Body.substr(Row, Next == std::string::npos ? std::string::npos : Next - Row);
+        const std::string Name = JsonStringField(Part, "Name");
+        const int64_t Start = IsoUtcToTicks(JsonStringField(Part, "StartTime"));
+        const int64_t End = IsoUtcToTicks(JsonStringField(Part, "EndTime"));
+        if (!Name.empty() && Start >= 0 && End > Start) {
+            g_MetagameSchedule.push_back({ Name, Start, End });
+            Loaded += (Loaded.empty() ? "" : ", ") + Name + " " + JsonStringField(Part, "StartTime")
+                + ".." + JsonStringField(Part, "EndTime");
+        }
+        Row = Next;
+    }
+    MpLog("[Schedule] metagame schedule (" + std::to_string(Body.size()) + " bytes): "
+        + (Loaded.empty() ? std::string("no rows") : Loaded));
+}
+
+static BOOL CALLBACK LoadMetagameScheduleOnce(PINIT_ONCE, PVOID, PVOID*) {
+    LoadMetagameSchedule();
+    return TRUE;
+}
+
+static bool __fastcall IsScheduledItemActiveHook(void* WorldContext, uint64_t Id, int64_t NowTicks) {
+    if (OrigIsScheduledItemActive(WorldContext, Id, NowTicks)) return true;
+    InitOnceExecuteOnce(&g_MetagameScheduleOnce, LoadMetagameScheduleOnce, nullptr, nullptr);
+    if (g_MetagameSchedule.empty()) return false;
+
+    std::string Name;
+    AcquireSRWLockShared(&g_ScheduleNameLock);
+    const auto Found = g_ScheduleNames.find(Id);
+    const bool Known = Found != g_ScheduleNames.end();
+    if (Known) Name = Found->second;
+    ReleaseSRWLockShared(&g_ScheduleNameLock);
+    if (!Known) {
+        Name = reinterpret_cast<SDK::FName*>(&Id)->ToString();
+        AcquireSRWLockExclusive(&g_ScheduleNameLock);
+        g_ScheduleNames.emplace(Id, Name);
+        ReleaseSRWLockExclusive(&g_ScheduleNameLock);
+    }
+
+    // FNames compare without case, so a name can print in another casing.
+    bool Listed = false, Active = false;
+    for (const FMetagameScheduleRow& Row : g_MetagameSchedule) {
+        if (_stricmp(Row.Name.c_str(), Name.c_str()) != 0) continue;
+        Listed = true;
+        if (Row.StartTicks <= NowTicks && NowTicks < Row.EndTicks) { Active = true; break; }
+    }
+    if (Listed) {
+        const std::string Answer = Name + (Active ? " active" : " not active");
+        AcquireSRWLockExclusive(&g_ScheduleNameLock);
+        const bool First = g_LoggedScheduleAnswers.insert(Answer).second;
+        ReleaseSRWLockExclusive(&g_ScheduleNameLock);
+        if (First) MpLog("[Schedule] " + Answer + " (from the metagame schedule)");
+    }
+    return Active;
+}
+
+static void InstallScheduleHook(const char* Side) {
+    MH_STATUS Create = MH_CreateHook((void*)(Globals::BaseAddress + kIsScheduledItemActiveRva),
+        IsScheduledItemActiveHook, reinterpret_cast<LPVOID*>(&OrigIsScheduledItemActive));
+    MH_STATUS Enable = MH_EnableHook((void*)(Globals::BaseAddress + kIsScheduledItemActiveRva));
+    MpLog(std::string("[") + Side + "] IsScheduledItemActive create=" + MH_StatusToString(Create)
+        + " enable=" + MH_StatusToString(Enable) + " target=+" + MpHex(kIsScheduledItemActiveRva));
+}
+
 void InitClientHooks() {
     MH_STATUS InitStatus = MH_Initialize();
     MpLog(std::string("[InitClientHooks] MH_Initialize=") + MH_StatusToString(InitStatus));
@@ -9315,6 +9444,7 @@ void InitServerHooks() {
     MH_EnableHook((void*)(Globals::BaseAddress + 0x026A9890));
 
     InstallFeatureFlagHook("InitServerHooks");
+    InstallScheduleHook("InitServerHooks");
 
     
     MH_CreateHook((void*)(Globals::BaseAddress + 0x01B690F0), OnPlayerDataLoadCompleteHook, &OrigOnPlayerDataLoadComplete);

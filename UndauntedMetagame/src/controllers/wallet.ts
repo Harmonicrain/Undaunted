@@ -59,6 +59,14 @@ export function IsSeasonalCoin(CatalogId: string){
     return typeof CatalogId === "string" && /^CURRENCY_(S\d+_(COIN|DAILY)|REWARDCACHE|SEASONAL_COIN)$/.test(CatalogId);
 }
 
+// The currencies a gameserver grant is credited to the wallet for rather than
+// the inventory: the seasonal coins, and the event currencies (Harvest Coins,
+// CURRENCY_EVENT_DARKHARVEST, ...), which the event store (Honest Ozz) prices
+// its offers in and spends from the balance like the Reward Cache.
+export function IsWalletRoutedCurrency(CatalogId: string){
+    return IsSeasonalCoin(CatalogId) || (typeof CatalogId === "string" && /^CURRENCY_EVENT_[A-Z]+$/.test(CatalogId) && IsCurrency(CatalogId));
+}
+
 // Synchronous and transaction-scoped, to match ApplyInventoryTransaction: a
 // rank claim grants items, currencies and entitlements as one unit, so none of
 // these may suspend.

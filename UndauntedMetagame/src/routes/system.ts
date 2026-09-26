@@ -4,7 +4,7 @@ import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth
 import { HasOptionalUndauntedMetagameAuth } from "../middleware/HasOptionalUndauntedMetagameAuth";
 import { UpdatePlayerActivity } from "../controllers/undauntedapi";
 import { GetEntitlementsForUser } from "../controllers/entitlements";
-import { GetActiveHuntPassId } from "../controllers/huntpass";
+import { GetSelectedHuntPassId, HuntPassSelectionError, SetSelectedHuntPassId } from "../controllers/huntpassSelection";
 import { GetCooldownsForUser, SetCooldownsForUser, StartCooldownForUser } from "../controllers/cooldowns";
 import { GetBountiesForUser, RemoveBountiesForUser, SaveBountiesForUser } from "../controllers/bounties";
 import bountyData from "../vendor/bounty_data.json";
@@ -135,20 +135,37 @@ systemRouter.get("/eventstats/", HasUndauntedMetagameAuth, (req, res) => {
 // systemRouter happens to be mounted first in app.ts, which made the ordering
 // invisible and fragile.
 
-// SelectedHuntPassEndpoint. The active season is configuration, not a literal:
-// ACTIVE_HUNT_PASS seeds it and an administrative change overrides it, so a
-// server owner can swap seasons without a rebuild.
-systemRouter.get("/huntpass/:userId", HasUndauntedMetagameAuth, (req: any, res) => {
-	const ActiveHuntPass = GetActiveHuntPassId();
+// SelectedHuntPassEndpoint: the hunt pass the player has chosen, or the
+// season's main pass (ACTIVE_HUNT_PASS, configuration rather than a literal)
+// when they have not chosen one. See controllers/huntpassSelection.
+const HuntPassUserId = (req: any) => req.AuthData.IsGameserver ? req.params.userId : req.AuthData.userId;
 
-	logger.info(`Active Hunt Pass is ${ActiveHuntPass}`);
+systemRouter.get("/huntpass/:userId", HasUndauntedMetagameAuth, (req: any, res) => {
+	const Selected = GetSelectedHuntPassId(HuntPassUserId(req));
+
+	logger.info(`Selected Hunt Pass for ${HuntPassUserId(req)} is ${Selected}`);
 
 	res.status(200);
 	res.json({
         code: null,
         message: "OK",
-        payload: ActiveHuntPass
+        payload: Selected
     });
+});
+
+// Choosing a pass on the Hunt Pass selection screen: the gameserver posts
+// {"progression_id":"eventpass_unseenrecruit"} for the player.
+systemRouter.post("/huntpass/:userId", HasUndauntedMetagameAuth, (req: any, res) => {
+	try{
+		const Selected = SetSelectedHuntPassId(HuntPassUserId(req), req.body?.progression_id);
+		logger.info(`Hunt Pass for ${HuntPassUserId(req)} set to ${Selected}`);
+		res.status(200).json({ code: null, message: "OK", payload: Selected });
+	}
+	catch(error){
+		if(!(error instanceof HuntPassSelectionError)) throw error;
+		logger.warn(error.message);
+		res.status(400).json({ code: "400", message: error.message });
+	}
 });
 
 // Cooldowns. The original note here read "Cooldowns might be gameplay-important,

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { logger } from "../logger";
 import bundledProgressionConfig from "../vendor/progression_config.json";
 import { LinkTrackPaths } from "./slayerLinkConfig";
+import { EventPassWindows } from "./seasonalEvents";
 
 // Hunt Pass configuration.
 //
@@ -166,12 +167,18 @@ export function GetAllTrackIds(){
 }
 
 // Served by GET /progression/config, in the envelope the client expects.
+// An event pass listed by a seasonal event is served with that event's window
+// (controllers/seasonalEvents), so it opens and closes with the event.
 export function GetProgressionConfigPayload(){
+    const Windows = EventPassWindows();
     return {
         code: null,
         message: "OK",
         payload: {
-            paths: [...PathsById.values()]
+            paths: [...PathsById.values()].map((Path) => {
+                const Window = Windows.get(Path.progression_id);
+                return Window == undefined ? Path : { ...Path, ...Window };
+            })
         }
     };
 }

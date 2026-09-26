@@ -40,6 +40,14 @@ test("challenge coins granted by the gameserver land in the wallet, not the inve
     assert.equal(Harness.StackedQuantity(Held, "CURRENCY_NOTES"), 50);
 });
 
+test("event currencies (Harvest Coins) land in the wallet too", async () => {
+    const A = Harness.SeedAccount(Context, "HarvestCoins");
+    const Result = await Run(A, "TX-DH", [{ catalogId: "CURRENCY_EVENT_DARKHARVEST", quantity: 30 }]);
+    assert.deepEqual(Result.data, [{ catalogId: "CURRENCY_EVENT_DARKHARVEST", quantity: 30 }]);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_EVENT_DARKHARVEST, 30);
+    assert.equal(Harness.StackedQuantity(Harness.ReadInventory(Context, A.CharacterId), "CURRENCY_EVENT_DARKHARVEST"), 0);
+});
+
 test("a retried transaction does not pay the coins again", async () => {
     const A = Harness.SeedAccount(Context, "CoinReplay");
     const Grant = [{ catalogId: "CURRENCY_S19_COIN", quantity: 400 }];

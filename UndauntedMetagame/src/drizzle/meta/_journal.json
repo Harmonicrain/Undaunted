@@ -162,6 +162,27 @@
       "when": 1790176715603,
       "tag": "0022_player_journey",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1790347063018,
+      "tag": "0023_selected_hunt_pass",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1790437384530,
+      "tag": "0024_tracked_objectives",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1790438125589,
+      "tag": "0025_bounty_retirements",
+      "breakpoints": true
     }
   ]
 }

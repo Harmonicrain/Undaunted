@@ -10,7 +10,7 @@
 // see NOTICE.md. The full node graph (definitions and rewards) is game data
 // that is not generated here yet, so a new player starts from an empty map.
 import { Router } from "express";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { GetDb } from "../db";
 import { playerjourney } from "../db/schema";
 import { logger } from "../logger";
@@ -46,13 +46,20 @@ playerJourneyRouter.post("/pjm/:userId", HasUndauntedMetagameAuth, (req: any, re
     if(req.AuthData?.IsGameserver !== true){ res.sendStatus(403); return; }
     const Nodes = req.body?.nodes;
     const Version = req.body?.update_version;
-    if(Nodes == null || typeof Nodes !== "object" || Array.isArray(Nodes) || !Number.isSafeInteger(Version ?? 1)){
+    if(Nodes == null || typeof Nodes !== "object" || Array.isArray(Nodes) ||
+        !Number.isSafeInteger(Version ?? 1) || (Version ?? 1) < 0){
         res.status(400).json({ code: "400", message: "Invalid player journey" });
         return;
     }
     if(UserId === NO_PLAYER){ Send(res, { nodes: {}, update_version: Version ?? 1 }); return; }
     const Values = { userId: UserId, nodes: JSON.stringify(Nodes), updateVersion: Version ?? 1, updatedAt: Date.now() };
-    GetDb().insert(playerjourney).values(Values).onConflictDoUpdate({ target: playerjourney.userId, set: Values }).run();
-    logger.info(`Player journey saved for ${UserId}: ${Object.keys(Nodes).length} node(s), v${Values.updateVersion}`);
-    Send(res, { nodes: Nodes, update_version: Values.updateVersion });
+    // Compare and write in SQLite, so another connection cannot race a read
+    // followed by an unconditional overwrite. Equal versions are retries;
+    // conflicting or older snapshots receive the current authoritative state.
+    const Saved = GetDb().insert(playerjourney).values(Values).onConflictDoUpdate({
+        target: playerjourney.userId, set: Values,
+        setWhere: lt(playerjourney.updateVersion, Values.updateVersion)
+    }).returning().get();
+    logger.info(`Player journey ${Saved ? "saved" : "ignored duplicate/stale save"} for ${UserId}: v${Values.updateVersion}`);
+    Send(res, Read(UserId));
 });

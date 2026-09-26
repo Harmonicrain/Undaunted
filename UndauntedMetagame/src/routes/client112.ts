@@ -5,6 +5,7 @@
 import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
+import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../controllers/trackedObjectives";
 
 export const client112Router = Router();
 
@@ -67,23 +68,27 @@ client112Router.post(["/trials/leaderboards/solo", "/trials/leaderboards/solo/in
     res.json({ code: null, message: "OK", payload: {} });
 });
 
-// TrackedObjectivesEndpoint: which quests the player pins. Not stored yet;
-// the client starts from an empty set each session.
-client112Router.get("/progression/tracked_objectives/:accountId", HasUndauntedMetagameAuth, (req, res) => {
+// TrackedObjectivesEndpoint: account-scoped HUD preferences, not quest progress.
+client112Router.get("/progression/tracked_objectives/:accountId", HasUndauntedMetagameAuth, (req: any, res) => {
+    if(req.AuthData.IsGameserver !== true && req.AuthData.userId !== req.params.accountId){
+        res.sendStatus(403); return;
+    }
     res.json({
         code: null,
         message: "OK",
-        payload: {
-            current_set: "quest_slayer_links",
-            omitted_quests: [],
-            phx_account_id: req.params.accountId,
-            tracked_craftables: [],
-            tracked_quests: []
-        }
+        payload: GetTrackedObjectives(req.params.accountId)
     });
 });
-client112Router.post("/progression/tracked_objectives/:accountId", HasUndauntedMetagameAuth, (req, res) => {
-    logger.debug(`Tracked objectives update for ${req.params.accountId} not stored`);
+client112Router.post("/progression/tracked_objectives/:accountId", HasUndauntedMetagameAuth, (req: any, res) => {
+    if(req.AuthData.IsGameserver !== true && req.AuthData.userId !== req.params.accountId){
+        res.sendStatus(403); return;
+    }
+    try {
+        SaveTrackedObjectives(req.params.accountId, req.body);
+    } catch(error) {
+        if(!(error instanceof TrackingSettingsError)) throw error;
+        res.status(400).json({ code: "400", message: error.message }); return;
+    }
     res.json({ code: null, message: "OK", payload: null });
 });
 
@@ -110,7 +115,7 @@ const Tuning: Record<string, unknown> = {
         bounty_token_grant_hour: 0, bounty_token_id: "TOKEN_DAILY_CHALLENGE_DRAFT",
         bronze_count: 1, delete_claimed_bounties: false, gold_count: 0, history_length: 10, item_grant_data: [],
         max_slots: 1, new_season_reset_bounties: true, num_draft_options: 3, num_spicy_options: 1,
-        num_tokens_hp_start: 1, num_tokens_per_day: 0,
+        num_tokens_hp_start: 1, num_tokens_per_day: 1,
         premium_bounty_token_id: "TOKEN_DAILY_CHALLENGE_DRAFT_PREMIUM", silver_count: 0, token_rollover_warning_days: 1000
     },
     bounty_game_data_weekly: {

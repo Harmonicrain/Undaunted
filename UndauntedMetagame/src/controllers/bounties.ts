@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { GetDb } from "../db";
-import { bounties } from "../db/schema";
+import { bounties, bountyretirements } from "../db/schema";
 import { logger } from "../logger";
 
 // Bounty persistence.
@@ -23,8 +23,7 @@ import { logger } from "../logger";
 // and posted back a board with no history and zero counts. Served wrapped, it
 // reads draft_data correctly. String placement proves vocabulary, not shape.
 //
-// draft_data_daily and draft_data_weekly appeared in the original stub but do
-// not occur anywhere in this executable; they belong to a later build.
+// 1.12 additionally supplies draft_data_daily and draft_data_weekly.
 const EmptyDraft = () => ({
     current_draft_choices: [],
     previous_draft_selections: [],
@@ -40,7 +39,7 @@ export function EmptyBountyPayload(){
     };
 }
 
-export function GetBountiesForUser(UserId: string){
+export function GetBountiesForUser(UserId: string, Now = new Date()){
     const Row = GetDb().select().from(bounties).where(eq(bounties.userId, UserId)).get();
 
     if(Row == undefined){
@@ -48,7 +47,7 @@ export function GetBountiesForUser(UserId: string){
     }
 
     try{
-        return JSON.parse(Row.payload);
+        return WithoutExpiredDailyChallenges(JSON.parse(Row.payload), Now);
     } catch{
         // A corrupt row must not lock the player out of the bounty board.
         logger.error(`Stored bounties for ${UserId} are not valid JSON; returning an empty board`);
@@ -113,13 +112,62 @@ function KindOf(Entry: any): BountyKind {
     return "drafted";
 }
 
+// A daily challenge occupies its slot only for the UTC grant window in which
+// it was drafted. Returning an older entry makes the native gameserver believe
+// the slot is still occupied, so it never consumes the new day's automatic
+// draft token and the client is left displaying the expired challenge at 0s.
+//
+// Keep malformed or legacy entries with no timestamp: silently deleting data
+// whose age cannot be established would be worse than leaving it untouched.
+function WithoutExpiredDailyChallenges(Board: any, Now: Date){
+    const Entries: any[] = Array.isArray(Board?.bounties) ? Board.bounties : [];
+    const WindowStart = Date.UTC(Now.getUTCFullYear(), Now.getUTCMonth(), Now.getUTCDate());
+
+    Board.bounties = Entries.filter((Entry) => {
+        if(KindOf(Entry) !== "daily") return true;
+
+        const DraftedAt = Date.parse(Entry?.drafted_timestamp);
+        return !Number.isFinite(DraftedAt) || DraftedAt >= WindowStart;
+    });
+
+    return Board;
+}
+
 function Displaces(Incoming: any, Stored: any){
     if(Incoming?.bounty_id === Stored?.bounty_id) return true;
     const Kind = KindOf(Incoming);
     return Kind !== "challenge" && Kind === KindOf(Stored) && Incoming?.slot_index === Stored?.slot_index;
 }
 
-function MergeBounties(Stored: any, Incoming: any){
+const DraftTime = (Entry: any) => Date.parse(Entry?.drafted_timestamp);
+const HasVersion = (Entry: any) => Number.isSafeInteger(Entry?.update_version) && Entry.update_version >= 0;
+const DraftField = (Entry: any) => ({ drafted: "draft_data", daily: "draft_data_daily", challenge: "draft_data_weekly" })[KindOf(Entry)];
+
+function CanReplace(Incoming: any, Stored: any){
+    const OldTime = DraftTime(Stored), NewTime = DraftTime(Incoming);
+    // A later draft is a new generation, even when its version restarts at 0.
+    if(Number.isFinite(OldTime)){
+        if(!Number.isFinite(NewTime) || NewTime < OldTime) return false;
+        if(NewTime > OldTime) return true;
+        if(Incoming.bounty_id !== Stored.bounty_id) return false;
+    } else if(Number.isFinite(NewTime)){
+        return true;
+    }
+    // Different legacy (undated) drafts have no comparable version counter.
+    if(Incoming.bounty_id !== Stored.bounty_id) return true;
+    if(HasVersion(Stored)) return HasVersion(Incoming) && Incoming.update_version > Stored.update_version;
+    return true;
+}
+
+function Retire(tx: any, UserId: string, Entry: any){
+    const Time = DraftTime(Entry);
+    if(typeof Entry?.bounty_id !== "string" || !Number.isFinite(Time)) return;
+    tx.insert(bountyretirements).values({ userId: UserId, bountyId: Entry.bounty_id, draftedAt: Time })
+        .onConflictDoUpdate({ target: [bountyretirements.userId, bountyretirements.bountyId],
+            set: { draftedAt: sql`max(${bountyretirements.draftedAt}, ${Time})` } }).run();
+}
+
+function MergeBounties(tx: any, UserId: string, Stored: any, Incoming: any){
     const Merged = { ...Stored, ...Incoming };
 
     const IncomingBounties: any[] = Array.isArray(Incoming?.bounties) ? Incoming.bounties : [];
@@ -139,7 +187,10 @@ function MergeBounties(Stored: any, Incoming: any){
     // refunded for.
     // draft_data describes the drafted board only, so its reset clears only
     // drafted bounties; the challenges are not part of that board.
+    // This native reset has no version or timestamp. It remains an explicit
+    // command; ordering old reset/delete commands requires a protocol change.
     if(IncomingBounties.length === 0 && IsFullReset(Incoming?.draft_data)){
+        StoredBounties.filter(Entry => KindOf(Entry) === "drafted").forEach(Entry => Retire(tx, UserId, Entry));
         Merged.bounties = StoredBounties.filter((Entry) => KindOf(Entry) !== "drafted");
 
         return Merged;
@@ -154,36 +205,59 @@ function MergeBounties(Stored: any, Incoming: any){
         return Merged;
     }
 
-    // A slot holds one bounty of its kind, so an incoming entry displaces
-    // whatever shared its id, or its slot within the same kind.
-    const Kept = StoredBounties.filter((Entry) =>
-        !IncomingBounties.some((Incoming) => Displaces(Incoming, Entry)));
-
-    Merged.bounties = [...Kept, ...IncomingBounties];
+    const Retired = new Map<string, number>(tx.select().from(bountyretirements)
+        .where(eq(bountyretirements.userId, UserId)).all().map((Row: any) => [Row.bountyId, Row.draftedAt]));
+    let Kept = [...StoredBounties];
+    const RejectedDraftFields = new Set<string>();
+    for(const Entry of IncomingBounties){
+        const Matches = Kept.filter(Old => Displaces(Entry, Old));
+        const RetiredAt = Retired.get(Entry.bounty_id);
+        if((RetiredAt !== undefined && (!Number.isFinite(DraftTime(Entry)) || DraftTime(Entry) <= RetiredAt)) ||
+            Matches.some(Old => !CanReplace(Entry, Old))){
+            RejectedDraftFields.add(DraftField(Entry));
+            continue;
+        }
+        for(const Old of Matches){
+            if(Old.bounty_id !== Entry.bounty_id || DraftTime(Entry) > DraftTime(Old)){
+                Retire(tx, UserId, Old);
+                if(Number.isFinite(DraftTime(Old))) Retired.set(Old.bounty_id, Math.max(Retired.get(Old.bounty_id) ?? -Infinity, DraftTime(Old)));
+            }
+        }
+        // A claimed generation cannot become claimable again. Objective scores
+        // may legitimately decrease (damage penalties), so do not max them.
+        const WasClaimed = Matches.some(Old => Old.bounty_id === Entry.bounty_id && Old.claimed === true &&
+            !(DraftTime(Entry) > DraftTime(Old)));
+        Kept = Kept.filter(Old => !Displaces(Entry, Old));
+        Kept.push(WasClaimed ? { ...Entry, claimed: true } : Entry);
+    }
+    // Metadata has no version of its own. When an accompanying entry is stale,
+    // do not let its draft history/counts roll back that kind's current state.
+    for(const Field of RejectedDraftFields){
+        if(Stored[Field] === undefined) delete Merged[Field];
+        else Merged[Field] = Stored[Field];
+    }
+    Merged.bounties = Kept;
 
     return Merged;
 }
 
 export function SaveBountiesForUser(UserId: string, Payload: unknown){
-    if(Payload == undefined || typeof Payload !== "object"){
+    if(Payload == undefined || typeof Payload !== "object" || Array.isArray(Payload)){
         throw new Error("Bounty payload must be an object");
     }
 
-    const Serialised = JSON.stringify(MergeBounties(GetBountiesForUser(UserId), Payload));
-
-    const Existing = GetDb().select().from(bounties).where(eq(bounties.userId, UserId)).get();
-
-    if(Existing == undefined){
-        GetDb().insert(bounties).values({
-            userId: UserId, payload: Serialised, updatedAt: Date.now()
-        }).run();
+    const Entries = (Payload as any).bounties;
+    if(Entries !== undefined && (!Array.isArray(Entries) || Entries.some((Entry: any) =>
+        Entry == null || typeof Entry !== "object" || Array.isArray(Entry) ||
+        (Entry.update_version !== undefined && !HasVersion(Entry))))){
+        throw new Error("Invalid bounty entries or update_version");
     }
-    else{
-        GetDb().update(bounties).set({ payload: Serialised, updatedAt: Date.now() })
-            .where(eq(bounties.userId, UserId)).run();
-    }
-
-    return GetBountiesForUser(UserId);
+    return GetDb().transaction(tx => {
+        const Serialised = JSON.stringify(MergeBounties(tx, UserId, GetBountiesForUser(UserId), Payload));
+        const Values = { userId: UserId, payload: Serialised, updatedAt: Date.now() };
+        tx.insert(bounties).values(Values).onConflictDoUpdate({ target: bounties.userId, set: Values }).run();
+        return GetBountiesForUser(UserId);
+    }, { behavior: "immediate" });
 }
 
 // DeleteBountiesEndpoint. Abandoning a bounty posts
@@ -200,17 +274,20 @@ export function RemoveBountiesForUser(UserId: string, BountyIds: unknown){
 
     const ToRemove = new Set(BountyIds.filter((Id) => typeof Id === "string"));
 
-    const Board = GetBountiesForUser(UserId);
-    const Existing: any[] = Array.isArray(Board.bounties) ? Board.bounties : [];
+    return GetDb().transaction(tx => {
+        const Board = GetBountiesForUser(UserId);
+        const Existing: any[] = Array.isArray(Board.bounties) ? Board.bounties : [];
 
-    Board.bounties = Existing.filter((Entry: any) => !ToRemove.has(Entry?.bounty_id));
+        Existing.filter(Entry => ToRemove.has(Entry?.bounty_id)).forEach(Entry => Retire(tx, UserId, Entry));
+        Board.bounties = Existing.filter((Entry: any) => !ToRemove.has(Entry?.bounty_id));
 
-    const Removed = Existing.length - Board.bounties.length;
+        const Removed = Existing.length - Board.bounties.length;
 
-    GetDb().update(bounties).set({ payload: JSON.stringify(Board), updatedAt: Date.now() })
-        .where(eq(bounties.userId, UserId)).run();
+        tx.update(bounties).set({ payload: JSON.stringify(Board), updatedAt: Date.now() })
+            .where(eq(bounties.userId, UserId)).run();
 
-    logger.info(`Removed ${Removed} bounty(s) for ${UserId}`);
+        logger.info(`Removed ${Removed} bounty(s) for ${UserId}`);
 
-    return Board;
+        return Board;
+    }, { behavior: "immediate" });
 }

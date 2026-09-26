@@ -93,7 +93,12 @@ test('the fountain offer is listed, claimable once, and pays the character and t
     assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PLATINUM, 20);
     assert.equal(wallet.GetWallet(a.UserId).id_currency_platinum, 20);
 
-    assert.equal((await listed(a))[0].remaining, 0);
+    assert.deepEqual(await listed(a), []);
+    // Fresh login queries must still report no available fountain offer.
+    assert.deepEqual(await listed(a), []);
+    assert.equal(store.GetOfferById(a.UserId, SKU).remaining, 0);
+    const other = Harness.SeedAccount(context);
+    assert.equal((await listed(other))[0].remaining, 1);
     assert.throws(() => store.CreateFreePurchase(a.UserId, 'id_currency_platinum', SKU), { status: 409 });
 });
 
@@ -112,7 +117,7 @@ test('the fountain refills at the next UTC midnight and grants add up', async ()
     const a = Harness.SeedAccount(context);
     claim(a);
     clock += 11 * 60 * 60 * 1000 + 59 * 60 * 1000;   // 23:59, same day
-    assert.equal((await listed(a))[0].remaining, 0);
+    assert.deepEqual(await listed(a), []);
     clock += 2 * 60 * 1000;                          // 00:01, next day
     assert.equal((await listed(a))[0].remaining, 1);
     claim(a);

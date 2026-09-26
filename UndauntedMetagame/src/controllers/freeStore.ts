@@ -6,6 +6,7 @@ import { ApplyInventoryTransaction } from "./inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
 import { CanonicaliseCurrency, CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
 import { IsEntitlementActive } from "./entitlements";
+import { IsStoreTagOpen, StoreTagWindow } from "./seasonalEvents";
 
 export class StoreError extends Error {
     constructor(public status: number, message: string) { super(message); }
@@ -145,9 +146,20 @@ function GrantsNothing(offer: any, held: Set<string>, active: { entitlement: str
         grants.every(grant => active.some(row => row.entitlement === grant.name && row.duration === 0));
 }
 
+// An event's store (Honest Ozz's) is open only while its event runs: see
+// controllers/seasonalEvents. Its offers are neither listed nor sold outside it.
+const IsOfferOpen = (offer: any) => (offer?.tags ?? []).every((tag: string) => IsStoreTagOpen(tag));
+
+// An event's offer is available for its event's window, and says so.
+function WithEventWindow(offer: any) {
+    const window = (offer?.tags ?? []).map((tag: string) => StoreTagWindow(tag)).find((found: any) => found != undefined);
+    return window == undefined ? offer : { ...offer, ...window };
+}
+
 function offerFor(skuId: string, currency: string) {
     const offer = offers.find(item => item.id === skuId);
     if (!offer) throw new StoreError(404, "Unknown store offer");
+    if (!IsOfferOpen(offer)) throw new StoreError(409, "This event has ended");
     const price = OfferPrice(offer);
     if (!Number.isSafeInteger(price.amount) || price.amount < 0 ||
         (price.currency !== PLATINUM_WALLET && (price.amount === 0 || !IsCurrency(price.currency)))) {
@@ -247,9 +259,18 @@ export function GetOffersForTag(userId: string, tag: string) {
     const char = character(userId);
     const forTag = (catalog as Record<string, any>)[tag];
 
-    if (!Array.isArray(forTag)) return [];
+    if (!Array.isArray(forTag) || !IsStoreTagOpen(tag)) return [];
 
-    return forTag.map(OwnershipMarker(userId, char.characterId));
+    // An offer can sit under more than one tag (an event pass is also listed
+    // under huntpass_store); it is listed only while all of its tags are open.
+    const marked = forTag.filter(IsOfferOpen).map(WithEventWindow).map(OwnershipMarker(userId, char.characterId));
+    // The 1.12 fountain activity's OnStoreQueryCompleted checks the offer's
+    // price and dates, but not Remaining. Returning a depleted free offer
+    // makes its HUD checkbox uncollected again after login even though the
+    // purchase ledger correctly prevents a second claim. An empty daily
+    // listing makes IsDailyBonusAvailable false and restores the checkmark.
+    // Keep other stores' sold-out offers and single-SKU lookups unchanged.
+    return tag === "fountain_daily_free_bundle" ? marked.filter(offer => offer.remaining > 0) : marked;
 }
 
 // Single offer lookup. This searched the storefront list only, so any SKU under
@@ -259,9 +280,9 @@ export function GetOfferById(userId: string, skuId: string) {
     const char = character(userId);
     const offer = offers.find((item: any) => item.id === skuId);
 
-    if (!offer) throw new StoreError(404, "Unknown store offer");
+    if (!offer || !IsOfferOpen(offer)) throw new StoreError(404, "Unknown store offer");
 
-    return OwnershipMarker(userId, char.characterId)(offer);
+    return OwnershipMarker(userId, char.characterId)(WithEventWindow(offer));
 }
 
 // What the character holds and which entitlements are active, for the

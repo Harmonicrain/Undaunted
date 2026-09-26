@@ -32,12 +32,14 @@ after(async () => {
     fs.rmSync(Dir, { recursive: true, force: true });
 });
 
-test("the schedule lists every configured event with ISO 8601 times", async () => {
+test("the schedule has a row per event id, named with the id, with ISO 8601 times", async () => {
+    // The game finds an event by the row's Name (IsScheduledItemActive), not by
+    // the nested ScheduledItems.
     const Body = await (await fetch(`${Url}/game_tuning/seasonal_event_schedule`)).json();
     assert.equal(Body.message, "OK");
     assert.deepEqual(Body.payload.ScheduledItems.map((Row) => [Row.Name, Row.StartTime, Row.EndTime, Row.ScheduledItems]), [
-        ["Running", "2026-01-01T00:00:00.000Z", "2099-01-01T00:00:00.000Z", [{ ID: "EVENT_RUNNING" }]],
-        ["Over", "2020-01-01T00:00:00.000Z", "2020-02-01T00:00:00.000Z", [{ ID: "EVENT_OVER" }]]
+        ["EVENT_RUNNING", "2026-01-01T00:00:00.000Z", "2099-01-01T00:00:00.000Z", [{ ID: "EVENT_RUNNING" }]],
+        ["EVENT_OVER", "2020-01-01T00:00:00.000Z", "2020-02-01T00:00:00.000Z", [{ ID: "EVENT_OVER" }]]
     ]);
 });
 

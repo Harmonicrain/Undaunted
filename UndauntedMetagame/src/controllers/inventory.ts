@@ -4,7 +4,7 @@ import { inventory, inventorytransactions } from "../db/schema";
 import { createHash } from "node:crypto";
 import { logger } from "../logger";
 import { DoesCharacterBelongToUserId } from "./character";
-import { CreditWallet, DebitWallet, InsufficientFundsError, IsSeasonalCoin, WalletBalance } from "./wallet";
+import { CreditWallet, DebitWallet, InsufficientFundsError, IsWalletRoutedCurrency, WalletBalance } from "./wallet";
 
 export type InventoryError = "forbidden" | "not_found" | "conflict" | "invalid_inventory_item" | "invalid_inventory_data" | "db_error";
 export type InventoryResult<T = void> = { success: true, data?: T } | { success: false, error: InventoryError };
@@ -208,15 +208,17 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 }
             }
 
-            // Seasonal coins are an account balance, not inventory. The 1.12.0
-            // gameserver pays a claimed challenge's Elemental Coins as a
-            // stacked add to the character's inventory, but the client shows
-            // and spends the balance (GET /balance), so coins stacked here
-            // could be neither seen nor spent. They go to the wallet instead -
-            // after the replay check, so a retried transaction does not pay
-            // twice - and the response reports each one at its new balance.
+            // Seasonal coins and event currencies are an account balance, not
+            // inventory. The 1.12.0 gameserver pays a claimed challenge's
+            // Elemental Coins as a stacked add to the character's inventory,
+            // but the client shows and spends the balance (GET /balance), so
+            // coins stacked here could be neither seen nor spent; the event
+            // store spends event currencies (Harvest Coins) from the balance
+            // the same way. They go to the wallet instead - after the replay
+            // check, so a retried transaction does not pay twice - and the
+            // response reports each one at its new balance.
             const CurrencyTouched: string[] = [];
-            const ToWallet = (Item: any) => IsSeasonalCoin(Item?.catalogId);
+            const ToWallet = (Item: any) => IsWalletRoutedCurrency(Item?.catalogId);
 
             for(const ItemToRemove of StackedItemsToRemove.filter(ToWallet)){
                 const Quantity = AssertValidStackedQuantity(ItemToRemove, "remove");

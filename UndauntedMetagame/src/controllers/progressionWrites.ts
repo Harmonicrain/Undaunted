@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { progression, progressionobjectives, progressionrequests } from "../db/schema";
 import { DeriveRank, GetActiveHuntPassId, GetTrackConfig } from "./huntpass";
+import { GetSelectedHuntPassId } from "./huntpassSelection";
 import { ClaimRanksUpTo, RewardError, RewardKind } from "./huntpassRewards";
 import { IsLinkTrack } from "./slayerLinkConfig";
 import { ApplyHuntPassXpToLinks, IgnoreNativeLinkTrackGrant } from "./slayerLinks";
@@ -145,6 +146,13 @@ export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrack
             tx.insert(progressionrequests).values({ requestId: RequestId, userId: UserId, requestHash: RequestHash, appliedAt: Date.now() }).run();
         }
 
+        // Hunt Pass XP advances Slayer Links whichever pass earned it: the
+        // season's main pass or the event pass the player has chosen
+        // (controllers/huntpassSelection). A request naming both credits the
+        // links once, from the first.
+        const HuntPasses = new Set([GetActiveHuntPassId(), GetSelectedHuntPassId(UserId)]);
+        let LinksCredited = false;
+
         let ObjectivesAdvanced = false;
         for(const Objective of Objectives){
             ObjectivesAdvanced = UpsertObjective(tx, UserId, Objective) || ObjectivesAdvanced;
@@ -175,7 +183,8 @@ export function ApplyProgressAndObjectives(UserId: string, Tracks: ProgressTrack
 
             Applied.push({ trackId: Update.progression_id, ...Result });
 
-            if(Update.progression_id === GetActiveHuntPassId()){
+            if(HuntPasses.has(Update.progression_id) && !LinksCredited){
+                LinksCredited = true;
                 const Context = Hunt == undefined ? undefined : { world: Hunt.world };
                 const EventId = RequestId != undefined ? `huntpass:${RequestId}:${Index}` : `huntpass:${randomUUID()}`;
                 ApplyHuntPassXpToLinks(tx, UserId, Result.awarded, Context, EventId);

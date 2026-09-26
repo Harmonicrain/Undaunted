@@ -378,3 +378,27 @@ export const playerjourney = sqliteTable("playerjourney", {
     updateVersion: integer("updateVersion").notNull(),
     updatedAt: integer("updatedAt").notNull()
 });
+
+// The hunt pass each player has chosen on the Hunt Pass selection screen (the
+// gameserver posts {"progression_id"} to /huntpass/{account}). No row means
+// the season's main pass (ACTIVE_HUNT_PASS).
+export const selectedhuntpasses = sqliteTable("selectedhuntpasses", {
+    userId: text("userId").notNull().primaryKey(),
+    progressionId: text("progressionId").notNull(),
+    updatedAt: integer("updatedAt").notNull()
+});
+
+// HUD tracking preferences, independent of quest progress and inventory.
+export const trackedobjectives = sqliteTable("trackedobjectives", {
+    userId: text("userId").notNull().primaryKey(),
+    payload: text("payload").notNull(),
+    updatedAt: integer("updatedAt").notNull()
+});
+
+// A retired bounty generation must not reappear if its last save arrives
+// after abandonment, a board reset, or replacement in the same slot.
+export const bountyretirements = sqliteTable("bountyretirements", {
+    userId: text("userId").notNull(),
+    bountyId: text("bountyId").notNull(),
+    draftedAt: integer("draftedAt").notNull()
+}, Table => ({ pk: primaryKey({ columns: [Table.userId, Table.bountyId] }) }));
