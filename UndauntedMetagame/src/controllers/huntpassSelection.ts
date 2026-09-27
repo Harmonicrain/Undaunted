@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { selectedhuntpasses } from "../db/schema";
 import { GetActiveHuntPassId, GetProgressionConfigPayload } from "./huntpass";
+import { IsLibraryHuntPass } from "./huntpassLibrary";
 
 // The hunt pass each player has chosen. The Hunt Pass selection screen lists
 // the season's main pass and the event passes on offer (huntpass_store); when
@@ -19,7 +20,7 @@ export class HuntPassSelectionError extends Error {}
 
 function IsSelectable(TrackId: string, Now: number){
     if(TrackId === GetActiveHuntPassId()) return true;
-    if(!TrackId.startsWith("eventpass_")) return false;
+    if(!TrackId.startsWith("eventpass_") && !IsLibraryHuntPass(TrackId)) return false;
     const Path: any = GetProgressionConfigPayload().payload.paths.find((Candidate: any) => Candidate.progression_id === TrackId);
     const Start = Date.parse(Path?.start_date ?? ""), End = Date.parse(Path?.end_date ?? "");
     return Number.isFinite(Start) && Number.isFinite(End) && Start <= Now && Now < End;

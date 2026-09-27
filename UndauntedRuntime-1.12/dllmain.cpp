@@ -9,7 +9,8 @@
  * order; the client skips the legendary-ability HUD's weapon update until a
  * weapon is equipped; the seasonal event feature flags the metagame lists are
  * forced on; world servers answer event schedule checks from the metagame's
- * seasonal event schedule. Not an official release of
+ * seasonal event schedule; validated archive passes can be shown by the native
+ * Hunt Pass selector. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -7673,6 +7674,101 @@ static bool __fastcall FeatureFlagIsEnabledHook(void* This) {
     return Baked || Forced;
 }
 
+// UHuntPassSelectionViewModel::QueryOffers, verified in CL392819 at
+// +0x01E1EB50 (queries "huntpass_store"). Some archived rows have their
+// bAvailableInCurrentBuild bit cleared despite retaining rewards and assets.
+// Enable only the rows explicitly approved by the backend catalogue. Do not
+// enable season feature flags: that would change the world's current season.
+static std::set<std::string> g_LibraryHuntPassRows;
+static INIT_ONCE g_LibraryHuntPassRowsOnce = INIT_ONCE_STATIC_INIT;
+static BOOL CALLBACK LoadLibraryHuntPassRows(PINIT_ONCE, PVOID, PVOID*) {
+    const std::string Body = HttpGetFromMetagame(L"/undaunted/huntpass_library");
+    const size_t Key = Body.find("\"rows\"");
+    const size_t Open = Key == std::string::npos ? std::string::npos : Body.find('[', Key);
+    const size_t Close = Open == std::string::npos ? std::string::npos : Body.find(']', Open);
+    if (Close == std::string::npos) return TRUE;
+    for (size_t At = Body.find('"', Open); At != std::string::npos && At < Close; ) {
+        const size_t End = Body.find('"', At + 1);
+        if (End == std::string::npos || End > Close) break;
+        const std::string Row = Body.substr(At + 1, End - At - 1);
+        if (Row.rfind("HuntPass_Season", 0) == 0 && Row.size() < 80
+            && Row.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_") == std::string::npos)
+            g_LibraryHuntPassRows.insert(Row);
+        At = Body.find('"', End + 1);
+    }
+    MpLog("[HuntPassLibrary] configured rows=" + std::to_string(g_LibraryHuntPassRows.size()));
+    return TRUE;
+}
+
+using HuntPassQueryOffersFn = void(__fastcall*)(UHuntPassSelectionViewModel*);
+static HuntPassQueryOffersFn OrigHuntPassQueryOffers = nullptr;
+static void __fastcall HuntPassQueryOffersHook(UHuntPassSelectionViewModel* This) {
+    InitOnceExecuteOnce(&g_LibraryHuntPassRowsOnce, LoadLibraryHuntPassRows, nullptr, nullptr);
+    if (This && IsReadablePointer(This, sizeof(UHuntPassSelectionViewModel))) {
+        UDataTable* Table = This->HuntPassSeasonTable;
+        if (Table && IsReadablePointer(Table, sizeof(UDataTable))) {
+            for (auto& Pair : Table->RowMap) {
+                if (g_LibraryHuntPassRows.count(Pair.Key().GetRawString()) == 0) continue;
+                auto* Row = reinterpret_cast<FHuntPassSeasonDataTable*>(Pair.Value());
+                if (Row && IsReadablePointer(Row, sizeof(FHuntPassSeasonDataTable)) && Row->Assets
+                    && !Row->bAvailableInCurrentBuild) {
+                    Row->bAvailableInCurrentBuild = true;
+                    MpLog("[HuntPassLibrary] enabled archive row " + Pair.Key().GetRawString());
+                }
+            }
+        }
+    }
+    OrigHuntPassQueryOffers(This);
+}
+
+static void InstallHuntPassLibraryHook() {
+    void* Target = reinterpret_cast<void*>(Globals::BaseAddress + 0x01E1EB50);
+    const MH_STATUS Create = MH_CreateHook(Target, HuntPassQueryOffersHook,
+        reinterpret_cast<LPVOID*>(&OrigHuntPassQueryOffers));
+    const MH_STATUS Enable = Create == MH_OK ? MH_EnableHook(Target) : Create;
+    MpLog(std::string("[InitClientHooks] HuntPassLibrary create=") + MH_StatusToString(Create)
+        + " enable=" + MH_StatusToString(Enable));
+}
+
+// CL392819: UBountyComponent_Weekly's season week count (+0x01889100)
+// divides the main progression track's date interval by WeekDurationInDays.
+// UChallengesPanelViewModel::Initialize (+0x01E58A40) allocates a map entry
+// for every returned week, then the journal creates a button for each entry.
+// Permanent passes (2099 expiry) otherwise produce thousands of UI entries.
+// Respect the component's existing content limit BEFORE either allocation.
+// Keep the progression dates intact: they also control pass availability.
+using ChallengeSeasonWeeksFn = int32(__fastcall*)(UBountyComponent_Weekly*);
+static ChallengeSeasonWeeksFn OrigChallengeSeasonWeeks = nullptr;
+static int32 __fastcall ChallengeSeasonWeeksHook(UBountyComponent_Weekly* This) {
+    const int32 Weeks = OrigChallengeSeasonWeeks(This);
+    uint32 Limit = 20; // CL392819 constructor default; also our defensive ceiling.
+    if (This && IsReadablePointer(This, sizeof(UBountyComponent_Weekly))
+        && This->MAX_SEASON_WEEKS > 0 && This->MAX_SEASON_WEEKS < Limit)
+        Limit = This->MAX_SEASON_WEEKS;
+    const int32 Bounded = Weeks < 0 ? 0 : (Weeks > static_cast<int32>(Limit)
+        ? static_cast<int32>(Limit) : Weeks);
+    static std::atomic<int> Reports{ 0 };
+    if (Bounded != Weeks && Reports.fetch_add(1, std::memory_order_relaxed) < 8)
+        MpLog("[Journal] bounded season weeks " + std::to_string(Weeks)
+            + " -> " + std::to_string(Bounded));
+    return Bounded;
+}
+
+static void InstallJournalWeekLimitHook() {
+    auto* Target = reinterpret_cast<unsigned char*>(Globals::BaseAddress + 0x01889100);
+    // Refuse a different executable rather than patching an unverified RVA.
+    const unsigned char Expected[] = { 0x40, 0x53, 0x57, 0x48, 0x81, 0xEC, 0xB8, 0x01, 0x00, 0x00 };
+    if (memcmp(Target, Expected, sizeof(Expected)) != 0) {
+        MpLog("[InitClientHooks] JournalWeekLimit skipped: executable signature mismatch");
+        return;
+    }
+    const MH_STATUS Create = MH_CreateHook(Target, ChallengeSeasonWeeksHook,
+        reinterpret_cast<LPVOID*>(&OrigChallengeSeasonWeeks));
+    const MH_STATUS Enable = Create == MH_OK ? MH_EnableHook(Target) : Create;
+    MpLog(std::string("[InitClientHooks] JournalWeekLimit create=") + MH_StatusToString(Create)
+        + " enable=" + MH_StatusToString(Enable));
+}
+
 static void InstallFeatureFlagHook(const char* Side) {
     MH_STATUS Create = MH_CreateHook((void*)(Globals::BaseAddress + kFeatureFlagIsEnabledRva),
         FeatureFlagIsEnabledHook, reinterpret_cast<LPVOID*>(&OrigFeatureFlagIsEnabled));
@@ -7892,6 +7988,8 @@ void InitClientHooks() {
     }
 
     InstallFeatureFlagHook("InitClientHooks");
+    InstallHuntPassLibraryHook();
+    InstallJournalWeekLimitHook();
 
     
     

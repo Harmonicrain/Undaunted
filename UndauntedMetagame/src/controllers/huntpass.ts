@@ -4,6 +4,7 @@ import { logger } from "../logger";
 import bundledProgressionConfig from "../vendor/progression_config.json";
 import { LinkTrackPaths } from "./slayerLinkConfig";
 import { EventPassWindows } from "./seasonalEvents";
+import { HuntPassLibrary, IsLibraryHuntPass, PermanentHuntPassEnd } from "./huntpassLibrary";
 
 // Hunt Pass configuration.
 //
@@ -131,6 +132,13 @@ for(const Path of LinkTrackPaths()){
 // which is why this is a variable rather than a constant read at use sites.
 const ConfiguredActive = process.env.ACTIVE_HUNT_PASS ?? "season09b";
 
+for(const Pass of HuntPassLibrary){
+    const Path = PathsById.get(Pass.trackId);
+    if(!Path || Path.premium_gating_entitlement !== Pass.entitlement || !Number.isFinite(Date.parse(Path.start_date ?? ""))){
+        throw new HuntPassConfigError(`Library pass ${Pass.trackId} has no matching dated progression definition and premium entitlement`);
+    }
+}
+
 let ActiveHuntPassId = ConfiguredActive;
 
 if(!PathsById.has(ConfiguredActive)){
@@ -177,7 +185,11 @@ export function GetProgressionConfigPayload(){
         payload: {
             paths: [...PathsById.values()].map((Path) => {
                 const Window = Windows.get(Path.progression_id);
-                return Window == undefined ? Path : { ...Path, ...Window };
+                // Event schedules always take precedence; ordinary library
+                // passes retain their historical start so the global season
+                // does not change when archived passes become selectable.
+                return Window != undefined ? { ...Path, ...Window }
+                    : IsLibraryHuntPass(Path.progression_id) ? { ...Path, end_date: PermanentHuntPassEnd } : Path;
             })
         }
     };

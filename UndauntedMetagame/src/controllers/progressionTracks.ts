@@ -3,6 +3,7 @@ import { GetDb } from "../db";
 import { entitlements, progression } from "../db/schema";
 import { DeriveRank, GetActiveHuntPassId, GetAllTrackIds, GetPremiumGatingEntitlement, GetPremiumMode, GetTrackConfig } from "./huntpass";
 import { GetSelectedHuntPassId } from "./huntpassSelection";
+import { HuntPassLibrary } from "./huntpassLibrary";
 
 // Account-scoped progression. The existing controllers/progression.ts is
 // character-scoped and gates every operation on DoesCharacterBelongToUserId;
@@ -126,7 +127,7 @@ export function GetWireProgressionTracks(UserId: string){
     // The main pass always; the player's chosen event pass beside it, so its
     // levels show on the Hunt Pass screen.
     const Selected = GetSelectedHuntPassId(UserId);
-    const Passes = Selected === GetActiveHuntPassId() ? [Selected] : [GetActiveHuntPassId(), Selected];
+    const Passes = [...new Set([GetActiveHuntPassId(), Selected, ...HuntPassLibrary.map(Pass => Pass.trackId)])];
     return [...Passes.map((TrackId) => GetWireTrack(UserId, TrackId)), ...GetWireMasteryTracks(UserId)];
 }
 

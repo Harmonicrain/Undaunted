@@ -1,8 +1,15 @@
 import { Router } from "express";
 import { logger } from "../logger";
 import { ActiveFeatureFlags, SeasonalEventSchedule } from "../controllers/seasonalEvents";
+import { HuntPassLibrary } from "../controllers/huntpassLibrary";
 
 export const tuningRouter = Router();
+
+// Only explicitly validated regular/vault rows may be enabled by the 1.12
+// runtime. No rewards, account data or event feature flags are changed here.
+tuningRouter.get("/undaunted/huntpass_library", (_req, res) => {
+    res.json({ code: null, message: "OK", payload: { rows: HuntPassLibrary.map(Pass => Pass.rowName) } });
+});
 
 // The seasonal events that are running: see controllers/seasonalEvents.
 tuningRouter.get("/game_tuning/seasonal_event_schedule", (req: any, res) => {
