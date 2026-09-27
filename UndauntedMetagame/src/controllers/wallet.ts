@@ -1,6 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { wallets } from "../db/schema";
+import { CanonicaliseCurrency, WalletAliasesFor } from "../currency";
+
+export { CanonicaliseCurrency, IsCurrency, IsSeasonalCoin, IsWalletRoutedCurrency, WalletAliasesFor } from "../currency";
 
 // Account currency balances.
 //
@@ -8,64 +11,6 @@ import { wallets } from "../db/schema";
 // except notes, so anything that paid out a currency - Hunt Pass ranks pay
 // platinum, steel marks and prestige - could never become visible. Currencies
 // are account-scoped; inventory is per character, so they cannot live there.
-
-// The client asks for each currency under two spellings, CURRENCY_FOO and
-// id_currency_foo. They are the same balance.
-export function WalletAliasesFor(CurrencyId: string){
-    const Canonical = CanonicaliseCurrency(CurrencyId);
-
-    return [Canonical, `id_${Canonical.toLowerCase()}`];
-}
-
-// A handful of catalogue ids do not match the balance key the client reads.
-// CURRENCY_PLATINUM_UNIV is how the progression config spells the universal
-// platinum reward; the balance sheet calls it CURRENCY_PLATINUM.
-const CURRENCY_ALIASES: Record<string, string> = {
-    CURRENCY_PLATINUM_UNIV: "CURRENCY_PLATINUM"
-};
-
-export function CanonicaliseCurrency(CurrencyId: string){
-    return CURRENCY_ALIASES[CurrencyId] ?? CurrencyId;
-}
-
-// The currencies the live service kept in its balance service: the GET
-// /balance sheet captured from it (routes/store.ts). Only these are account
-// wallet balances. Every other CURRENCY_ item is a character inventory stack:
-// the 1.12.0 game grants Combat Merits (CURRENCY_PJM_WEAPON) and Aethersparks
-// (CURRENCY_PJM_PRESTIGE_EMPTY) into the inventory itself and spends Slayer's
-// Path costs from it, so merits credited to the wallet could never be spent.
-const BALANCE_CURRENCIES = new Set([
-    "CURRENCY_PLATINUM", "CURRENCY_CELLDUST", "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", "CURRENCY_WEAPON_TOKEN",
-    "CURRENCY_MARKS_STEEL", "CURRENCY_MARKS_GILDED", "CURRENCY_PRESTIGE", "CURRENCY_REWARDCACHE",
-    "CURRENCY_SEASONAL_COIN", "CURRENCY_GAUNTLET_COIN", "CURRENCY_GAUNTLET_COIN_FADED", "CURRENCY_S13_DAILY",
-    "CURRENCY_S13_COIN", "CURRENCY_S14_COIN", "CURRENCY_S15_COIN", "CURRENCY_S16_COIN", "CURRENCY_S17_COIN",
-    "CURRENCY_S18_COIN", "CURRENCY_S19_COIN", "CURRENCY_S20_COIN",
-    "CURRENCY_EVENT_DARKHARVEST", "CURRENCY_EVENT_FROSTFALL", "CURRENCY_EVENT_RAMSGIVING",
-    "CURRENCY_EVENT_SAINTSBOND", "CURRENCY_EVENT_SPRINGTIDE"
-]);
-
-export function IsCurrency(CatalogId: string){
-    // Rams are on the balance sheet too, but are held/spent as CURRENCY_NOTES
-    // in the character inventory; users.notes is a legacy field. Sending
-    // mastery Rams to the account wallet makes them unspendable there.
-    return typeof CatalogId === "string" && BALANCE_CURRENCIES.has(CanonicaliseCurrency(CatalogId));
-}
-
-// The seasonal coins (Elemental Coin is CURRENCY_S19_COIN). The 1.12.0
-// gameserver pays a claimed challenge's coins into the character inventory,
-// but the Reward Cache shows and spends the balance: seen in game, a player
-// holding 600 coins in the inventory and 200 in the wallet was shown 200.
-export function IsSeasonalCoin(CatalogId: string){
-    return typeof CatalogId === "string" && /^CURRENCY_(S\d+_(COIN|DAILY)|REWARDCACHE|SEASONAL_COIN)$/.test(CatalogId);
-}
-
-// The currencies a gameserver grant is credited to the wallet for rather than
-// the inventory: the seasonal coins, and the event currencies (Harvest Coins,
-// CURRENCY_EVENT_DARKHARVEST, ...), which the event store (Honest Ozz) prices
-// its offers in and spends from the balance like the Reward Cache.
-export function IsWalletRoutedCurrency(CatalogId: string){
-    return IsSeasonalCoin(CatalogId) || (typeof CatalogId === "string" && /^CURRENCY_EVENT_[A-Z]+$/.test(CatalogId) && IsCurrency(CatalogId));
-}
 
 // Synchronous and transaction-scoped, to match ApplyInventoryTransaction: a
 // rank claim grants items, currencies and entitlements as one unit, so none of

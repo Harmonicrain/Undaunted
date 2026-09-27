@@ -19,6 +19,16 @@ test("balance sheet currencies go to the wallet; the rest, and Rams, to the inve
     }
 });
 
+test("every balance-sheet currency is routed from gameplay transactions to the wallet", () => {
+    for (const Id of ["CURRENCY_CELLDUST", "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", "CURRENCY_PLATINUM_UNIV",
+        "id_currency_celldust", "id_currency_token_exchange_speed_up"]) {
+        assert.equal(Wallet.IsWalletRoutedCurrency(Id), true, Id);
+    }
+    for (const Id of ["CURRENCY_NOTES", "CURRENCY_PJM_WEAPON", "CURRENCY_PJM_PRESTIGE_EMPTY"]) {
+        assert.equal(Wallet.IsWalletRoutedCurrency(Id), false, Id);
+    }
+});
+
 test("a Hunt Pass rank pays Combat Merits into the inventory and platinum into the wallet", () => {
     const { StackedItems, Currencies } = ClassifyReward({ stacked_items: [
         { catalog_id: "CURRENCY_PJM_WEAPON", quantity: 125 },

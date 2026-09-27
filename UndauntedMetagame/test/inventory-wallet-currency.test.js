@@ -48,6 +48,33 @@ test("event currencies (Harvest Coins) land in the wallet too", async () => {
     assert.equal(Harness.StackedQuantity(Harness.ReadInventory(Context, A.CharacterId), "CURRENCY_EVENT_DARKHARVEST"), 0);
 });
 
+test("Celldust and Ace Chips are granted and spent from the displayed wallet", async () => {
+    const A = Harness.SeedAccount(Context, "MiddlemanCurrencies");
+    const Granted = await Run(A, "TX-MIDDLEMAN-GRANT", [
+        { catalogId: "CURRENCY_CELLDUST", quantity: 500 },
+        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 3 }
+    ]);
+    assert.deepEqual(Granted.data, [
+        { catalogId: "CURRENCY_CELLDUST", quantity: 500 },
+        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 3 }
+    ]);
+
+    const Spent = await Run(A, "TX-MIDDLEMAN-SPEND", [], [
+        { catalogId: "CURRENCY_CELLDUST", quantity: 125 },
+        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 1 }
+    ]);
+    assert.deepEqual(Spent.data, [
+        { catalogId: "CURRENCY_CELLDUST", quantity: 375 },
+        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 2 }
+    ]);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 375);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 2);
+
+    const Held = Harness.ReadInventory(Context, A.CharacterId);
+    assert.equal(Harness.StackedQuantity(Held, "CURRENCY_CELLDUST"), 0);
+    assert.equal(Harness.StackedQuantity(Held, "CURRENCY_TOKEN_EXCHANGE_SPEED_UP"), 0);
+});
+
 test("a retried transaction does not pay the coins again", async () => {
     const A = Harness.SeedAccount(Context, "CoinReplay");
     const Grant = [{ catalogId: "CURRENCY_S19_COIN", quantity: 400 }];

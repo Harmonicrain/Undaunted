@@ -208,15 +208,10 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 }
             }
 
-            // Seasonal coins and event currencies are an account balance, not
-            // inventory. The 1.12.0 gameserver pays a claimed challenge's
-            // Elemental Coins as a stacked add to the character's inventory,
-            // but the client shows and spends the balance (GET /balance), so
-            // coins stacked here could be neither seen nor spent; the event
-            // store spends event currencies (Harvest Coins) from the balance
-            // the same way. They go to the wallet instead - after the replay
-            // check, so a retried transaction does not pay twice - and the
-            // response reports each one at its new balance.
+            // Account balance currencies arrive from gameservers as stacked
+            // inventory mutations, but the client displays and spends them
+            // through GET /balance. Route every balance-sheet currency to the
+            // wallet after the replay check, so a retry cannot pay twice.
             const CurrencyTouched: string[] = [];
             const ToWallet = (Item: any) => IsWalletRoutedCurrency(Item?.catalogId);
 
