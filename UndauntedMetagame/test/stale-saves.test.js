@@ -6,9 +6,9 @@ const { execFileSync } = require('node:child_process');
 const Harness = require('./harness');
 let context, bounties, server, url;
 const key = 'disposable-stale-save-test-key';
-const today = new Date().toISOString().slice(0, 10);
-const time = `${today}T01:00:00.000Z`;
-const later = `${today}T02:00:00.000Z`;
+// Use a current draft, rather than 01:00 UTC which expires at 17:00 UTC.
+const time = new Date().toISOString();
+const later = new Date(Date.parse(time) + 3_600_000).toISOString();
 const draft = (id = 'Bounty_Test', version = 0, progress = 0, timestamp = time) => ({
     bounty_id: id, slot_index: 0, drafted_timestamp: timestamp,
     update_version: version, claimed: false,
@@ -135,7 +135,7 @@ test('incremental batches accept fresh entries without replacing stale entries o
     assert.deepEqual(read(id), [current, challenge]);
 });
 
-test('UTC rollover accepts a new daily challenge and rejects a late save from yesterday', () => {
+test('daily rollover accepts a new challenge and rejects a late save from the previous window', () => {
     const id = account();
     const yesterday = new Date(Date.parse(time) - 86400000).toISOString();
     const old = { ...draft('Challenge_Daily_Test', 10, 100, yesterday), claimed: true };

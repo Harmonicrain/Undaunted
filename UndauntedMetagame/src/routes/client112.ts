@@ -6,6 +6,7 @@ import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../controllers/trackedObjectives";
+import { DailyChallengeResetHourUtc } from "../controllers/dailyChallenges";
 
 export const client112Router = Router();
 
@@ -112,7 +113,7 @@ const Tuning: Record<string, unknown> = {
     bounty_game_data_daily: {
         automatic_claim: true, automatic_draft: true,
         bounty_data: [{ bounty_id: "Challenge_Daily_Bronze_GetHuntPassXP", enabled: false }],
-        bounty_token_grant_hour: 0, bounty_token_id: "TOKEN_DAILY_CHALLENGE_DRAFT",
+        bounty_token_grant_hour: DailyChallengeResetHourUtc, bounty_token_id: "TOKEN_DAILY_CHALLENGE_DRAFT",
         bronze_count: 1, delete_claimed_bounties: false, gold_count: 0, history_length: 10, item_grant_data: [],
         max_slots: 1, new_season_reset_bounties: true, num_draft_options: 3, num_spicy_options: 1,
         num_tokens_hp_start: 1, num_tokens_per_day: 1,

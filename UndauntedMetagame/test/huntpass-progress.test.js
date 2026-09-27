@@ -330,23 +330,38 @@ test("a bounty still replaces one of its own kind in its slot", () => {
     assert.deepEqual(Ids(Account.UserId), ["Bounty_Silver_New", "Challenge_Daily_Bronze_New"]);
 });
 
-test("an expired daily challenge releases its slot at the next UTC reset", () => {
+test("an expired daily challenge releases its slot at 17:00 UTC", () => {
     const Account = Harness.SeedAccount(Context);
     Bounties.SaveBountiesForUser(Account.UserId, {
         bounties: [
             Entry("Bounty_Bronze_Held", 0),
             Entry("Challenge_Season_Quest_S19a_01-season19-0", 0),
-            { ...Entry("Challenge_Daily_Bronze_Old", 0), drafted_timestamp: "2026-09-24T23:59:59.999Z", claimed: true }
+            { ...Entry("Challenge_Daily_Bronze_Old", 0), drafted_timestamp: "2026-09-24T17:00:00.000Z", claimed: true }
         ]
     });
 
-    const BeforeReset = Bounties.GetBountiesForUser(Account.UserId, new Date("2026-09-24T23:59:59.999Z"));
+    const BeforeReset = Bounties.GetBountiesForUser(Account.UserId, new Date("2026-09-25T16:59:59.999Z"));
     assert.ok(BeforeReset.bounties.some((Bounty) => Bounty.bounty_id === "Challenge_Daily_Bronze_Old"));
 
-    const AfterReset = Bounties.GetBountiesForUser(Account.UserId, new Date("2026-09-25T00:00:00.000Z"));
+    const AfterReset = Bounties.GetBountiesForUser(Account.UserId, new Date("2026-09-25T17:00:00.000Z"));
     assert.deepEqual(AfterReset.bounties.map((Bounty) => Bounty.bounty_id).sort(), [
         "Bounty_Bronze_Held", "Challenge_Season_Quest_S19a_01-season19-0"
     ]);
+});
+
+test("daily progress survives UTC midnight and a challenge drafted at reset lasts the full window", () => {
+    const Account = Harness.SeedAccount(Context);
+    const Daily = {
+        ...Entry("Challenge_Daily_Bronze_GatherDefense", 0),
+        drafted_timestamp: "2026-09-25T17:00:00.000Z",
+        objectives: [{ objective_id: "Challenge_Daily_Bronze_GatherDefense", progress: 4 }],
+        update_version: 2, claimed: false
+    };
+    Bounties.SaveBountiesForUser(Account.UserId, { bounties: [Daily] });
+    for(const Now of ["2026-09-25T17:00:00.000Z", "2026-09-26T00:00:00.000Z", "2026-09-26T16:59:59.999Z"]){
+        assert.deepEqual(Bounties.GetBountiesForUser(Account.UserId, new Date(Now)).bounties, [Daily]);
+    }
+    assert.deepEqual(Bounties.GetBountiesForUser(Account.UserId, new Date("2026-09-26T17:00:00.000Z")).bounties, []);
 });
 
 test("a drafted-board reset clears drafted bounties and keeps the challenges", () => {

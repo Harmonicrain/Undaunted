@@ -30,13 +30,13 @@ after(async () => {
     }
 });
 
-test("daily challenges receive one automatic draft token at each UTC reset", async () => {
+test("daily challenges receive one automatic draft token at the native 17:00 UTC reset", async () => {
     const Response = await fetch(`${Url}/game_tuning/bounty_game_data_daily`);
     const Body = await Response.json();
 
     assert.equal(Response.status, 200);
     assert.equal(Body.payload.bounty_token_id, "TOKEN_DAILY_CHALLENGE_DRAFT");
-    assert.equal(Body.payload.bounty_token_grant_hour, 0);
+    assert.equal(Body.payload.bounty_token_grant_hour, 17);
     assert.equal(Body.payload.num_tokens_hp_start, 1);
     assert.equal(Body.payload.num_tokens_per_day, 1);
     assert.equal(Body.payload.automatic_draft, true);

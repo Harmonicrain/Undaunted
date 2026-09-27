@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { GetDb } from "../db";
 import { bounties, bountyretirements } from "../db/schema";
 import { logger } from "../logger";
+import { DailyChallengeWindowStart } from "./dailyChallenges";
 
 // Bounty persistence.
 //
@@ -121,7 +122,7 @@ function KindOf(Entry: any): BountyKind {
 // whose age cannot be established would be worse than leaving it untouched.
 function WithoutExpiredDailyChallenges(Board: any, Now: Date){
     const Entries: any[] = Array.isArray(Board?.bounties) ? Board.bounties : [];
-    const WindowStart = Date.UTC(Now.getUTCFullYear(), Now.getUTCMonth(), Now.getUTCDate());
+    const WindowStart = DailyChallengeWindowStart(Now);
 
     Board.bounties = Entries.filter((Entry) => {
         if(KindOf(Entry) !== "daily") return true;
