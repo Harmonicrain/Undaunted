@@ -6,7 +6,7 @@ import { SignMetagameJWTForUid } from "../controllers/auth";
 
 export const undauntedApiRouter = Router();
 
-undauntedApiRouter.get("/RegistrationStatus", (req, res) => {
+undauntedApiRouter.get("/RegistrationStatus", (_req, res) => {
     res.status(200);
     res.json({
         RegistrationMode: REGISTRATION_MODE
@@ -26,7 +26,7 @@ undauntedApiRouter.post("/RegistrationStatus", HasUndauntedAdminApiKey, (req, re
     res.send();
 });
 
-undauntedApiRouter.get("/InviteCodes", HasUndauntedAdminApiKey, async (req, res) => {
+undauntedApiRouter.get("/InviteCodes", HasUndauntedAdminApiKey, async (_req, res) => {
     const InviteCodes = await GetInviteCodes();
 
     res.status(200);
@@ -46,7 +46,7 @@ undauntedApiRouter.post("/GenerateJWTForUserId", HasUndauntedAdminApiKey, async 
     });
 });
 
-undauntedApiRouter.get("/GetAllUsers", HasUndauntedAdminApiKey, async (req, res) => {
+undauntedApiRouter.get("/GetAllUsers", HasUndauntedAdminApiKey, async (_req, res) => {
     const AllUsers = await GetAllUserIds();
 
     res.status(200);
@@ -131,14 +131,14 @@ undauntedApiRouter.get("/GetUserInfo", HasUndauntedUserApiKey, async (req: any, 
 });
 
 
-undauntedApiRouter.get("/PrivateOnlineStats", HasUndauntedAdminApiKey, async (req, res) => {
+undauntedApiRouter.get("/PrivateOnlineStats", HasUndauntedAdminApiKey, async (_req, res) => {
     const PlayerData = await GetRecentPlayerData();
 
     res.status(200);
     res.json(PlayerData);
 });
 
-undauntedApiRouter.get("/PublicOnlineStats", HasUndauntedUserApiKey, async (req, res) => {
+undauntedApiRouter.get("/PublicOnlineStats", HasUndauntedUserApiKey, async (_req, res) => {
     const PlayerData = await GetRecentPlayerData();
 
     res.status(200);

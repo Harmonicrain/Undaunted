@@ -14,7 +14,7 @@ export const systemRouter = Router();
 // Shown at the bottom of the login screen, keyed by client language.
 const STATUS_MESSAGE = "This is a private beta test";
 
-systemRouter.get("/dauntless-status", (req, res) => {
+systemRouter.get("/dauntless-status", (_req, res) => {
     logger.info("Status");
 
     res.json({
@@ -46,12 +46,12 @@ systemRouter.post("/heartbeat", HasOptionalUndauntedMetagameAuth, async (req: an
     res.status(200).type("text/plain").send("20000");
 });
 
-systemRouter.post("/event", (req, res) => {
+systemRouter.post("/event", (_req, res) => {
     res.status(200);
     res.json({});
 });
 
-systemRouter.post("/account/migrate", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.post("/account/migrate", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Account migration (stubbed)");
 
 	res.status(200);
@@ -61,21 +61,21 @@ systemRouter.post("/account/migrate", HasUndauntedMetagameAuth, (req, res) => {
 	});
 });
 
-systemRouter.post("/profile/update", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.post("/profile/update", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Leaderboard update profile (stubbed)");
 
 	res.status(200);
 	res.send();
 });
 
-systemRouter.get("/vivox/login", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.get("/vivox/login", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Vivox login (stubbed)");
 
 	res.status(404);
 	res.send();
 });
 
-systemRouter.post("/motd/", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.post("/motd/", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("MOTD (stubbed)");
 
 	res.status(204);
@@ -97,7 +97,7 @@ systemRouter.get("/entitlementsv2", HasUndauntedMetagameAuth, async (req: any, r
 	});
 });
 
-systemRouter.post("/entitlementv2/:userId", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.post("/entitlementv2/:userId", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Entitlements (stubbed)");
 
 	res.status(200);
@@ -108,7 +108,7 @@ systemRouter.post("/entitlementv2/:userId", HasUndauntedMetagameAuth, (req, res)
 	});
 });
 
-systemRouter.get("/playertreatments/:userId", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.get("/playertreatments/:userId", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Cohorts (stubbed)");
 
 	res.status(200);
@@ -121,7 +121,7 @@ systemRouter.get("/playertreatments/:userId", HasUndauntedMetagameAuth, (req, re
 
 // GET/POST /escalation/:seasonId/:userId live in routes/escalation.ts.
 
-systemRouter.get("/eventstats/", HasUndauntedMetagameAuth, (req, res) => {
+systemRouter.get("/eventstats/", HasUndauntedMetagameAuth, (_req, res) => {
 	logger.info("Event stats (stubbed)");
 
 	res.status(200);
@@ -233,7 +233,7 @@ systemRouter.put("/cooldown/:userId/:cooldownId", HasUndauntedMetagameAuth, Star
 // names of the client's own Gameplay/Bounty/bounty_table.
 const BountyDefinitions = (bountyData as any).bounty_data as any[];
 
-systemRouter.get("/bounty/game-data", HasUndauntedMetagameAuth, (req: any, res) => {
+systemRouter.get("/bounty/game-data", HasUndauntedMetagameAuth, (_req: any, res) => {
 	logger.info(`Bounty game data (${BountyDefinitions.length} definitions)`);
 
 	res.status(200);
@@ -331,7 +331,7 @@ systemRouter.post("/bounty/delete/:userId", HasUndauntedMetagameAuth, (req: any,
 	}
 });
 
-systemRouter.get("/all/", HasUndauntedMetagameAuth, (req: any, res) => {
+systemRouter.get("/all/", HasUndauntedMetagameAuth, (_req: any, res) => {
 	logger.info("Mailbox (stubbed)");
 
 	res.json({

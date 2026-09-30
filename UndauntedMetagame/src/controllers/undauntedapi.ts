@@ -23,11 +23,6 @@ type PlayerActivity = { // TODO: Track more stuff from the game's native telemet
     LastUpdatedTime: number
 }
 
-type PlayerLocation = { // TODO: Track more stuff from our matchmaking telemetry here
-    HuntId: string,
-    EnteredTime: number
-}
-
 export type PlayerData = {
     UserId: string,
     Map: string,
@@ -36,7 +31,6 @@ export type PlayerData = {
 };
 
 let PlayerActivityMap: Map<string, PlayerActivity> = new Map<string, PlayerActivity>();
-let PlayerLocationMap: Map<string, PlayerLocation> = new Map<string, PlayerLocation>();
 
 export function IsRegistrationMode(Value: unknown): Value is RegistrationMode {
     return typeof Value === "string" && VALID_REGISTRATION_MODES.includes(Value as RegistrationMode);
@@ -87,12 +81,6 @@ export async function DeleteInviteCode(InviteCodeToDelete: string){
     await GetDb().delete(invitecodes).where(eq(
         invitecodes.inviteCode, InviteCodeToDelete
     ));
-}
-
-export async function IsUserIdAdmin(UserId: string){
-    const UserFromDb = await GetDb().query.users.findFirst({where: eq(users.userId, UserId)});
-
-    return UserFromDb != undefined && UserFromDb.isAdmin;
 }
 
 export async function RegisterUser(Username: string){
@@ -148,25 +136,16 @@ export async function UpdatePlayerActivity(UserId: string, Map: string){
     });
 }
 
-export async function UpdatePlayerLocation(UserId: string, HuntId: string){
-    PlayerLocationMap.set(UserId, {
-        HuntId: HuntId,
-        EnteredTime: Date.now()
-    });
-}
-
 export async function GetRecentPlayerData(){
     let PlayerDataToReturn: PlayerData[] = [];
 
-    PlayerActivityMap.forEach((value, key, map) => {
+    PlayerActivityMap.forEach((value, key, _map) => {
         if(Date.now() - value.LastUpdatedTime <= 90 * 1000){ // If entry is < 90s old
-            const PlayerLocationData: PlayerLocation | undefined = PlayerLocationMap.get(key);
-
             PlayerDataToReturn.push({
                 UserId: key,
                 Map: value.Map,
-                HuntId: PlayerLocationData?.HuntId,
-                EnteredHuntAt: PlayerLocationData?.EnteredTime
+                HuntId: undefined,
+                EnteredHuntAt: undefined
             });
         }
     });

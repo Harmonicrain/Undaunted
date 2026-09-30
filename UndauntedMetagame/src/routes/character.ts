@@ -2,7 +2,7 @@ import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { CreateCharacterForUid, GetCharactersForUid, GetCharacterWithUid, UpdateCharacterForUid } from "../controllers/character";
-import express from "express";
+
 
 export const characterRouter = Router();
 

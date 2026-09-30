@@ -5,7 +5,7 @@ import { ValidateMetagameJWTAndGetPayload } from "../controllers/auth";
 // token is not fatal: the request continues with no AuthData. For routes the
 // runtime calls without ever attaching credentials, where refusing the request
 // outright is worse than answering it anonymously.
-export async function HasOptionalUndauntedMetagameAuth(req: Request, res: Response, next: NextFunction){
+export async function HasOptionalUndauntedMetagameAuth(req: Request, _res: Response, next: NextFunction){
     const AuthHeader = req.headers.authorization;
 
     if(AuthHeader != undefined && AuthHeader.toLowerCase().startsWith("bearer ")){

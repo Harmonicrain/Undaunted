@@ -27,7 +27,7 @@ export const progressionRouter = Router();
 // /progression/config previously lived in systemRouter and resolved only
 // because that router happens to be mounted first in app.ts. Keeping it here,
 // above its ambiguous sibling, makes the dependency local and visible.
-progressionRouter.get("/progression/config", HasUndauntedMetagameAuth, (req: any, res) => {
+progressionRouter.get("/progression/config", HasUndauntedMetagameAuth, (_req: any, res) => {
     logger.info("Progression Config");
 
     res.status(200);
@@ -450,7 +450,7 @@ progressionRouter.delete("/progression/:userId/:trackId", HasUndauntedMetagameAu
 // runtime's map may still be unimplemented. Anything reaching here is a path
 // this server does not handle, so record it instead of
 // letting it fall through to a silent 404.
-progressionRouter.use("/progression", (req: any, res, next) => {
+progressionRouter.use("/progression", (req: any, _res, next) => {
     logger.warn({
         unhandledProgression: {
             method: req.method,

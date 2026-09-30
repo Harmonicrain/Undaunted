@@ -8,7 +8,7 @@ import { GetUsernameForUserId } from "../controllers/login";
 
 export const loginRouter = Router();
 
-loginRouter.get("/features/platform/win", (req, res) => {
+loginRouter.get("/features/platform/win", (_req, res) => {
     logger.info("Features");
 
     res.send({
@@ -21,7 +21,7 @@ loginRouter.get("/features/platform/win", (req, res) => {
     });
 });
 
-loginRouter.get("/account/link/epic/:AccId", (req, res) => {
+loginRouter.get("/account/link/epic/:AccId", (_req, res) => {
     logger.info("Account Linking");
 
     res.json({

@@ -1,6 +1,6 @@
 import express from "express";
 import { matchmakingRouter } from "./routes/matchmaker.js";
-import { logger } from "./logger.js";
+
 
 export const app = express();
 

@@ -19,7 +19,7 @@ tuningRouter.get("/undaunted/huntpass_library", (_req, res) => {
 });
 
 // The seasonal events that are running: see controllers/seasonalEvents.
-tuningRouter.get("/game_tuning/seasonal_event_schedule", (req: any, res) => {
+tuningRouter.get("/game_tuning/seasonal_event_schedule", (_req: any, res) => {
     logger.debug("Seasonal event schedule requested");
 
     res.status(200);
@@ -32,7 +32,7 @@ tuningRouter.get("/game_tuning/seasonal_event_schedule", (req: any, res) => {
 
 // The client feature flags the runtime DLL forces on (both the client and the
 // gameserver ask, once, when the game first checks a flag). Not per player.
-tuningRouter.get("/undaunted/feature_flags", (req: any, res) => {
+tuningRouter.get("/undaunted/feature_flags", (_req: any, res) => {
     const Enabled = ActiveFeatureFlags();
     logger.info(`Feature flags requested: ${Enabled.length > 0 ? Enabled.join(", ") : "none forced"}`);
 
@@ -40,7 +40,7 @@ tuningRouter.get("/undaunted/feature_flags", (req: any, res) => {
     res.json({ code: null, message: "OK", payload: { enabled: Enabled } });
 });
 
-tuningRouter.get("/game_tuning/huntpass_xp_config", (req: any, res) => {
+tuningRouter.get("/game_tuning/huntpass_xp_config", (_req: any, res) => {
     logger.info("Huntpass XP Config (stubbed)");
 
     res.status(200);

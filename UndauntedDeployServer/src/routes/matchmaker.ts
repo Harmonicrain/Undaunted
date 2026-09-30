@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { logger } from "../logger";
+
 import { HandleMatchmakingRequest } from "../controllers/matchmaker";
 import express from "express";
 

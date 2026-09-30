@@ -1,4 +1,4 @@
-import jwt, {JwtPayload} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { GetDb } from "../db";
 import { userapikeys, userapikeystoregister } from "../db/schema";

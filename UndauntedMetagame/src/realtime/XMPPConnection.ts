@@ -34,7 +34,7 @@ export class XMPPConnection {
     private session = new XMPPSession();
     private processing: Promise<void> = Promise.resolve();
 
-    constructor(private ws: WebSocket, readonly remoteIp: string, private config: RealtimeConfig, private onClosed: (c: XMPPConnection) => void){
+    constructor(private ws: WebSocket, readonly remoteIp: string,  config: RealtimeConfig, private onClosed: (c: XMPPConnection) => void){
         ws.on("message", (data: Buffer, binary: boolean) => {
             if(binary || data.byteLength > config.limits.maxMessageBytes) return;
             const raw = data.toString("utf8");

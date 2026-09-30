@@ -218,11 +218,3 @@ export function ClaimRanksUpTo(UserId: string, CharacterId: string, TrackId: str
 
     return Granted;
 }
-
-// The rank the player has earned, from stored points against the config.
-export function EarnedRank(UserId: string, TrackId: string){
-    const State = GetDb().select().from(progression)
-        .where(and(eq(progression.userId, UserId), eq(progression.trackId, TrackId))).get();
-
-    return DeriveRank(TrackId, State?.totalPoints ?? 0).rank;
-}

@@ -195,7 +195,7 @@ for(const Pass of HuntPassLibrary){
     }
 }
 
-let ActiveHuntPassId = ConfiguredActive;
+const ActiveHuntPassId = ConfiguredActive;
 
 if(!PathsById.has(ConfiguredActive)){
     throw new HuntPassConfigError(
@@ -206,16 +206,6 @@ logger.info(`Hunt Pass configuration loaded: ${PathsById.size} path(s), active s
 
 export function GetActiveHuntPassId(){
     return ActiveHuntPassId;
-}
-
-export function SetActiveHuntPassId(SeasonId: string){
-    if(!PathsById.has(SeasonId)){
-        throw new HuntPassConfigError(`Unknown season ${SeasonId}`);
-    }
-
-    ActiveHuntPassId = SeasonId;
-
-    logger.info(`Active Hunt Pass set to ${SeasonId}`);
 }
 
 export function GetPremiumMode(){

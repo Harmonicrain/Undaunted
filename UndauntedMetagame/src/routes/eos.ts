@@ -105,13 +105,13 @@ eosRouter.get("/account/api/public/account/:AccId", HasUndauntedMetagameAuth, as
     res.json(await BuildAccountInfo(row.userId));
 });
 
-eosRouter.get("/account/api/public/account/:AccId/externalAuths", (req, res) => {
+eosRouter.get("/account/api/public/account/:AccId/externalAuths", (_req, res) => {
     logger.info("External Auths (stubbed)");
 
     res.json({});
 });
 
-eosRouter.delete("/account/api/oauth/sessions/kill", (req, res) => {
+eosRouter.delete("/account/api/oauth/sessions/kill", (_req, res) => {
     logger.info("Session kill (stubbed)");
 
     // TODO: Is this needed?
@@ -119,7 +119,7 @@ eosRouter.delete("/account/api/oauth/sessions/kill", (req, res) => {
     res.json({});
 })
 
-eosRouter.delete("/account/api/oauth/sessions/kill/:AuthToken", (req, res) => {
+eosRouter.delete("/account/api/oauth/sessions/kill/:AuthToken", (_req, res) => {
     logger.info("Session kill (stubbed)");
 
     // TODO: Is this needed?

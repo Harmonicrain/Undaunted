@@ -5,8 +5,6 @@ import { GetUsernameForUserId } from "./login";
 import { logger } from "../logger";
 import { NormalizeReturningPlayer, SKIP_FTUE } from "./returningPlayer";
 
-const TARGET_CHANGELIST = process.env.TARGET_CHANGELIST;
-
 function TransformDbCharacterToWireCharacter(DbCharacter: any){
     return {
         accountId: DbCharacter.userId,
@@ -40,10 +38,6 @@ export async function GetCharactersForUid(userId: string){
     }
 
     return CharactersFromDb.map((DbCharacter) => TransformDbCharacterToWireCharacter(DbCharacter));
-}
-
-function Pad(Target: number){
-    return String(Target).padStart(2, "0");
 }
 
 function ProcessTriggers(CharacterDataToUpdateWith: string){

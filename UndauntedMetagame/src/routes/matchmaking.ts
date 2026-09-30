@@ -19,7 +19,7 @@ matchmakingRouter.post("/candidate/player/register", HasUndauntedMetagameAuth, (
     res.json({});
 });
 
-matchmakingRouter.get("/candidate/regions", HasUndauntedMetagameAuth, (req: any, res) => {
+matchmakingRouter.get("/candidate/regions", HasUndauntedMetagameAuth, (_req: any, res) => {
     logger.info(`Querying regions for QoS`);
 
     res.status(200);
@@ -37,7 +37,7 @@ matchmakingRouter.get("/candidate/regions", HasUndauntedMetagameAuth, (req: any,
     });
 });
 
-matchmakingRouter.post("/key/generate", HasUndauntedMetagameAuth, async (req: any, res) => {
+matchmakingRouter.post("/key/generate", HasUndauntedMetagameAuth, async (_req: any, res) => {
     res.status(400);
     res.send();
 });
@@ -146,7 +146,7 @@ matchmakingRouter.post("/candidate/join", HasUndauntedMetagameAuth, async (req: 
     });
 });
 
-matchmakingRouter.get("/QoS", (req, res) => {
+matchmakingRouter.get("/QoS", (_req, res) => {
     logger.info(`QoS Ping`);
 
     res.status(200);

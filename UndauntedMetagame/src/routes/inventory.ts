@@ -29,7 +29,7 @@ function StatusForInventoryError(Error: InventoryError){
     }
 }
 
-inventoryRouter.post("/inventory/:characterId/:changeList", HasUndauntedMetagameAuth, (req: any, res) => {
+inventoryRouter.post("/inventory/:characterId/:changeList", HasUndauntedMetagameAuth, (_req: any, res) => {
     logger.info("Inventory migration (stubbed)");
 
     res.status(200);

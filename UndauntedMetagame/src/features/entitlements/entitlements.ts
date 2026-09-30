@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { GetDb } from "../../db";
 import { entitlements } from "../../db/schema";
-import { logger } from "../../logger";
+
 
 // Entitlements are the client's gate for premium content - the Hunt Pass Elite
 // track checks for one. GET /entitlementsv2 previously returned an empty list
@@ -43,29 +43,4 @@ export async function HasEntitlement(UserId: string, Entitlement: string){
         .limit(1);
 
     return Row.length > 0 && IsEntitlementActive(Row[0]);
-}
-
-// Administrative grant, for an operator handing out access without a purchase.
-// The store's redeem path writes its own row inside its transaction instead, so
-// the grant and the receipt commit together.
-export async function GrantEntitlement(UserId: string, Entitlement: string, Source = "admin", Duration = 0){
-    if(await HasEntitlement(UserId, Entitlement)){
-        return false;
-    }
-
-    // An ended timed entitlement leaves its row behind; a new grant replaces it.
-    const Values = { userId: UserId, entitlement: Entitlement, duration: Duration, activatedAt: Date.now(), source: Source };
-    await GetDb().insert(entitlements).values(Values)
-        .onConflictDoUpdate({ target: [entitlements.userId, entitlements.entitlement], set: Values });
-
-    logger.info(`Granted entitlement ${Entitlement} to ${UserId} (${Source})`);
-
-    return true;
-}
-
-export async function RevokeEntitlement(UserId: string, Entitlement: string){
-    await GetDb().delete(entitlements)
-        .where(and(eq(entitlements.userId, UserId), eq(entitlements.entitlement, Entitlement)));
-
-    logger.info(`Revoked entitlement ${Entitlement} from ${UserId}`);
 }
