@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,40 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
+#pragma once
+
 #include <windows.h>
-#include "core/Bootstrap.h"
+#include <shellapi.h>
+#include <tlhelp32.h>
+#include <string>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+#include <thread>
+#include <atomic>
+#include <iostream>
+#include <ranges>
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+#include "framework.h"
+#include "SDK.hpp"
+#include "MinHook/MinHook.h"
+#include "constants.h"
+#include "Networking.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+#include "SDK/GameplayAbilities_parameters.hpp"
+#include "SDK/Archon_parameters.hpp"
+#include "SDK/lantern_equipped_ab_parameters.hpp"
+
+#include <cwchar>
+#include <fstream>
+#include <iomanip>
+#include <intrin.h>
+#include <mutex>
+#include <sstream>
+
+using namespace SDK;

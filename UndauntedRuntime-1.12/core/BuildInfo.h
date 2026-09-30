@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,16 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+// The build command supplies a content-based identity. Direct IDE builds stay
+// possible and identify themselves explicitly instead of claiming a release.
+#if __has_include("native/BuildIdentity.generated.h")
+#include "native/BuildIdentity.generated.h"
+#else
+#define UNDAUNTED_BUILD_ID "unidentified-local-build"
+#endif
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+namespace BuildInfo {
+    inline constexpr const char* Id = UNDAUNTED_BUILD_ID;
 }

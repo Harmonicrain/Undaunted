@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,24 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include <cstddef>
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
-
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+// Reflected/native fields verified for the 1.12 CL392819 executable.
+// Keep these separate from executable RVAs and generated SDK definitions.
+namespace Native112::MiddlemanLayout {
+    inline constexpr size_t PriceOfferSize = 0xB0;
+    inline constexpr size_t EffectivePrice = 0x98;
+    inline constexpr size_t PriceCurrencyId = 0xA0;
+    inline constexpr size_t EnumPriceMap = 0x190;
+    inline constexpr size_t NamedPriceMap = 0x1E0;
+    inline constexpr size_t PopupSize = 0x5A8;
+    inline constexpr size_t PopupPlatinumButton = 0x438;
+    inline constexpr size_t PopupPlatinumCost = 0x4B0;
+    // 0x4C0 is the Added to Inventory message, not the "or" separator.
+    inline constexpr size_t PopupOrSeparator = 0x500;
+    inline constexpr size_t PopupSku = 0x538;
+    inline constexpr size_t PopupSelectedCurrency = 0x580;
+    inline constexpr size_t TooltipSize = 0x468;
+    inline constexpr size_t TooltipCosts = 0x458;
 }

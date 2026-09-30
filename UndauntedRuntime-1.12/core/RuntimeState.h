@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,28 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include "core/Runtime.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
-
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+namespace Globals {
+    extern bool AmServer;
+    extern uintptr_t BaseAddress;
+    extern bool Listening;
+    extern bool DoListen;
+    extern const wchar_t* ServerAPIKey;
+    extern const wchar_t* MapPath;
+    extern const wchar_t* BehemothPath;
+    extern const wchar_t* MatchmakerHuntId;
+    extern const wchar_t* ExpectedPlayerString;
+    extern int Port;
+    extern const wchar_t* MyIpAndPort;
+    extern std::wstring MetagameAddress;
+    extern bool EnableLogging;
+    extern std::string Move10Status;
+    extern std::wstring ServerAPIKeyStorage;
+    extern std::wstring MapPathStorage;
+    extern std::wstring BehemothPathStorage;
+    extern std::wstring MatchmakerHuntIdStorage;
+    extern std::wstring ExpectedPlayerStringStorage;
+    extern std::wstring MyIpAndPortStorage;
 }

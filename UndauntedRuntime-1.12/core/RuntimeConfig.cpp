@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,28 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#include "core/RuntimeConfig.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
+bool MpExeRelativeFlagPresent(const wchar_t* FileName) {
+    if (!FileName) return false;
+    wchar_t ExePath[MAX_PATH];
+    DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return false;
+    for (int i = static_cast<int>(n) - 1; i >= 0; --i) {
+        if (ExePath[i] == L'\\' || ExePath[i] == L'/') {
+            ExePath[i + 1] = L'\0';
+            break;
+        }
+    }
+    const std::wstring FlagPath = std::wstring(ExePath) + FileName;
+    return GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+bool MpWorkingDirectoryFlagPresent(const wchar_t* FileName) {
+    return FileName && GetFileAttributesW(FileName) != INVALID_FILE_ATTRIBUTES;
+}
+
+bool VerboseDiag() {
+    static const bool Enabled = MpExeRelativeFlagPresent(L"VERBOSE_DIAG.flag");
+    return Enabled;
 }

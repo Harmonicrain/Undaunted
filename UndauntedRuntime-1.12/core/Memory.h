@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,27 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include "core/Runtime.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+bool IsReadablePointer(const void* Ptr, size_t Size = sizeof(void*));
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+bool IsRegisteredLiveObject(const void* Ptr);
+
+bool IsSanePointerArray(void* Data, int32_t Num, int32_t Max, int32_t Limit);
+
+void* EngineRealloc(void* Ptr, size_t NewSize);
+
+uint8_t SafeReadByte(uintptr_t base, uintptr_t offset, uint8_t fallback);
+
+bool SafeWriteByte(uintptr_t base, uintptr_t offset, uint8_t value);
+
+float SafeReadFloat(void* addr, float fallback);
+
+uintptr_t SafeReadPtr(uintptr_t base, uintptr_t offset);
+
+int SafeReadU8At(uintptr_t base, uintptr_t offset);
+
+int32_t SafeReadI32At(uintptr_t base, uintptr_t offset);
+
+std::string CoreCapFString(void* fstr);

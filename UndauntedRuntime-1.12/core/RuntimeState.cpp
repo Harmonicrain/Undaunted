@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,34 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#include "core/RuntimeState.h"
+#include "core/RuntimeState.h"
+#include "native/Addresses112.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+namespace Globals {
+    bool AmServer = false;
+    uintptr_t BaseAddress = 0x0;
+    bool Listening = false;
+    bool DoListen = false;
+    const wchar_t* ServerAPIKey = nullptr;
+    const wchar_t* MapPath = nullptr;
+    const wchar_t* BehemothPath = nullptr;
+    const wchar_t* MatchmakerHuntId = nullptr;
+    const wchar_t* ExpectedPlayerString = nullptr;
+    int Port = 0;
+    const wchar_t* MyIpAndPort = nullptr;
+    // host:port of the Undaunted metagame. Gameservers get it as the
+    // DeployServer's ninth argument, clients as -UndauntedMetagame=host:port.
+    std::wstring MetagameAddress;
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
+    bool EnableLogging = true;
+
+    std::string Move10Status;
+
+    std::wstring ServerAPIKeyStorage;
+    std::wstring MapPathStorage;
+    std::wstring BehemothPathStorage;
+    std::wstring MatchmakerHuntIdStorage;
+    std::wstring ExpectedPlayerStringStorage;
+    std::wstring MyIpAndPortStorage;
 }

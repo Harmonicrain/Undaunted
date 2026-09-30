@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,38 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include "core/Runtime.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+extern UObject* s_LastPossessedPC;
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+extern UObject* s_LastRestartPawn;
+
+extern uint64_t s_LastPossessedAtMs;
+
+extern bool s_ArchonInputActivated;
+
+void TriggerArchonInputActivation(UObject* PC, const char* TriggerLabel);
+
+bool RunClientRolePumpGuarded(UObject* PC);
+
+void Move10_PatchMovByteImm(uintptr_t Rva, uintptr_t TargetOff, uint8_t ExpectImm, uint8_t NewImm,
+                                   const char* Tag, std::string& Status);
+
+void Move10_PatchMovRegToImm0(uintptr_t Rva, uintptr_t TargetOff, const char* Tag, std::string& Status);
+
+void Move10_NopMovByteAlStore(uintptr_t Rva, uintptr_t TargetOff, const char* Tag, std::string& Status);
+
+void Move10_PatchCallToMovAl1(uintptr_t Rva, uintptr_t ExpectTargetOff, const char* Tag, std::string& Status);
+
+extern void* OrigApplyPlayerRole;
+
+void TickPlayerRolePostActivationRefresh();
+
+void TickTempestModifierEnsure();
+
+void TickTempestChargeDiag();
+
+void TickPlayerRoleRetries();
+
+void ApplyPlayerRoleHook(void* a1);

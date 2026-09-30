@@ -1,56 +1,141 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version='1.0' encoding='utf-8'?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="core">
+      <UniqueIdentifier>{DBFE6CD5-4D8A-53C9-8688-5D6054D64E47}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="client">
+      <UniqueIdentifier>{A277FC0E-8E65-58FA-8E67-D3C8228EA169}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="server">
+      <UniqueIdentifier>{F9F5598D-B6C0-536F-B844-A60081B22E5D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MinHook">
-      <UniqueIdentifier>{b9695561-032f-4e4e-9161-659841962c19}</UniqueIdentifier>
+    <Filter Include="native">
+      <UniqueIdentifier>{D945F537-126D-50A8-87B4-1794E14D4B7F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="diagnostics">
+      <UniqueIdentifier>{A8A9B1F4-602E-50F6-92A4-B44726633DCA}</UniqueIdentifier>
     </Filter>
     <Filter Include="SDK">
-      <UniqueIdentifier>{f7171c16-3dd7-48b5-89e7-59c77c468888}</UniqueIdentifier>
+      <UniqueIdentifier>{F75CBE6A-E74F-5E18-B286-B4D5F8C4F74B}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <Filter Include="MinHook">
+      <UniqueIdentifier>{D4D53A7E-C217-55F0-8448-30F7DE4C4ED5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A4B20FD4-CE8A-5B5A-AEA8-C579C4568DBB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8510D249-4EBD-5B69-AF60-919B6D5F383C}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MinHook\trampoline.c">
-      <Filter>MinHook</Filter>
+    <ClCompile Include="client\Challenges.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\GameplayHUD.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\ClientHooks.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\HuntPass.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\LootSummary.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\Middleman.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\ClientEvents.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Bootstrap.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\EngineTick.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Features.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\RuntimeHooks.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Logging.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Memory.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\PlayerRoles.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\RuntimeState.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Transport.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="diagnostics\RuntimeDiagnostics.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="server\Combat.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\ServerHooks.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\PlayerData.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\ServerEvents.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\Replication.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\WorldLifecycle.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="core\RuntimePch.cpp">
+      <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="MinHook\buffer.c">
-      <Filter>MinHook</Filter>
-    </ClCompile>
-    <ClCompile Include="MinHook\hook.c">
-      <Filter>MinHook</Filter>
-    </ClCompile>
-    <ClCompile Include="MinHook\hde\hde64.c">
       <Filter>MinHook</Filter>
     </ClCompile>
     <ClCompile Include="MinHook\hde\hde32.c">
       <Filter>MinHook</Filter>
     </ClCompile>
+    <ClCompile Include="MinHook\hde\hde64.c">
+      <Filter>MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\hook.c">
+      <Filter>MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\trampoline.c">
+      <Filter>MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Networking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\Archon_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
     <ClCompile Include="SDK\Basic.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\BPGM_Archon_Prototype_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\BP_EB_Weapon_functions.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="SDK\BP_PlayerCharacter_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
     <ClCompile Include="SDK\CoreUObject_functions.cpp">
@@ -59,29 +144,112 @@
     <ClCompile Include="SDK\Engine_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\Archon_functions.cpp">
-      <Filter>SDK</Filter>
-    </ClCompile>
     <ClCompile Include="SDK\GameplayAbilities_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
     <ClCompile Include="SDK\island_arrival_cinematic_trigger_bp_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
-    <ClCompile Include="SDK\BP_PlayerCharacter_functions.cpp">
+    <ClCompile Include="SDK\UMG_functions.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
-    <ClCompile Include="SDK\BP_EB_Weapon_functions.cpp">
-      <Filter>SDK</Filter>
+    <ClCompile Include="core\RuntimeConfig.cpp">
+      <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="SDK\bpgm_arrival_cinematic_bpc_functions.cpp">
-      <Filter>SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\BPGM_Archon_Prototype_functions.cpp">
-      <Filter>SDK</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\Challenges.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\GameplayHUD.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\ClientHooks.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\HuntPass.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\LootSummary.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\Middleman.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\ClientEvents.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Bootstrap.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\EngineTick.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Features.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\RuntimeHooks.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Logging.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Memory.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\PlayerRoles.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Runtime.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\RuntimeState.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Transport.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\RuntimeDiagnostics.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="native\Addresses112.h">
+      <Filter>native</Filter>
+    </ClInclude>
+    <ClInclude Include="server\Combat.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\ServerHooks.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\PlayerData.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\ServerEvents.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\Replication.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\WorldLifecycle.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Networking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\RuntimeConfig.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\BuildInfo.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="native\Layouts112.h">
+      <Filter>native</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,7 +9,11 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include "networking.h"
+#include "Networking.h"
+#include "core/Memory.h"
+#include "core/Logging.h"
+#include "core/RuntimeConfig.h"
+#include "native/Addresses112.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,234 +27,43 @@ namespace Networking {
     static uintptr_t BaseAddress = 0x0;
     static int LastPort = 0; 
 
-    static bool IsReadablePointer(const void* Ptr, size_t Size = sizeof(void*)) {
-        if (!Ptr || ((uintptr_t)Ptr & 0x7) != 0) {
-            return false;
-        }
-
-        MEMORY_BASIC_INFORMATION Info{};
-        if (!VirtualQuery(Ptr, &Info, sizeof(Info))) {
-            return false;
-        }
-
-        if (Info.State != MEM_COMMIT || (Info.Protect & (PAGE_GUARD | PAGE_NOACCESS))) {
-            return false;
-        }
-
-        uintptr_t Start = reinterpret_cast<uintptr_t>(Ptr);
-        uintptr_t End = Start + Size;
-        uintptr_t RegionEnd = reinterpret_cast<uintptr_t>(Info.BaseAddress) + Info.RegionSize;
-        return End >= Start && End <= RegionEnd;
-    }
-
-    static bool IsSanePointerArray(void* Data, int32_t Num, int32_t Max, int32_t Limit) {
-        if (Num < 0 || Max < 0 || Num > Max || Num > Limit) {
-            return false;
-        }
-
-        if (Num == 0) {
-            return true;
-        }
-
-        return IsReadablePointer(Data, static_cast<size_t>(Num) * sizeof(void*));
-    }
-
-    
-    
-    
-    
-    
-    
-    static const char* NetLogDir() {
-        static char Dir[MAX_PATH] = { 0 };
-        static bool Ready = false;
-        if (!Ready) {
-            char ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameA(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                int slash = -1;
-                for (DWORD i = 0; i < n; ++i) { if (ExePath[i] == '\\' || ExePath[i] == '/') { slash = (int)i; } }
-                if (slash >= 0) {
-                    for (int i = 0; i <= slash; ++i) { Dir[i] = ExePath[i]; }
-                    Dir[slash + 1] = '\0';
-                }
-            }
-            Ready = true;
-        }
-        return Dir;
-    }
-
     static void NetLog(int Port, const std::string& Msg) {
-        char Path[MAX_PATH];
-        
-        
-        sprintf_s(Path, "%smysticparadox_dll_port%d.log", NetLogDir(), Port);
-
-        std::ofstream File(Path, std::ios::app);
-        if (File.is_open()) {
-            File << Msg << "\n";
-            File.flush();
-        }
+        WriteRuntimeLog(Port, Msg, false);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
     static bool NativeReplicationOnly() {
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 0;
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"NATIVE_REPLICATION_ONLY.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 1; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = MpExeRelativeFlagPresent(L"NATIVE_REPLICATION_ONLY.flag");
+        return Enabled;
     }
 
-    
-    
-    
-    
-    
     static bool ReverseConnectionOrder() {
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 0;
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"REVERSE_CONNECTION_ORDER.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 1; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = MpExeRelativeFlagPresent(L"REVERSE_CONNECTION_ORDER.flag");
+        return Enabled;
     }
 
-    
-    
-    
-    
-    
-    
     static bool HybridReplication() {
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 0;
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"HYBRID_REPLICATION.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 1; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = MpExeRelativeFlagPresent(L"HYBRID_REPLICATION.flag");
+        return Enabled;
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
     static bool LevelVisibilityGate() {
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 0;
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"LEVEL_VISIBILITY_GATE.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 1; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = MpExeRelativeFlagPresent(L"LEVEL_VISIBILITY_GATE.flag");
+        return Enabled;
     }
 
-    
-    
-    
-    
-    
-    
-    
     static bool NativeGraphOnly() {
-        
-        
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 1;   
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"EMERGENCY_LEGACY_REPLICATION.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 0; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = !MpExeRelativeFlagPresent(L"EMERGENCY_LEGACY_REPLICATION.flag");
+        return Enabled;
     }
 
-    
-    
     static bool RepGraphDiagNet() {
-        static int Cached = -1;
-        if (Cached < 0) {
-            Cached = 0;
-            wchar_t ExePath[MAX_PATH];
-            DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-            if (n > 0 && n < MAX_PATH) {
-                for (int i = (int)n - 1; i >= 0; --i) {
-                    if (ExePath[i] == L'\\' || ExePath[i] == L'/') { ExePath[i + 1] = L'\0'; break; }
-                }
-                std::wstring FlagPath = std::wstring(ExePath) + L"REPGRAPH_DIAG.flag";
-                if (GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES) { Cached = 1; }
-            }
-        }
-        return Cached == 1;
+        static const bool Enabled = MpExeRelativeFlagPresent(L"REPGRAPH_DIAG.flag");
+        return Enabled;
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     static std::vector<std::pair<AActor*, bool>> BuildConsiderList(UWorld* World, UNetDriver* Driver) {
         std::vector<std::pair<AActor*, bool>> Actors;
 
-        
-        
-        
         ULevel* PersistentLevel = (World && IsReadablePointer(World, 0x38)) ? *reinterpret_cast<ULevel**>((uintptr_t)World + 0x30) : nullptr;
 
         for (ULevel* Level : World->Levels) {
@@ -265,21 +78,15 @@ namespace Networking {
                 if (Actor->bActorIsBeingDestroyed)
                     continue;
 
-                
-                
-                
-                
                 if (!reinterpret_cast<UWorld * (*)(AActor*)>(*(void**)((uintptr_t)Actor->VTable + 0x158))(Actor)) {
                     continue;
                 }
 
-                reinterpret_cast<void(*)(AActor*, UNetDriver*)>(BaseAddress + 0x0394B400)(Actor, Driver);
+                reinterpret_cast<void(*)(AActor*, UNetDriver*)>(BaseAddress + Native112::ActorPreReplication)(Actor, Driver);
 
                 Actors.push_back({ Actor, bPersistent });
             }
         }
-
-        
 
         return Actors;
     }
@@ -329,12 +136,12 @@ namespace Networking {
         }
 
         if (!ActorChannel) {
-            
+
             ActorChannel = reinterpret_cast<UActorChannel * (*)(UNetConnection*, FName*, unsigned int, int)>(
-                BaseAddress + 0x03D47AC0)(Connection, &ActorChannelName, 1 << 1, -1);
+                BaseAddress + Native112::CreateActorChannel)(Connection, &ActorChannelName, 1 << 1, -1);
             if (ActorChannel) {
                 reinterpret_cast<void(*)(UActorChannel*, AActor*, unsigned int)>(
-                    BaseAddress + 0x03B80890)(ActorChannel, Actor, 0);
+                    BaseAddress + Native112::SetChannelActor)(ActorChannel, Actor, 0);
             }
         }
 
@@ -347,7 +154,7 @@ namespace Networking {
         }
 
         const bool WroteData = reinterpret_cast<bool(*)(UActorChannel*)>(
-            BaseAddress + 0x03B7B470)(ActorChannel);
+            BaseAddress + Native112::Rva_03B7B470)(ActorChannel);
         NetLog(LastPort, "[PlayerRoleDirectChannel] actor="
             + std::to_string(reinterpret_cast<uintptr_t>(Actor)) + " conn="
             + std::to_string(reinterpret_cast<uintptr_t>(Connection)) + " channel="
@@ -461,7 +268,7 @@ namespace Networking {
         }
 
         using CreateNamedNetDriverFn = bool (*)(UEngine*, FWorldContext*, FName, FName);
-        bool Created = reinterpret_cast<CreateNamedNetDriverFn>(BaseAddress + 0x04033D20)(
+        bool Created = reinterpret_cast<CreateNamedNetDriverFn>(BaseAddress + Native112::CreateNamedNetDriver)(
             Engine,
             WorldContext,
             GameNetDriver,
@@ -491,8 +298,6 @@ namespace Networking {
         std::cout << "[Networking::Listen] Setting World directly (offset 0x140)..." << std::endl;
         NetLog(Port, "[Networking::Listen] Setting World");
 
-        
-        
         NetDriver->World = UWorld::GetWorld();
 
         std::cout << "[Networking::Listen] Creating URL..." << std::endl;
@@ -518,18 +323,13 @@ namespace Networking {
             return;
         }
 
-        
         NetDriver->World = UWorld::GetWorld();
         NetDriver->NetDriverName = GameNetDriver;
         NetDriver->ServerConnection = nullptr;
 
-        
-        
         std::cout << "[Networking::Listen] Complete!" << std::endl;
         NetLog(Port, "[Networking::Listen] Complete");
 
-        
-        
         char LaunchId[128]{};
         const DWORD LaunchIdLength = GetEnvironmentVariableA("MYSTICPARADOX_GAMESERVER_LAUNCH_ID", LaunchId, sizeof(LaunchId));
         if (LaunchIdLength > 0 && LaunchIdLength < sizeof(LaunchId)) {
@@ -545,7 +345,6 @@ namespace Networking {
             return;
         }
 
-        
         NetDriver->World = World;
         NetDriver->ServerConnection = nullptr;
 
@@ -567,11 +366,6 @@ namespace Networking {
 
         NetDriver->NetDriverName = gameNetDriverName;
 
-        
-        
-        
-        
-        
         {
             static uint64_t s_graphDumpMs = 0;
             static int s_lastLiveConns = -2;
@@ -586,9 +380,7 @@ namespace Networking {
                               ? *reinterpret_cast<void**>((uintptr_t)NetDriver + 0x6E8) : nullptr;
                 void* ndWorld = (IsReadablePointer(reinterpret_cast<void*>((uintptr_t)NetDriver + 0x148), 8))
                                 ? *reinterpret_cast<void**>((uintptr_t)NetDriver + 0x140) : nullptr;
-                
-                
-                
+
                 void* replGate = (IsReadablePointer(reinterpret_cast<void*>((uintptr_t)NetDriver + 0x110), 8))
                                  ? *reinterpret_cast<void**>((uintptr_t)NetDriver + 0x108) : nullptr;
                 if (graph && IsReadablePointer(graph, 0xB8)) {
@@ -624,13 +416,6 @@ namespace Networking {
                         + " ClientConns=" + std::to_string(liveConns)
                         + " replGate(+0x108)=" + std::to_string((uintptr_t)replGate));
 
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                     if (IsReadablePointer(graph, 0x4C8)) {
                         void** awncData = *reinterpret_cast<void***>((uintptr_t)graph + 0x4B8);
                         int awncNum = *reinterpret_cast<int*>((uintptr_t)graph + 0x4C0);
@@ -670,11 +455,6 @@ namespace Networking {
             }
         }
 
-        
-        
-        
-        
-        
         if (NativeGraphOnly()) {
             static bool s_loggedGraphOnly = false;
             if (!s_loggedGraphOnly) {
@@ -687,21 +467,11 @@ namespace Networking {
 
         ++ * (uint32_t*)((uintptr_t)NetDriver + 0x2AC);
 
-        
-        
-        
-        
-        
-        
         {
             uint32_t* repFrame = reinterpret_cast<uint32_t*>((uintptr_t)NetDriver + 0x418);
             if (++(*repFrame) == 0) *repFrame = 1;
         }
 
-        
-        
-        
-        
         if (NativeReplicationOnly()) {
             static bool s_loggedNativeOnly = false;
             if (!s_loggedNativeOnly) {
@@ -712,14 +482,8 @@ namespace Networking {
             return;
         }
 
-        
-        
-        
-        
-        
         {
-            
-            
+
             static uint64_t s_lastRepMs = 0;
             uint64_t nowT = static_cast<uint64_t>(GetTickCount64());
             if (nowT - s_lastRepMs < 50) return;   
@@ -737,7 +501,6 @@ namespace Networking {
             return;
         }
 
-        
         const bool ReverseConns = ReverseConnectionOrder();
         { static bool s_loggedRepOrder = false; if (!s_loggedRepOrder) { s_loggedRepOrder = true; NetLog(LastPort, std::string("[RepOrder] reverse=") + (ReverseConns ? "1" : "0")); } }
         for (int32_t ci = 0; ci < ConnectionCount; ++ci) {
@@ -750,7 +513,6 @@ namespace Networking {
             if (!Connection->OwningActor || *(uint32_t*)((uintptr_t)Connection + 0x134) != 3)
                 continue;
 
-            
             bool doRepActorLog = false;
             {
                 static uint64_t s_repActorLogMs[16] = { 0 };
@@ -759,7 +521,6 @@ namespace Networking {
                 if (rn - s_repActorLogMs[slotIdx] > 1000) { s_repActorLogMs[slotIdx] = rn; doRepActorLog = true; }
             }
 
-            
             static std::atomic<uint64_t> s_lastLoopLogMs{0};
             uint64_t nowMs = static_cast<uint64_t>(GetTickCount64());
             bool doLoopLog = (nowMs - s_lastLoopLogMs.load(std::memory_order_relaxed)) > 1000;
@@ -782,11 +543,6 @@ namespace Networking {
                 bool bActorPersistent = _considerEntry.second;
                 actorsProcessed++;
 
-                
-                
-                
-                
-                
                 if (LevelVisibilityGate() && !bActorPersistent && Actor->Class) {
                     std::string _cn = Actor->Class->GetName();
                     bool _critical = Actor->IsA(APlayerController::StaticClass()) || Actor->IsA(APawn::StaticClass())
@@ -802,9 +558,6 @@ namespace Networking {
                     }
                 }
 
-                
-                
-                
                 if (HybridReplication() && (Actor->IsA(APlayerController::StaticClass()) || Actor->IsA(APawn::StaticClass()))) {
                     continue;
                 }
@@ -813,61 +566,34 @@ namespace Networking {
                         continue;
                     }
                     else {
-                        
+
                         Connection->ViewTarget = ((APlayerController*)Actor)->GetViewTarget();
 
                         if (!Connection->ViewTarget)
                             std::cout << "NULL VIEWTARGET BAD THINGS WILL HAPPEN" << std::endl;
 
-                        reinterpret_cast<void(*)(APlayerController*)>(BaseAddress + 0x03E9ABF0)((APlayerController*)Actor);
+                        reinterpret_cast<void(*)(APlayerController*)>(BaseAddress + Native112::SendClientAdjustment)((APlayerController*)Actor);
                     }
                 }
-
-                
 
                 UActorChannel* ActorChannel = GetActorChannelForConnectionAndActor(Connection, Actor);
                 if (ActorChannel) channelsFound++;
 
                 bool bJustCreated = false;
                 if (!ActorChannel) {
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    ActorChannel = reinterpret_cast<UActorChannel * (*)(UNetConnection*, FName*, unsigned int, int)>(BaseAddress + 0x03D47AC0)(Connection, &name, 1 << 1, -1);
+
+                    ActorChannel = reinterpret_cast<UActorChannel * (*)(UNetConnection*, FName*, unsigned int, int)>(BaseAddress + Native112::CreateActorChannel)(Connection, &name, 1 << 1, -1);
                     if (ActorChannel) { channelsCreated++; bJustCreated = true; }
                     else channelsFailed++;
 
                     if (ActorChannel) {
-                        reinterpret_cast<void(*)(UActorChannel*, AActor*, unsigned int)>(BaseAddress + 0x03B80890)(ActorChannel, Actor, 0);
+                        reinterpret_cast<void(*)(UActorChannel*, AActor*, unsigned int)>(BaseAddress + Native112::SetChannelActor)(ActorChannel, Actor, 0);
                     }
                 }
 
                 if (ActorChannel && ActorChannel->Actor) {
                     channelsWithActor++;
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+
                     if (Actor->Class && Actor->Class->GetName() == "bp_archon_loadout_C") {
                         static std::atomic<uint64_t> s_loLast{ 0 };
                         uint64_t lm = static_cast<uint64_t>(GetTickCount64());
@@ -884,10 +610,6 @@ namespace Networking {
                                 + " chanConn(+28)=" + std::to_string(reinterpret_cast<uintptr_t>(chanConn))
                                 + " bNetOwner=" + std::to_string(netConn == reinterpret_cast<void*>(Connection) ? 1 : 0));
 
-                            
-                            
-                            
-                            
                             if (IsReadablePointer(Actor, 0x688)) {
                                 uintptr_t lo = reinterpret_cast<uintptr_t>(Actor);
                                 NetLog(LastPort, "[LoadoutState] loadout=" + Actor->GetName()
@@ -900,13 +622,8 @@ namespace Networking {
                             }
                         }
                     }
-                    bool wroteData = reinterpret_cast<bool(*)(UActorChannel*)>(BaseAddress + 0x03B7B470)(ActorChannel);
-                    
-                    
-                    
-                    
-                    
-                    
+                    bool wroteData = reinterpret_cast<bool(*)(UActorChannel*)>(BaseAddress + Native112::Rva_03B7B470)(ActorChannel);
+
                     if (bJustCreated && Actor->Class) {
                         void* ownerPtr = nullptr; std::string ownerName = "null";
                         if (IsReadablePointer(Actor, 0xE8)) {
@@ -920,10 +637,7 @@ namespace Networking {
                             + " owner=" + std::to_string((uintptr_t)ownerPtr) + "/" + ownerName
                             + " actor=" + Actor->GetFullName());
                     }
-                    
-                    
-                    
-                    
+
                     if (doRepActorLog && Actor->Class) {
                         std::string cn = Actor->Class->GetName();
                         if (cn.find("player_controller") != std::string::npos || cn.find("PlayerCharacter") != std::string::npos

@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,30 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include "native/Addresses112.h"
+#include "core/Runtime.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+extern bool s_ProgressionHudRefreshPending;
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+extern uint32_t s_ProgressionHudRefreshAttempts;
+
+extern uint64_t s_ProgressionHudRefreshNotBeforeMs;
+
+extern UObject* s_AirshipHUD;
+
+extern UObject* s_AirshipGameState;
+
+void ReconcileAirshipGameplayHUD(const char* TriggerLabel);
+
+void TickProgressionHudRefresh();
+
+extern void* OrigGetViewportSize;
+
+void ExecGetViewportSizeHook(void* ctx, void* stack, void* result);
+
+inline constexpr uintptr_t kHudLegendaryHandleWeaponEquippedRva = Native112::LegendaryWeaponEquipped;
+
+extern void* OrigHudLegendaryHandleWeaponEquipped;
+
+void HudLegendaryHandleWeaponEquippedHook(void* Widget, void* InWeapon);

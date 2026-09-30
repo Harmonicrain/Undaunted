@@ -1,4 +1,3 @@
-
 /*
  * Original work Copyright (C) 2026 gwog :3 (SyST3MDeV/Undaunted)
  * Modified work Copyright (C) 2026 MysticFox / Pranav Karande (pranav158/Mystic-Paradox)
@@ -20,27 +19,45 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include <windows.h>
-#include "core/Bootstrap.h"
+#pragma once
+#include "core/Runtime.h"
 
-__declspec(dllexport) const char* DummyLinkFunc() {
-    return "mrow :3";
-}
+extern void* OrigGetDefaultMap;
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-        Init();
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
-}
+extern void* OrigNetModeHook;
+
+extern void* OrigInternalNetModeHook;
+
+extern void* OrigWorldNetModeHook;
+
+extern void* OrigIsLevelInitForActor;
+
+extern void* OrigIsNetReady;
+
+FString* GetGameDefaultMap(FString* a1);
+
+extern void* OrigGetCommandLine;
+
+const wchar_t* GetCommandLineHook();
+
+extern void* OrigServerBootCrash;
+
+void ServerBootCrash(void* param_1);
+
+extern void* OrigArchonLoadManagerLoadFailed;
+
+void ArchonLoadManagerLoadFailedHook(void* This);
+
+extern std::atomic<uint64_t> g_postLoginTimeMs;
+
+extern std::atomic<int> g_pawnDiagCount;
+
+bool SanitizeNetDriverClientConnections(void* NetDriver, const char* Tag);
+
+extern void* OrigNetDriverTickDispatchInner;
+
+void NetDriverTickDispatchInnerHook(void* NetDriver, float DeltaTime);
+
+extern void* OrigNotifyClientDisconnected;
+
+void NotifyClientDisconnectedHook(void* NetDriver, void* Connection);
