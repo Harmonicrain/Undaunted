@@ -3,11 +3,15 @@
 // wallet operations use exactly the same classification rules.
 
 const CURRENCY_ALIASES: Record<string, string> = {
-    CURRENCY_PLATINUM_UNIV: "CURRENCY_PLATINUM"
+    CURRENCY_PLATINUM_UNIV: "CURRENCY_PLATINUM",
+    // The 1.12 client still names the Middleman speed-up charge after the
+    // removed Ace Chip currency. Treat that spelling as a wire alias only;
+    // every persisted and displayed balance is Aetherdust.
+    CURRENCY_TOKEN_EXCHANGE_SPEED_UP: "CURRENCY_CELLDUST"
 };
 
 const BALANCE_CURRENCIES = new Set([
-    "CURRENCY_PLATINUM", "CURRENCY_CELLDUST", "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", "CURRENCY_WEAPON_TOKEN",
+    "CURRENCY_PLATINUM", "CURRENCY_CELLDUST", "CURRENCY_WEAPON_TOKEN",
     "CURRENCY_MARKS_STEEL", "CURRENCY_MARKS_GILDED", "CURRENCY_PRESTIGE", "CURRENCY_REWARDCACHE",
     "CURRENCY_SEASONAL_COIN", "CURRENCY_GAUNTLET_COIN", "CURRENCY_GAUNTLET_COIN_FADED", "CURRENCY_S13_DAILY",
     "CURRENCY_S13_COIN", "CURRENCY_S14_COIN", "CURRENCY_S15_COIN", "CURRENCY_S16_COIN", "CURRENCY_S17_COIN",

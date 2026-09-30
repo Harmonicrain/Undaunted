@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { logger } from "../logger";
 import { DoesCharacterBelongToUserId } from "./character";
 import { CreditWallet, DebitWallet, InsufficientFundsError, IsWalletRoutedCurrency, WalletBalance } from "./wallet";
+import { CanonicaliseCurrency } from "../currency";
 
 export type InventoryError = "forbidden" | "not_found" | "conflict" | "invalid_inventory_item" | "invalid_inventory_data" | "db_error";
 export type InventoryResult<T = void> = { success: true, data?: T } | { success: false, error: InventoryError };
@@ -33,6 +34,79 @@ function MakeEmptyInventoryRow(CharacterId: string): typeof inventory.$inferInse
 
 function FindInstancedItemIndex(InstancedItems: any[], InstanceId: string){
     return InstancedItems.findIndex((Item) => Item.instanceId === InstanceId);
+}
+
+const FUSION_CATALOG_ID = "TOKEN_CELL_EXCHANGE";
+
+type FusionData = {
+    SlotID: number;
+    EndTime: string;
+    ResultCell: string;
+    ExchangeID: string;
+};
+
+function ParseFusionData(Item: any): FusionData {
+    let Data: any;
+    try { Data = JSON.parse(Item?.itemData); }
+    catch { throw new InventoryValidationError("Invalid fusion token"); }
+
+    if(!Number.isInteger(Data?.SlotID) || Data.SlotID < 1 || Data.SlotID > 3 ||
+        typeof Data?.EndTime !== "string" || !Number.isFinite(Date.parse(Data.EndTime)) ||
+        typeof Data?.ResultCell !== "string" || !Data.ResultCell.startsWith("CELL_") ||
+        typeof Data?.ExchangeID !== "string" || Data.ExchangeID.length === 0){
+        throw new InventoryValidationError("Invalid fusion token");
+    }
+
+    return Data as FusionData;
+}
+
+function FusionInstanceId(SlotID: number){
+    return `${FUSION_CATALOG_ID}:${SlotID}`;
+}
+
+function NormaliseFusionItem(Item: any){
+    if(Item?.catalogId !== FUSION_CATALOG_ID) return Item;
+    const Data = ParseFusionData(Item);
+    Item.instanceId = FusionInstanceId(Data.SlotID);
+    return Item;
+}
+
+function FindIncomingInstancedItemIndex(InstancedItems: any[], IncomingItem: any){
+    const Exact = FindInstancedItemIndex(InstancedItems, IncomingItem.instanceId);
+    if(Exact >= 0 || IncomingItem?.catalogId !== FUSION_CATALOG_ID) return Exact;
+
+    // A freshly launched fixed client uses the server-provided per-slot id.
+    // Retain a narrow fallback for a token cached before this repair: if its
+    // payload identifies a slot/exchange, use that; if only one fusion exists,
+    // the legacy fixed id is unambiguous.
+    if(IncomingItem?.itemData != null){
+        const IncomingData = ParseFusionData(IncomingItem);
+        const BySlot = InstancedItems.findIndex((Item) => {
+            if(Item?.catalogId !== FUSION_CATALOG_ID) return false;
+            const CurrentData = ParseFusionData(Item);
+            return CurrentData.SlotID === IncomingData.SlotID || CurrentData.ExchangeID === IncomingData.ExchangeID;
+        });
+        if(BySlot >= 0) return BySlot;
+    }
+
+    if(IncomingItem.instanceId === FUSION_CATALOG_ID){
+        const FusionIndexes = InstancedItems.map((Item, Index) => Item?.catalogId === FUSION_CATALOG_ID ? Index : -1)
+            .filter((Index) => Index >= 0);
+        if(FusionIndexes.length === 1) return FusionIndexes[0];
+    }
+
+    return -1;
+}
+
+function IsValidFusionSave(CurrentItem: any, IncomingItem: any, Operation: string){
+    if(Operation !== "save" && Operation !== "update") return false;
+    if(CurrentItem?.catalogId !== FUSION_CATALOG_ID || IncomingItem?.catalogId !== FUSION_CATALOG_ID) return false;
+    if(CurrentItem.updateVersion !== IncomingItem.updateVersion) return false;
+
+    const Current = ParseFusionData(CurrentItem);
+    const Incoming = ParseFusionData(IncomingItem);
+    return Current.SlotID === Incoming.SlotID && Current.ExchangeID === Incoming.ExchangeID &&
+        Current.ResultCell === Incoming.ResultCell && Date.parse(Incoming.EndTime) <= Date.parse(Current.EndTime);
 }
 
 function HasStatelessItemData(Item: any){
@@ -78,6 +152,8 @@ function AssertExistingInstancedItemWrite(CurrentItem: any, IncomingItem: any, O
         return "skip";
     }
 
+    if(IsValidFusionSave(CurrentItem, IncomingItem, Operation)) return "write";
+
     const IsStaleInstancedItem = typeof IncomingItem.updateVersion !== "number" || IncomingItem.updateVersion <= CurrentItem.updateVersion;
     if(IsStaleInstancedItem){
         throw new InventoryConflictError(`Refusing stale instanced item ${Operation} ${IncomingItem.catalogId}/${IncomingItem.instanceId}: current updateVersion ${CurrentItem.updateVersion}, incoming updateVersion ${IncomingItem.updateVersion}`);
@@ -105,22 +181,20 @@ export async function UpdateInstancedItem(CharacterId: string, UserId: string, I
             }
 
             const InstancedItems: any[] = JSON.parse(CurrentInventory.instancedItems);
-            const ItemIndex = InstancedItems.findIndex((Item) => Item.catalogId === CatalogId && Item.instanceId === InstanceId);
+            const IncomingItem = NormaliseFusionItem({catalogId: CatalogId, instanceId: InstanceId, itemData: ItemData, updateVersion: UpdateVersion});
+            const ItemIndex = FindIncomingInstancedItemIndex(InstancedItems, IncomingItem);
 
             if(ItemIndex < 0){
                 return {success: false, error: "not_found"} as InventoryResult<any>;
             }
 
             const Item = InstancedItems[ItemIndex];
-            const IncomingItem = {catalogId: CatalogId, instanceId: InstanceId, itemData: ItemData, updateVersion: UpdateVersion};
-
             if(AssertExistingInstancedItemWrite(Item, IncomingItem, "update") === "skip"){
                 logger.info(`Skipping stale stateless Instanced Item ${CatalogId} for CharacterId ${CharacterId} and UserId ${UserId}`);
                 return {success: true, data: Item} as InventoryResult<any>;
             }
 
-            Item.itemData = ItemData;
-            Item.updateVersion = UpdateVersion;
+            InstancedItems[ItemIndex] = IncomingItem;
 
             logger.info(`Updating Instanced Item ${CatalogId} for CharacterId ${CharacterId} and UserId ${UserId}`);
 
@@ -128,7 +202,7 @@ export async function UpdateInstancedItem(CharacterId: string, UserId: string, I
                 instancedItems: JSON.stringify(InstancedItems)
             }).where(eq(inventory.characterId, CharacterId)).run();
 
-            return {success: true, data: Item} as InventoryResult<any>;
+            return {success: true, data: IncomingItem} as InventoryResult<any>;
         });
     }
     catch(error){
@@ -217,9 +291,10 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
 
             for(const ItemToRemove of StackedItemsToRemove.filter(ToWallet)){
                 const Quantity = AssertValidStackedQuantity(ItemToRemove, "remove");
+                const Canonical = CanonicaliseCurrency(ItemToRemove.catalogId);
 
                 try{
-                    DebitWallet(tx, UserId, ItemToRemove.catalogId, Quantity);
+                    DebitWallet(tx, UserId, Canonical, Quantity);
                 }
                 catch(error){
                     if(error instanceof InsufficientFundsError){
@@ -227,12 +302,12 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                     }
                     throw error;
                 }
-                CurrencyTouched.push(ItemToRemove.catalogId);
+                CurrencyTouched.push(Canonical);
             }
 
             for(const ItemToAdd of StackedItemsToAdd.filter(ToWallet)){
                 CreditWallet(tx, UserId, ItemToAdd.catalogId, AssertValidStackedQuantity(ItemToAdd, "add"));
-                CurrencyTouched.push(ItemToAdd.catalogId);
+                CurrencyTouched.push(CanonicaliseCurrency(ItemToAdd.catalogId));
             }
 
             const StackedToRemove = StackedItemsToRemove.filter((Item) => !ToWallet(Item));
@@ -256,17 +331,38 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 let DidUpdateInstancedItems = false;
 
                 for(const ItemToRemove of InstancedItemsToRemove){
-                    const ItemIndex = FindInstancedItemIndex(InstancedItems, ItemToRemove.instanceId);
+                    if(ItemToRemove?.catalogId === FUSION_CATALOG_ID && ItemToRemove?.itemData != null) NormaliseFusionItem(ItemToRemove);
+                    const ItemIndex = FindIncomingInstancedItemIndex(InstancedItems, ItemToRemove);
+
+                    // Native fusion completion consumes the token at its current
+                    // version (including zero). Validate its saved result and time,
+                    // and require the token to exist, before granting the cell.
+                    const IsFusion = ItemToRemove.catalogId === "TOKEN_CELL_EXCHANGE";
+                    if (IsFusion) {
+                        const Current = InstancedItems[ItemIndex];
+                        if (!Current || Current.catalogId !== ItemToRemove.catalogId ||
+                            Current.updateVersion !== ItemToRemove.updateVersion)
+                            throw new InventoryConflictError("Fusion token missing or changed");
+                        const Data = ParseFusionData(Current);
+                        const End = Date.parse(Data?.EndTime);
+                        if (!Number.isFinite(End) || End > Date.now() || typeof Data?.ExchangeID !== "string" ||
+                            typeof Data?.ResultCell !== "string" || !Data.ResultCell.startsWith("CELL_") ||
+                            StackedItemsToAdd.length !== 1 || StackedItemsToAdd[0].catalogId !== Data.ResultCell ||
+                            StackedItemsToAdd[0].quantity !== 1 || InstancedItemsToAdd.length || InstancedItemsToSave.length ||
+                            InstancedItemsToRemove.length !== 1)
+                            throw new InventoryValidationError("Fusion is not complete or reward does not match");
+                    }
 
                     if(ItemIndex >= 0){
-                        AssertExistingInstancedItemWrite(InstancedItems[ItemIndex], ItemToRemove, "remove");
+                        if (!IsFusion) AssertExistingInstancedItemWrite(InstancedItems[ItemIndex], ItemToRemove, "remove");
                         InstancedItems.splice(ItemIndex, 1);
                         DidUpdateInstancedItems = true;
                     }
                 }
 
                 for(const ItemToSave of InstancedItemsToSave){
-                    const ItemIndex = FindInstancedItemIndex(InstancedItems, ItemToSave.instanceId);
+                    NormaliseFusionItem(ItemToSave);
+                    const ItemIndex = FindIncomingInstancedItemIndex(InstancedItems, ItemToSave);
 
                     if(ItemIndex >= 0){
                         if(AssertExistingInstancedItemWrite(InstancedItems[ItemIndex], ItemToSave, "save") === "skip"){
@@ -284,7 +380,8 @@ export function ApplyInventoryTransaction(tx: any, UserId: string, CharacterId: 
                 }
 
                 for(const ItemToAdd of InstancedItemsToAdd){
-                    const ItemIndex = FindInstancedItemIndex(InstancedItems, ItemToAdd.instanceId);
+                    NormaliseFusionItem(ItemToAdd);
+                    const ItemIndex = FindIncomingInstancedItemIndex(InstancedItems, ItemToAdd);
 
                     if(ItemIndex >= 0){
                         if(AssertExistingInstancedItemWrite(InstancedItems[ItemIndex], ItemToAdd, "add") === "skip"){
@@ -456,12 +553,33 @@ export async function GetInventoryForUserIdAndCharacterId(UserId: string, Charac
             await GetDb().insert(inventory).values(InventoryFromDb);
         }
 
+        const InstancedItems: any[] = JSON.parse(InventoryFromDb!.instancedItems);
+        let MigratedFusionIds = false;
+        for(const Item of InstancedItems){
+            if(Item?.catalogId !== FUSION_CATALOG_ID) continue;
+            const Before = Item.instanceId;
+            NormaliseFusionItem(Item);
+            MigratedFusionIds ||= Before !== Item.instanceId;
+        }
+        if(MigratedFusionIds){
+            await GetDb().update(inventory).set({ instancedItems: JSON.stringify(InstancedItems) })
+                .where(eq(inventory.characterId, CharacterId));
+        }
+
+        // Middleman affordability is checked through InventoryData, whereas
+        // the HUD reads /balance. Project the account balance without storing
+        // a second copy of the money. An absent stack represents zero.
+        const StackedItems = JSON.parse(InventoryFromDb!.stackedItems).filter((Item: any) =>
+            CanonicaliseCurrency(Item.catalogId) !== "CURRENCY_CELLDUST");
+        const DustBalance = WalletBalance(GetDb(), UserId, "CURRENCY_CELLDUST");
+        if(DustBalance > 0) StackedItems.push({ catalogId: "CURRENCY_CELLDUST", quantity: DustBalance });
+
         return {
             success: true,
             data: {
                 characterId: CharacterId,
-                instancedItems: JSON.parse(InventoryFromDb!.instancedItems),
-                stackedItems: JSON.parse(InventoryFromDb!.stackedItems)
+                instancedItems: InstancedItems,
+                stackedItems: StackedItems
             }
         };
     }

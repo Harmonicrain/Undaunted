@@ -21,11 +21,16 @@ export function CreditWallet(tx: any, UserId: string, CurrencyId: string, Amount
     }
 
     const Canonical = CanonicaliseCurrency(CurrencyId);
+    // Historical rewards expressed Ace Chips in units worth four Aetherdust
+    // each (25 chips became 100 dust). Keep that conversion at the input
+    // boundary; Ace Chips are never stored as an active currency.
+    const CreditAmount = CurrencyId.replace(/^id_/, "").toUpperCase() === "CURRENCY_TOKEN_EXCHANGE_SPEED_UP"
+        ? Amount * 4 : Amount;
 
     const Existing = tx.select().from(wallets)
         .where(and(eq(wallets.userId, UserId), eq(wallets.currencyId, Canonical))).get();
 
-    const Updated = (Existing?.amount ?? 0) + Amount;
+    const Updated = (Existing?.amount ?? 0) + CreditAmount;
 
     if(Existing == undefined){
         tx.insert(wallets).values({

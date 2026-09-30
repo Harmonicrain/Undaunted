@@ -58,3 +58,31 @@ export function RepairLegacySlayerLinkSlots(Db: Client, Log: (Message: string) =
 
     return Repaired;
 }
+
+export function RepairLegacyAceChipBalances(Db: Client, Log: (Message: string) => void = () => {}){
+    const Repaired: { userId: string, chips: number, dust: number }[] = [];
+
+    Db.transaction(() => {
+        const Rows = Db.prepare("SELECT userId, amount FROM wallets WHERE currencyId = ?")
+            .all("CURRENCY_TOKEN_EXCHANGE_SPEED_UP");
+
+        for(const Row of Rows){
+            const Chips = Number(Row.amount);
+            if(!Number.isSafeInteger(Chips) || Chips < 0) continue;
+            const Dust = Chips * 4;
+            if(Dust > 0){
+                Db.prepare(`INSERT INTO wallets (userId, currencyId, amount, updatedAt) VALUES (?, ?, ?, ?)
+                    ON CONFLICT(userId, currencyId) DO UPDATE SET
+                        amount = wallets.amount + excluded.amount,
+                        updatedAt = excluded.updatedAt`)
+                    .run(Row.userId, "CURRENCY_CELLDUST", Dust, Date.now());
+            }
+            Db.prepare("DELETE FROM wallets WHERE userId = ? AND currencyId = ?")
+                .run(Row.userId, "CURRENCY_TOKEN_EXCHANGE_SPEED_UP");
+            Repaired.push({ userId: Row.userId, chips: Chips, dust: Dust });
+            Log(`Converted ${Chips} legacy Ace Chips for ${Row.userId} into ${Dust} Aetherdust`);
+        }
+    })();
+
+    return Repaired;
+}

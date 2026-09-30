@@ -7,6 +7,7 @@ import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCat
 import { CanonicaliseCurrency, CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
 import { IsEntitlementActive } from "./entitlements";
 import { IsStoreTagOpen, StoreTagWindow } from "./seasonalEvents";
+import { IsRotatingMiddlemanOffer, MiddlemanOfferWindow, SelectWeeklyMiddlemanOffers } from "./middlemanStore";
 
 export class StoreError extends Error {
     constructor(public status: number, message: string) { super(message); }
@@ -83,6 +84,8 @@ const PaysIn = (offer: any, currency: unknown) => PathCurrency(currency) === Off
 // purchase grants its full quantity again.
 function IsRepeatable(offer: any) {
     const items: { catalogId: string }[] = offer.items ?? [];
+    if (offer.repeatable === true && offer.tags?.includes("weekly_cell_offering"))
+        return items.length > 0 && items.every(item => item.catalogId.startsWith("CELL_") && GrantKind(item.catalogId) === "stacked");
     return items.length > 0 && items.every(item => REPEATABLE_ITEMS.has(item.catalogId));
 }
 
@@ -148,12 +151,14 @@ function GrantsNothing(offer: any, held: Set<string>, active: { entitlement: str
 
 // An event's store (Honest Ozz's) is open only while its event runs: see
 // controllers/seasonalEvents. Its offers are neither listed nor sold outside it.
-const IsOfferOpen = (offer: any) => (offer?.tags ?? []).every((tag: string) => IsStoreTagOpen(tag));
+const IsOfferOpen = (offer: any) => (offer?.tags ?? []).every((tag: string) => IsStoreTagOpen(tag))
+    && (!IsRotatingMiddlemanOffer(offer) || SelectWeeklyMiddlemanOffers(catalog.weekly_cell_offering ?? [])
+        .some(current => current.id === offer.id));
 
 // An event's offer is available for its event's window, and says so.
 function WithEventWindow(offer: any) {
     const window = (offer?.tags ?? []).map((tag: string) => StoreTagWindow(tag)).find((found: any) => found != undefined);
-    return window == undefined ? offer : { ...offer, ...window };
+    return MiddlemanOfferWindow(window == undefined ? offer : { ...offer, ...window });
 }
 
 function offerFor(skuId: string, currency: string) {
@@ -177,7 +182,7 @@ function offerFor(skuId: string, currency: string) {
     const repeatable = IsRepeatable(offer);
     if (repeatable && grants.length) throw new StoreError(409, "Repeatable offers cannot grant entitlements");
     if (items.some(item => GrantKind(item.catalogId) === undefined ||
-        REPEATABLE_ITEMS.has(item.catalogId) !== repeatable ||
+        (REPEATABLE_ITEMS.has(item.catalogId) !== repeatable && !(repeatable && offer.tags?.includes("weekly_cell_offering") && item.catalogId.startsWith("CELL_"))) ||
         (repeatable ? GrantKind(item.catalogId) !== "stacked" || !Number.isSafeInteger(item.quantity) || item.quantity <= 0
             : item.quantity !== 1))) {
         throw new StoreError(409, "Offer is not a supported store item");
@@ -186,7 +191,7 @@ function offerFor(skuId: string, currency: string) {
         !Number.isSafeInteger(grant.duration ?? 0) || (grant.duration ?? 0) < 0)) {
         throw new StoreError(409, "Offer has an unusable entitlement");
     }
-    return offer;
+    return MiddlemanOfferWindow(offer);
 }
 
 function stacks(raw: string): { catalogId: string; quantity: number }[] {
@@ -257,7 +262,9 @@ export function GetFreeStoreOffers(userId: string) {
 // skips live under their own tags and still need ownership applied.
 export function GetOffersForTag(userId: string, tag: string) {
     const char = character(userId);
-    const forTag = (catalog as Record<string, any>)[tag];
+    const configured = (catalog as Record<string, any>)[tag];
+    const forTag = tag === "weekly_cell_offering" && Array.isArray(configured)
+        ? SelectWeeklyMiddlemanOffers(configured) : configured;
 
     if (!Array.isArray(forTag) || !IsStoreTagOpen(tag)) return [];
 

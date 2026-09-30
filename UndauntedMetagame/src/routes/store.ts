@@ -71,9 +71,7 @@ storeRouter.get("/balance", HasUndauntedMetagameAuth, async (req: any, res) => {
         CURRENCY_PRESTIGE: 0,
         CURRENCY_SEASONAL_COIN: 0,
         CURRENCY_REWARDCACHE: 0,
-        id_currency_token_exchange_speed_up: 0,
         id_currency_event_springtide: 0,
-        CURRENCY_TOKEN_EXCHANGE_SPEED_UP: 0,
         id_currency_gauntlet_coin_faded: 0,
         CURRENCY_S15_COIN: 0,
         CURRENCY_PLATINUM: 0,
@@ -129,7 +127,11 @@ const StoreCatalog = storeCatalog as Record<string, any>;
 function PriceFor(offer: any){
     const Price = OfferPrice(offer);
     return {
-        currencyId: `id_${Price.currency.toLowerCase()}`,
+        // FCellOfferViewModel's native converter explicitly looks up this
+        // uppercase key for its Aetherdust price. Other store currencies use
+        // the id_currency_* spelling.
+        currencyId: Price.currency === "CURRENCY_CELLDUST"
+            ? "CURRENCY_CELLDUST" : `id_${Price.currency.toLowerCase()}`,
         price: Price.amount ?? 0,
         salesPrice: Price.currency === "CURRENCY_PLATINUM" ? offer.platinumSalePrice ?? null : null
     };

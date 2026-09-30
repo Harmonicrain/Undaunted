@@ -85,10 +85,11 @@ test('the fountain offer is listed, claimable once, and pays the character and t
     assert.equal(held(a, 'TOKEN_BOUNTY_DRAFT'), 4);
     assert.equal(held(a, 'CURRENCY_NOTES'), 1000);
     // Combat Merits are an inventory stack (the game spends them from there);
-    // Ace Chips are on the balance sheet.
+    // Historical Ace Chip rewards convert to Aetherdust at 4:1.
     assert.equal(held(a, 'CURRENCY_PJM_WEAPON'), 25);
     assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PJM_WEAPON, undefined);
-    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 5);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_CELLDUST, 20);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
     // The daily Platinum lands in the wallet the store charges from.
     assert.equal(wallet.GetWallet(a.UserId).CURRENCY_PLATINUM, 20);
     assert.equal(wallet.GetWallet(a.UserId).id_currency_platinum, 20);
@@ -124,5 +125,6 @@ test('the fountain refills at the next UTC midnight and grants add up', async ()
     assert.equal(held(a, 'CONTAINER_CORE_REWARD_DAILY_02'), 2);
     assert.equal(held(a, 'CURRENCY_NOTES'), 2000);
     assert.equal(held(a, 'CURRENCY_PJM_WEAPON'), 50);
-    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 10);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_CELLDUST, 40);
+    assert.equal(wallet.GetWallet(a.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
 });

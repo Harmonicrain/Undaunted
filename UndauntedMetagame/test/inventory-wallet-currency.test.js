@@ -48,31 +48,71 @@ test("event currencies (Harvest Coins) land in the wallet too", async () => {
     assert.equal(Harness.StackedQuantity(Harness.ReadInventory(Context, A.CharacterId), "CURRENCY_EVENT_DARKHARVEST"), 0);
 });
 
-test("Celldust and Ace Chips are granted and spent from the displayed wallet", async () => {
+test("legacy Ace Chip grants convert to Aetherdust and no Ace balance survives", async () => {
     const A = Harness.SeedAccount(Context, "MiddlemanCurrencies");
     const Granted = await Run(A, "TX-MIDDLEMAN-GRANT", [
         { catalogId: "CURRENCY_CELLDUST", quantity: 500 },
         { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 3 }
     ]);
-    assert.deepEqual(Granted.data, [
-        { catalogId: "CURRENCY_CELLDUST", quantity: 500 },
-        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 3 }
-    ]);
+    assert.deepEqual(Granted.data, [{ catalogId: "CURRENCY_CELLDUST", quantity: 512 }]);
 
     const Spent = await Run(A, "TX-MIDDLEMAN-SPEND", [], [
         { catalogId: "CURRENCY_CELLDUST", quantity: 125 },
         { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 1 }
     ]);
-    assert.deepEqual(Spent.data, [
-        { catalogId: "CURRENCY_CELLDUST", quantity: 375 },
-        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 2 }
-    ]);
-    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 375);
-    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, 2);
+    assert.deepEqual(Spent.data, [{ catalogId: "CURRENCY_CELLDUST", quantity: 386 }]);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 386);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
 
     const Held = Harness.ReadInventory(Context, A.CharacterId);
     assert.equal(Harness.StackedQuantity(Held, "CURRENCY_CELLDUST"), 0);
     assert.equal(Harness.StackedQuantity(Held, "CURRENCY_TOKEN_EXCHANGE_SPEED_UP"), 0);
+});
+
+test("the legacy speed-up request spends Aetherdust when no Ace Chips remain", async () => {
+    const A = Harness.SeedAccount(Context, "MiddlemanDustSpeedUp");
+    await Run(A, "TX-DUST-SPEEDUP-GRANT", [{ catalogId: "CURRENCY_CELLDUST", quantity: 760 }]);
+
+    const Spent = await Run(A, "TX-DUST-SPEEDUP-SPEND", [], [
+        { catalogId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", quantity: 132 }
+    ]);
+
+    assert.equal(Spent.success, true);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 628);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
+});
+
+test("Middleman inventory checks receive the current wallet balance across reloads", async () => {
+    const A = Harness.SeedAccount(Context, "MiddlemanInventoryBalance");
+    await Run(A, "MM-BALANCE-GRANT", [{ catalogId: "CURRENCY_CELLDUST", quantity: 838 }]);
+    const ReadDust = async () => {
+        const Result = await Inventory.GetInventoryForUserIdAndCharacterId(A.UserId, A.CharacterId);
+        assert.equal(Result.success, true);
+        const Dust = Result.data.stackedItems.filter(x => x.catalogId === "CURRENCY_CELLDUST");
+        assert.equal(Dust.length, 1);
+        assert.equal(Result.data.stackedItems.some(x => x.catalogId === "CURRENCY_TOKEN_EXCHANGE_SPEED_UP"), false);
+        return Dust[0].quantity;
+    };
+    assert.equal(await ReadDust(), 838);
+    await Run(A, "MM-BALANCE-SPEND", [], [{ catalogId: "CURRENCY_CELLDUST", quantity: 132 }]);
+    assert.equal(await ReadDust(), 706);
+    assert.equal(await ReadDust(), 706);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 706);
+    assert.equal(Harness.StackedQuantity(Harness.ReadInventory(Context, A.CharacterId), "CURRENCY_CELLDUST"), 0);
+});
+
+test("stored Ace Chip balances migrate once to Aetherdust at 4:1", () => {
+    const A = Harness.SeedAccount(Context, "MiddlemanAceMigration");
+    Context.Db.insert(Context.Schema.wallets).values({ userId: A.UserId,
+        currencyId: "CURRENCY_TOKEN_EXCHANGE_SPEED_UP", amount: 25, updatedAt: Date.now() }).run();
+    const Repairs = require("../dist/db/repairs");
+    assert.deepEqual(Repairs.RepairLegacyAceChipBalances(Context.Db.$client), [
+        { userId: A.UserId, chips: 25, dust: 100 }
+    ]);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 100);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
+    assert.deepEqual(Repairs.RepairLegacyAceChipBalances(Context.Db.$client), []);
+    assert.equal(Wallet.GetWallet(A.UserId).CURRENCY_CELLDUST, 100);
 });
 
 test("a retried transaction does not pay the coins again", async () => {

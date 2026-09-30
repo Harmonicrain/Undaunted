@@ -3,6 +3,7 @@ import { join } from "node:path";
 import vendorCatalog from "../vendor/store_catalog.json";
 import vendorItemKinds from "../vendor/store_item_kinds.json";
 import { AddHuntPassLibraryOffers } from "./huntpassLibrary";
+import { AddMiddlemanOffers } from "./middlemanStore";
 
 // The storefront. Dauntless 1.4.4 ships its catalogue in src/vendor. Another
 // client build points STORE_DATA_DIR at a directory holding its own
@@ -22,7 +23,7 @@ function Load(): { catalog: Record<string, any>; itemKinds: Record<string, strin
 
 const Loaded = Load();
 
-export const StoreCatalog = AddHuntPassLibraryOffers(Loaded.catalog);
+export const StoreCatalog = AddMiddlemanOffers(AddHuntPassLibraryOffers(Loaded.catalog), Loaded.itemKinds);
 
 // Grant kind (stacked or instanced) for every item the catalogue sells, and
 // nothing else: an item missing here is never granted.

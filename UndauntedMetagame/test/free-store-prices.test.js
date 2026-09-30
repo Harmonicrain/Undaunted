@@ -15,6 +15,11 @@ const offer = (id, tag, catalogId, quantity = 1, maxAllowed = 1) => ({
     platinumPrice: 0, platinumSalePrice: null, items: [{ catalogId, quantity }], entitlements: [],
     maxAllowed, remaining: 1, loadoutSlots: null
 });
+const cells = ['HEALTH_MAX', 'OUTOFCOMBAT_MOVESPD', 'VSAETHER_BASEDMG'].flatMap(family =>
+    [['UC', 1], ['R', 2]].map(([tier, rank]) => {
+        const id = `CELL_${family}_${tier}`;
+        return { ...offer(`free_${id.toLowerCase()}`, 'cells_cells', id), displayName: `+${rank} ${family} Cell` };
+    }));
 
 before(async () => {
     dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'store-prices-'));
@@ -23,13 +28,15 @@ before(async () => {
         webstore: [
             offer('sku_em_test_wave', 'social_emote', 'EM_TEST_WAVE'),
             offer('free_qi_test_tonic_x10', 'supplies_supplies', 'QI_TEST_TONIC', 10, 999),
+            ...cells,
             offer('free_unlisted', 'social_emote', 'EM_NOT_IN_KINDS')
         ],
         season19_pass: [{ ...offer('season19_premium', 'season19_pass', 'unused'), tags: ['season19_pass'],
             items: [], entitlements: [{ name: 'season19_premium', duration: 0 }] }]
     }));
     fs.writeFileSync(path.join(dataDir, 'store_item_kinds.json'), JSON.stringify({
-        EM_TEST_WAVE: 'stacked', QI_TEST_TONIC: 'stacked'
+        EM_TEST_WAVE: 'stacked', QI_TEST_TONIC: 'stacked',
+        ...Object.fromEntries(cells.map(cell => [cell.items[0].catalogId, 'stacked']))
     }));
     process.env.STORE_DATA_DIR = dataDir;
     process.env.STORE_OFFER_FORMAT = 'prices';
@@ -67,6 +74,17 @@ test('offers use the 1.12.0 prices shape and no flat price fields', async () => 
     assert.deepEqual(wave.tags, ['webstore', 'social_emote']);
     assert.equal(wave.remaining, 1);
     assert.equal('platinumPrice' in wave, false);
+});
+
+test('Middleman cell offers use the uppercase Aetherdust key its native converter reads', async () => {
+    const a = Harness.SeedAccount(context);
+    const { status, body } = await get(a, '/product/skus/public?requiredTags=weekly_cell_offering');
+    assert.equal(status, 200);
+    assert.equal(body.length, 3);
+    assert.deepEqual(body.map(row => row.prices), [80, 80, 200].map(price =>
+        [{ currencyId: 'CURRENCY_CELLDUST', price, salesPrice: null }]));
+    assert.ok(body.every(row => !('dustPrice' in row) && !('cellDustPrice' in row)));
+    assert.ok(body.every(row => row.availableFrom && row.availableTo));
 });
 
 test('purchase in id_currency_platinum grants the item and marks it owned', async () => {

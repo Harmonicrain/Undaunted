@@ -29,6 +29,12 @@ test("every balance-sheet currency is routed from gameplay transactions to the w
     }
 });
 
+test("Ace Chips are only a protocol alias for Aetherdust", () => {
+    assert.equal(Wallet.CanonicaliseCurrency("CURRENCY_TOKEN_EXCHANGE_SPEED_UP"), "CURRENCY_CELLDUST");
+    assert.equal(Wallet.CanonicaliseCurrency("id_currency_token_exchange_speed_up"), "CURRENCY_CELLDUST");
+    assert.deepEqual(Wallet.WalletAliasesFor("CURRENCY_CELLDUST"), ["CURRENCY_CELLDUST", "id_currency_celldust"]);
+});
+
 test("a Hunt Pass rank pays Combat Merits into the inventory and platinum into the wallet", () => {
     const { StackedItems, Currencies } = ClassifyReward({ stacked_items: [
         { catalog_id: "CURRENCY_PJM_WEAPON", quantity: 125 },
