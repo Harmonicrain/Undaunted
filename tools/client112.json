@@ -1,0 +1,8 @@
+{
+  "version": "1.12.0",
+  "changelist": 392819,
+  "executable": "Dauntless-Win64-Shipping.exe",
+  "sha256": "EE30D1821B4020FF1BCAA89A63FA6EF3515EFB622F2969546B91BF018A379F43",
+  "platform": "x64",
+  "toolset": "v143"
+}
