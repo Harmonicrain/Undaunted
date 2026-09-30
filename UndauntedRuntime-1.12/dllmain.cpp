@@ -5380,6 +5380,91 @@ static void InstallMiddlemanAetherdustHook() {
 
 }
 
+// In 1.12 the expanded Hunting Grounds loot screen is created asynchronously.
+// DisplaySummaryScreen does not mark the panel as hiding until that callback has
+// already added the new screen to the viewport. A repeated input event in that
+// window can therefore queue multiple full-screen widgets and trap the player in
+// what appears to be one uncloseable loot screen. Keep one request in flight for
+// each panel until its hide animation has completed.
+using MatchLootDisplaySummaryFn = void(__fastcall*)(UMatchLootPanelWidget*);
+using MatchLootOnHideEndFn = void(__fastcall*)(UMatchLootPanelWidget*);
+static MatchLootDisplaySummaryFn OrigMatchLootDisplaySummary = nullptr;
+static MatchLootOnHideEndFn OrigMatchLootOnHideEnd = nullptr;
+static SRWLOCK g_MatchLootSummaryGuardLock = SRWLOCK_INIT;
+static std::set<UMatchLootPanelWidget*> g_MatchLootSummaryOpeningPanels;
+
+static void __fastcall MatchLootDisplaySummaryHook(UMatchLootPanelWidget* Panel) {
+    if (!Panel) return;
+
+    AcquireSRWLockExclusive(&g_MatchLootSummaryGuardLock);
+    const bool FirstRequest = g_MatchLootSummaryOpeningPanels.insert(Panel).second;
+    ReleaseSRWLockExclusive(&g_MatchLootSummaryGuardLock);
+
+    if (!FirstRequest) {
+        static volatile LONG DuplicateCount = 0;
+        if (InterlockedIncrement(&DuplicateCount) <= 32)
+            MpLog("[MatchLootSummary] blocked duplicate expanded-screen request");
+        return;
+    }
+
+    OrigMatchLootDisplaySummary(Panel);
+}
+
+static void __fastcall MatchLootOnHideEndHook(UMatchLootPanelWidget* Panel) {
+    OrigMatchLootOnHideEnd(Panel);
+    AcquireSRWLockExclusive(&g_MatchLootSummaryGuardLock);
+    g_MatchLootSummaryOpeningPanels.erase(Panel);
+    ReleaseSRWLockExclusive(&g_MatchLootSummaryGuardLock);
+}
+
+static void InstallMatchLootSummaryGuardHook() {
+    constexpr uintptr_t DisplayRva = 0x01DA9AD0;
+    constexpr uintptr_t HideEndRva = 0x01DA7400;
+    auto* DisplayTarget = reinterpret_cast<unsigned char*>(Globals::BaseAddress + DisplayRva);
+    auto* HideEndTarget = reinterpret_cast<unsigned char*>(Globals::BaseAddress + HideEndRva);
+    const unsigned char DisplaySignature[] = {
+        0x48, 0x89, 0x5C, 0x24, 0x10, 0x48, 0x89, 0x74, 0x24, 0x18,
+        0x57, 0x48, 0x81, 0xEC, 0xA0, 0x01, 0x00, 0x00
+    };
+    const unsigned char HideEndSignature[] = {
+        0x48, 0x89, 0x5C, 0x24, 0x10, 0x48, 0x89, 0x74, 0x24, 0x18,
+        0x57, 0x48, 0x81, 0xEC, 0x60, 0x01, 0x00, 0x00
+    };
+    if (memcmp(DisplayTarget, DisplaySignature, sizeof(DisplaySignature)) != 0
+        || memcmp(HideEndTarget, HideEndSignature, sizeof(HideEndSignature)) != 0) {
+        MpLog("[InitClientHooks] MatchLootSummaryGuard skipped: executable signature mismatch");
+        return;
+    }
+
+    const MH_STATUS DisplayCreate = MH_CreateHook(DisplayTarget, MatchLootDisplaySummaryHook,
+        reinterpret_cast<LPVOID*>(&OrigMatchLootDisplaySummary));
+    const MH_STATUS HideEndCreate = MH_CreateHook(HideEndTarget, MatchLootOnHideEndHook,
+        reinterpret_cast<LPVOID*>(&OrigMatchLootOnHideEnd));
+    if (DisplayCreate != MH_OK || HideEndCreate != MH_OK) {
+        if (DisplayCreate == MH_OK) MH_RemoveHook(DisplayTarget);
+        if (HideEndCreate == MH_OK) MH_RemoveHook(HideEndTarget);
+        MpLog(std::string("[InitClientHooks] MatchLootSummaryGuard create failed display=")
+            + MH_StatusToString(DisplayCreate) + " hideEnd=" + MH_StatusToString(HideEndCreate));
+        return;
+    }
+
+    const MH_STATUS DisplayEnable = MH_EnableHook(DisplayTarget);
+    const MH_STATUS HideEndEnable = MH_EnableHook(HideEndTarget);
+    if (DisplayEnable != MH_OK || HideEndEnable != MH_OK) {
+        if (DisplayEnable == MH_OK) MH_DisableHook(DisplayTarget);
+        if (HideEndEnable == MH_OK) MH_DisableHook(HideEndTarget);
+        MH_RemoveHook(DisplayTarget);
+        MH_RemoveHook(HideEndTarget);
+        OrigMatchLootDisplaySummary = nullptr;
+        OrigMatchLootOnHideEnd = nullptr;
+        MpLog(std::string("[InitClientHooks] MatchLootSummaryGuard enable failed display=")
+            + MH_StatusToString(DisplayEnable) + " hideEnd=" + MH_StatusToString(HideEndEnable));
+        return;
+    }
+    MpLog(std::string("[InitClientHooks] MatchLootSummaryGuard display=")
+        + MH_StatusToString(DisplayEnable) + " hideEnd=" + MH_StatusToString(HideEndEnable));
+}
+
 void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
     
     
@@ -8749,6 +8834,7 @@ void InitClientHooks() {
     InstallHuntPassCoinIconsHook();
     InstallJournalWeekLimitHook();
     InstallMiddlemanAetherdustHook();
+    InstallMatchLootSummaryGuardHook();
 
     
     
