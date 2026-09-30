@@ -169,6 +169,7 @@
     <ClInclude Include="server\Replication.h" />
     <ClInclude Include="server\WorldLifecycle.h" />
     <ClInclude Include="server\RenderData.h" />
+    <ClInclude Include="server\WorkingSet.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="core\RuntimeConfig.h" />
@@ -297,6 +298,11 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="server\RenderData.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\WorkingSet.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>

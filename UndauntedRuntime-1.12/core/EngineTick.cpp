@@ -29,6 +29,7 @@
 #include "server/Replication.h"
 #include "server/WorldLifecycle.h"
 #include "server/RenderData.h"
+#include "server/WorkingSet.h"
 
 struct ManualNetTickFailureState {
     bool Active = false;
@@ -655,6 +656,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             TickServerFrameRate(preConnectionCount, DeltaTime);
         }
         TickServerRenderDataRelease();
+        TickServerWorkingSetTrim(preConnectionCount);
 
         {
             static int32_t s_lastConnCount = -2;
