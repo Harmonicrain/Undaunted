@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "createdUtc": "2026-09-30T00:42:48.3993079Z",
+  "buildId": "112-2acf7482-8ed1a2c75c56",
+  "sourceCommit": "2acf7482c09ab0c964b55eb45d78a24f98282b41",
+  "sourceSha256": "8ED1A2C75C562070738156C78251C6644616011347B5588858803AE79C076117",
+  "runtimeSha256": "823276CF67B335A9BA7FBDD673FCC50A83C3D80EB0FBFD71B5108F2F47FEBDE7",
+  "client": {
+    "version": "1.12.0",
+    "changelist": 392819,
+    "executable": "Dauntless-Win64-Shipping.exe",
+    "sha256": "EE30D1821B4020FF1BCAA89A63FA6EF3515EFB622F2969546B91BF018A379F43",
+    "platform": "x64",
+    "toolset": "v143"
+  },
+  "toolset": "v143",
+  "configuration": "Release",
+  "validation": {
+    "metagame": {
+      "tests": 259,
+      "pass": 259,
+      "fail": 0,
+      "skipped": 0
+    },
+    "deployBundled": {
+      "tests": 4,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 1
+    },
+    "deployInstalled112": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    "nativeBuild": "Clean Release/x64 rebuild passed",
+    "dllReplacement": "Mapped-image release wait and copy retry passed",
+    "installedCopiesMatch": true,
+    "loadedModes": [
+      "client",
+      "server"
+    ],
+    "sourceInventoryMatches": true,
+    "stackRestarted": true
+  },
+  "localManifest": "artifacts/112-2acf7482-8ed1a2c75c56-20260930-014104/manifest.json"
+}
