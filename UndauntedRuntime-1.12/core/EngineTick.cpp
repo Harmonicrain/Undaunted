@@ -374,8 +374,95 @@ void KnockoutHook(void* self) {
     }
 }
 
+// World servers log their frame statistics once a minute, so a world's cost can
+// be read from its log: frames per second, the average and worst frame, and how
+// much of each frame is the engine's tick versus this runtime's own work.
+static LARGE_INTEGER g_PerfFrequency{};
+static int64_t g_PerfLastEntry = 0, g_PerfWindowStart = 0, g_PerfEngineTicks = 0, g_PerfHookTicks = 0, g_PerfMaxFrameTicks = 0;
+static uint64_t g_PerfFrames = 0;
+
+static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
+    if (!Globals::AmServer) return;
+    if (g_PerfFrequency.QuadPart == 0) QueryPerformanceFrequency(&g_PerfFrequency);
+    LARGE_INTEGER Exit; QueryPerformanceCounter(&Exit);
+    if (g_PerfLastEntry != 0) {
+        const int64_t Frame = Entry - g_PerfLastEntry;
+        if (Frame > g_PerfMaxFrameTicks) g_PerfMaxFrameTicks = Frame;
+        ++g_PerfFrames;
+    } else {
+        g_PerfWindowStart = Entry;
+    }
+    g_PerfLastEntry = Entry;
+    g_PerfEngineTicks += EngineTicks;
+    g_PerfHookTicks += (Exit.QuadPart - Entry) - EngineTicks;
+
+    const double Freq = static_cast<double>(g_PerfFrequency.QuadPart);
+    const double WindowSec = (Entry - g_PerfWindowStart) / Freq;
+    if (WindowSec < 60.0 || g_PerfFrames == 0) return;
+    int32_t Connections = -1;
+    if (Networking::NetDriver && IsReadablePointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x98), 4)) {
+        Connections = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x98);
+    }
+    char Line[256];
+    sprintf_s(Line, "[Perf] %.0fs: %llu frames (%.1f/s), frame %.1f ms avg / %.1f ms max, engine tick %.2f ms, runtime %.2f ms per frame, connections %d",
+        WindowSec, static_cast<unsigned long long>(g_PerfFrames), g_PerfFrames / WindowSec,
+        WindowSec * 1000.0 / g_PerfFrames, g_PerfMaxFrameTicks * 1000.0 / Freq,
+        g_PerfEngineTicks * 1000.0 / Freq / g_PerfFrames, g_PerfHookTicks * 1000.0 / Freq / g_PerfFrames, Connections);
+    MpLog(Line);
+    g_PerfWindowStart = Entry; g_PerfFrames = 0; g_PerfEngineTicks = 0; g_PerfHookTicks = 0; g_PerfMaxFrameTicks = 0;
+}
+
+// The server's frame rate. A world server runs the client executable, so it
+// took t.MaxFPS from the host user's graphics settings (FrameRateLimit in
+// GameUserSettings.ini: 90 on the maintainer's machine, unlimited for a host
+// who turned the limit off), and the engine's frame limiter spins for the last
+// ~2 ms of every frame. Worlds now set their own rate: the active rate while a
+// player is connected, and a low idle rate once the world has been empty for
+// ten seconds, back to the active rate as soon as a connection arrives.
+// Measured 2026-09-30 on an idle Training Grounds: 90 fps cost ~52% of a core.
+//   -UndauntedServerFPS=<n>  active rate (default 90, the rate players know)
+//   -UndauntedIdleFPS=<n>    empty-world rate (default 10)
+// The value is written straight into t.MaxFPS: 4.26's ExecuteConsoleCommand
+// only runs through a player controller, which an empty world doesn't have.
+// It is checked every frame so a later settings apply can't undo it.
+static int ServerFpsSetting(const wchar_t* Key, int Default) {
+    const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
+    if (!Found) return Default;
+    const int Value = _wtoi(Found + wcslen(Key));
+    return (Value >= 1 && Value <= 240) ? Value : Default;
+}
+
+static void TickServerFrameRate(int32_t Connections, float DeltaTime) {
+    static const int ActiveFps = ServerFpsSetting(L"-UndauntedServerFPS=", 90);
+    static const int IdleFps = ServerFpsSetting(L"-UndauntedIdleFPS=", 10);
+    static float EmptyFor = 0.0f;
+    static int Applied = 0;
+    if (Connections > 0) EmptyFor = 0.0f; else EmptyFor += DeltaTime;
+    const int Want = (Connections <= 0 && EmptyFor >= 10.0f) ? IdleFps : ActiveFps;
+    float* MaxFps = *reinterpret_cast<float**>(Native112::At(Globals::BaseAddress, Native112::CVarMaxFPSData));
+    if (!IsReadablePointer(MaxFps, sizeof(float) * 2)) return;
+    if (Want == Applied && MaxFps[0] == static_cast<float>(Want)) return;
+    const float Before = MaxFps[0];
+    MaxFps[0] = MaxFps[1] = static_cast<float>(Want);
+    static int ExternalResets = 0;
+    const bool Reset = (Want == Applied);
+    if (!Reset || ++ExternalResets <= 5) {
+        MpLog("[ServerFps] t.MaxFPS " + std::to_string(static_cast<int>(Before)) + " -> " + std::to_string(Want)
+            + (Reset ? " (something else had changed it)"
+               : Want == IdleFps && Want != ActiveFps ? " (no connections for 10s)"
+                                                      : " (active; connections " + std::to_string(Connections) + ")"));
+    }
+    Applied = Want;
+}
+
 void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender) {
     static uint64_t tickCounter = 0;    ++tickCounter;
+    LARGE_INTEGER PerfEntry; QueryPerformanceCounter(&PerfEntry);
+    int64_t PerfEngineTicks = 0;
+    struct FRecordFrameOnExit {
+        const LARGE_INTEGER& Entry; int64_t& Engine;
+        ~FRecordFrameOnExit() { RecordServerFrame(Entry.QuadPart, Engine); }
+    } RecordFrameOnExit{ PerfEntry, PerfEngineTicks };
 
     DWORD CurTid = GetCurrentThreadId();
     InterlockedCompareExchange(
@@ -401,7 +488,10 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
 
     SanitizeNetDriverBeforeEngineTick();
 
+    LARGE_INTEGER PerfEngineStart; QueryPerformanceCounter(&PerfEngineStart);
     reinterpret_cast<void(*)(UGameEngine*, float, char)>(OrigGameEngineTick)(GameEngine, DeltaTime, CanRender);
+    LARGE_INTEGER PerfEngineEnd; QueryPerformanceCounter(&PerfEngineEnd);
+    PerfEngineTicks = PerfEngineEnd.QuadPart - PerfEngineStart.QuadPart;
 
     if (Globals::AmServer) {
         ForceServerMeshPose();
@@ -477,11 +567,38 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             static bool s_loggedGameMode  = false;
             static bool s_loggedGameState = false;
 
-            const int Count = SDK::UObject::GObjects->Num();
-            for (int i = 0; i < Count; i++) {
-                SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
-                if (!Obj) continue;
-                if (Obj->IsDefaultObject()) continue;
+            // Walking every object each frame to find these cost about a third
+            // of an idle world's CPU (measured 2026-09-30: 89% -> 59% of a core
+            // on an idle Training Grounds). The game modes and game states live
+            // as long as the world, so they are found once and looked for
+            // again, at most once a second, only when one has gone. Every one
+            // found is still zeroed every frame, as before.
+            static std::vector<SDK::UObject*> s_expectedCountHolders;
+            static uint64_t s_expectedCountSearchMs = 0;
+            auto StillLive = [](SDK::UObject* Obj) {
+                return IsReadablePointer(Obj, 0x28) && Obj->Index >= 0
+                    && SDK::UObject::GObjects->GetByIndex(Obj->Index) == Obj;
+            };
+            bool HoldersLive = !s_expectedCountHolders.empty();
+            for (SDK::UObject* Obj : s_expectedCountHolders) {
+                if (!StillLive(Obj)) { HoldersLive = false; break; }
+            }
+            const uint64_t ExpectedCountNowMs = GetTickCount64();
+            if (!HoldersLive && ExpectedCountNowMs - s_expectedCountSearchMs >= 1000) {
+                s_expectedCountSearchMs = ExpectedCountNowMs;
+                s_expectedCountHolders.clear();
+                const int Count = SDK::UObject::GObjects->Num();
+                for (int i = 0; i < Count; i++) {
+                    SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
+                    if (!Obj || Obj->IsDefaultObject()) continue;
+                    if (Obj->IsA(SDK::AArchonGameMode::StaticClass()) || Obj->IsA(SDK::AArchonGameState::StaticClass())) {
+                        s_expectedCountHolders.push_back(Obj);
+                    }
+                }
+            }
+
+            for (SDK::UObject* Obj : s_expectedCountHolders) {
+                if (!StillLive(Obj)) continue;
 
                 if (Obj->IsA(SDK::AArchonGameMode::StaticClass())) {
                     int32_t* Field = reinterpret_cast<int32_t*>(
@@ -531,6 +648,10 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             IsReadablePointer(reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x98), sizeof(int32_t) * 2)) {
             preConnectionCount = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x98);
             preConnectionMax = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x9C);
+        }
+
+        if (preConnectionCount >= 0) {
+            TickServerFrameRate(preConnectionCount, DeltaTime);
         }
 
         {

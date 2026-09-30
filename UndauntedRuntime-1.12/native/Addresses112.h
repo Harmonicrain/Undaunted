@@ -168,6 +168,10 @@ namespace Native112 {
     inline constexpr uintptr_t LootHideEnd = 0x01DA7400;
     inline constexpr uintptr_t FeatureFlagIsEnabled = 0x00E57820;
     inline constexpr uintptr_t IsScheduledItemActive = 0x01C98C50;
+    // CVarMaxFPS ("t.MaxFPS"): the TConsoleVariableData<float>* its static
+    // initializer (0x0095B830) stores; [0] is the game thread's value, which
+    // UEngine's frame limiter reads.
+    inline constexpr uintptr_t CVarMaxFPSData = 0x06CFC2B0;
     inline constexpr uintptr_t LegendaryWeaponEquipped = 0x01DF77C0;
     inline constexpr uintptr_t ActorPreReplication = 0x0394B400;
     inline constexpr uintptr_t CreateActorChannel = 0x03D47AC0;
