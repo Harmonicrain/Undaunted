@@ -1,18 +1,20 @@
+import { StoreError } from "./errors";
+import { OfferPrice, PLATINUM_WALLET, PaysIn } from "./pricing";
+import { LimitOf, LimitWindowStart } from "./limits";
+export { StoreError } from "./errors";
+export { OfferPrice } from "./pricing";
+export { DailyResetAt, LimitWindowStart } from "./limits";
 import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gte, ne } from "drizzle-orm";
 import { GetDb } from "../../db";
 import { characters, entitlements, inventory, storepurchases } from "../../db/schema";
 import { ApplyInventoryTransaction } from "../inventory/inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./catalog";
-import { CanonicaliseCurrency, CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "../wallet/wallet";
+import { CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "../wallet/wallet";
 import { IsEntitlementActive } from "../entitlements/entitlements";
 import { IsUnlockedPremiumOnlyOffer } from "../huntpass/library";
 import { IsStoreTagOpen, StoreTagWindow } from "../events/seasonal";
 import { IsRotatingMiddlemanOffer, MiddlemanOfferWindow, SelectWeeklyMiddlemanOffers } from "../middleman/offers";
-
-export class StoreError extends Error {
-    constructor(public status: number, message: string) { super(message); }
-}
 
 const catalogTags = Object.entries(catalog as Record<string, any>)
     .filter(([key]) => !key.startsWith("_"));
@@ -61,26 +63,6 @@ export function GrantKind(catalogId: string): "stacked" | "instanced" | undefine
     return kind === "stacked" || kind === "instanced" ? kind : undefined;
 }
 
-// What an offer costs, paid from the wallet: platinumPrice in Platinum (Hunt
-// Pass ranks and the fountain pay Platinum in), or, for an offer naming a
-// priceCurrency, price in that currency - the Reward Cache sells for the
-// season's coin (CURRENCY_S19_COIN), which challenges pay in.
-const PLATINUM_WALLET = "CURRENCY_PLATINUM";
-export function OfferPrice(offer: any): { currency: string; amount: number } {
-    return typeof offer?.priceCurrency === "string"
-        ? { currency: CanonicaliseCurrency(offer.priceCurrency), amount: offer.price }
-        : { currency: PLATINUM_WALLET, amount: offer?.platinumPrice };
-}
-
-// The client names the purchase currency in the token and notification paths:
-// 1.4.4 sends "platinum", 1.12.0 the price's currencyId (id_currency_platinum,
-// id_currency_s19_coin, ...). A purchase must be paid in the offer's currency.
-function PathCurrency(currency: unknown) {
-    const name = String(currency).toLowerCase();
-    return CanonicaliseCurrency(name === "platinum" ? PLATINUM_WALLET : name.replace(/^id_/, "").toUpperCase());
-}
-const PaysIn = (offer: any, currency: unknown) => PathCurrency(currency) === OfferPrice(offer).currency;
-
 // A repeatable offer sells consumables only. It is never "owned", and each
 // purchase grants its full quantity again.
 function IsRepeatable(offer: any) {
@@ -88,28 +70,6 @@ function IsRepeatable(offer: any) {
     if (offer.repeatable === true && offer.tags?.includes("weekly_cell_offering"))
         return items.length > 0 && items.every(item => item.catalogId.startsWith("CELL_") && GrantKind(item.catalogId) === "stacked");
     return items.length > 0 && items.every(item => REPEATABLE_ITEMS.has(item.catalogId));
-}
-
-// A limited offer is bought once per window: "limit": "daily" per UTC day
-// ("daily": true, the fountain's form, means the same) or "weekly" from
-// Thursday 00:00 UTC, the day the live weekly challenges rolled over.
-type Limit = "daily" | "weekly";
-function LimitOf(offer: any): Limit | undefined {
-    if (offer?.limit === "daily" || offer?.daily === true) return "daily";
-    if (offer?.limit === "weekly") return "weekly";
-    return undefined;
-}
-
-export function DailyResetAt(now: number) {
-    const day = new Date(now);
-    return Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate());
-}
-
-export function LimitWindowStart(limit: Limit, now: number) {
-    const day = DailyResetAt(now);
-    if (limit === "daily") return day;
-    const sinceThursday = (new Date(day).getUTCDay() - 4 + 7) % 7;
-    return day - sinceThursday * 24 * 60 * 60 * 1000;
 }
 
 function BoughtThisWindow(db: any, userId: string, offer: any, now: number, exceptTokenHash?: string) {
