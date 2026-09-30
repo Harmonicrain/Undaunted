@@ -113,6 +113,7 @@ This is the `1.12` branch, the project's main line. The server for the older
 
 - The deploy server starts Ramsgate and the Training Grounds at boot and hunt islands on demand, each on a port from a configured UDP range.
 - If Ramsgate or the Training Grounds exits, the deploy server starts it again. An island's port is freed for reuse when its world exits. An optional watchdog also catches worlds that exit without being noticed.
+- World servers drop to a low frame rate while empty and shed client-only memory (render data, the embedded browser): about 855 MB for Ramsgate and 730 MB for the Training Grounds. See [docs/architecture-112.md](docs/architecture-112.md#world-server-cost).
 - Hunt and Trials tables are selected per client build.
 - Matchmaking follows the client's candidate flow, including regions and QoS checks.
 - The runtime DLL redirects the client and world servers to this backend and carries fixes for replication, the HUD, loot summaries, the Hunt Pass and Middleman screens, and crash diagnostics.

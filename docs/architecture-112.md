@@ -220,6 +220,36 @@ through `MpWorkingDirectoryFlagPresent`. This cleanup does not enable any flag.
 | `TRIALS_GRACE_DIAG.flag` | `core/EngineTick.cpp` |
 | `VERBOSE_DIAG.flag` | `core/RuntimeConfig.cpp` |
 
+## World server cost
+
+World servers run the client executable with `-nullrhi`, so by default they
+carry client-only costs. The runtime trims them on world servers only
+(measured 2026-09-30, per world including child processes):
+
+| Change | Where | Effect |
+| --- | --- | --- |
+| Frame rate set by the runtime: the active rate with a player connected, the idle rate after 10 s empty | `core/EngineTick.cpp` | Idle world ~70-86% of a core down to 5-7% |
+| `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
+| CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
+| The WebBrowserWidget plugin's startup skipped, so Chromium and `UnrealCEFSubProcess.exe` never start | `server/RenderData.cpp` | ~130 MB per world |
+
+Empty Ramsgate is now ~855 MB, the Training Grounds ~730 MB and a hunt island
+with one player ~810 MB; each player adds ~30 MB.
+
+| Command-line switch (world servers) | Effect |
+| --- | --- |
+| `-UndauntedServerFPS=<n>` | Frame rate while players are connected (default 90) |
+| `-UndauntedIdleFPS=<n>` | Frame rate once the world has been empty for 10 s (default 10) |
+| `-UndauntedKeepRenderData` | Keep all render data (turns off the release and the skeletal-buffer setting) |
+| `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
+
+The DLL log shows the effect: `[Perf]` once a minute (frames, frame times,
+engine versus runtime time, connections), `[ServerFps]` on each rate change and
+`[RenderData]` after each release pass (freed, kept for CPU access, faulted).
+Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
+and `ExecuteConsoleCommand` needs a player controller, so the runtime writes
+console variables through their data pointers (`native/Addresses112.h`).
+
 ## Validation record
 
 Completed 30 September 2026 (local time):
