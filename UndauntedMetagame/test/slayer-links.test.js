@@ -33,12 +33,12 @@ before(async () => {
     Context = Harness.CreateDisposableDatabase();
     Db = Context.Db; Schema = Context.Schema;
     Sign = require("../dist/controllers/auth").SignMetagameJWTForUid;
-    Links = require("../dist/controllers/slayerLinks");
+    Links = require("../dist/features/slayerLinks/slayerLinks");
     LinkConfig = require("../dist/controllers/slayerLinkConfig");
     Repairs = require("../dist/db/repairs");
-    Writes = require("../dist/controllers/progressionWrites");
-    Config = require("../dist/controllers/huntpass");
-    Party = require("../dist/controllers/party");
+    Writes = require("../dist/features/progression/writes");
+    Config = require("../dist/features/huntpass/configuration");
+    Party = require("../dist/features/party/party");
     Links.SetSlayerLinkClock(() => Clock);
     Db.insert(Schema.gameserverapikeys).values({ keyHash: crypto.createHash("sha256").update(GameKey).digest("hex") }).run();
     const App = require("express")();

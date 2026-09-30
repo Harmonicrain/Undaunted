@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { users } from "../db/schema";
+import { GetDb } from "../../db";
+import { users } from "../../db/schema";
 
 export async function GetNotesForUser(userId: string){
     let UserFromDb = await GetDb().query.users.findFirst({where: eq(users.userId, userId)});

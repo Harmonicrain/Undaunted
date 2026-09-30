@@ -5,10 +5,10 @@
 import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
-import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../controllers/trackedObjectives";
-import { DailyChallengeResetHourUtc } from "../controllers/dailyChallenges";
+import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../features/progression/trackedObjectives";
+import { DailyChallengeResetHourUtc } from "../features/challenges/daily";
 import { GetSelectedWeeklyChallenges, GetSupportedWeeklyChallenges, WeeklyChallengeResetHourUtc,
-    WeeklyChallengeSlots } from "../controllers/weeklyChallenges";
+    WeeklyChallengeSlots } from "../features/challenges/weekly";
 
 export const client112Router = Router();
 

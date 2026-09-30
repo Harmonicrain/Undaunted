@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { WeeklyChallengeWindowStart } from "./weeklyChallenges";
+import { WeeklyChallengeWindowStart } from "../challenges/weekly";
 
 const WeekMilliseconds = 7 * 24 * 60 * 60 * 1000;
 const RotationEpoch = Date.UTC(1970, 0, 1, 18); // Thursday, like weekly challenges.

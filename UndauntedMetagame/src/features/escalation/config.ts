@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import bundledRegistry from "../vendor/escalation/seasons.json";
+import bundledRegistry from "../../vendor/escalation/seasons.json";
 
 // The Escalation season registry, exported from the installed client's own
 // tables (see the _comment in seasons.json and research/escalation/PROTOCOL.md).

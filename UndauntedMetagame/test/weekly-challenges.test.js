@@ -9,7 +9,7 @@ const {
     SelectWeeklyChallenges,
     WeeklyChallengeWindowStart,
     WeeklyChallengeSlots
-} = require("../dist/controllers/weeklyChallenges");
+} = require("../dist/features/challenges/weekly");
 
 const Document = { challenges: Object.fromEntries([
     ...Array.from({ length: 20 }, (_, Index) => [

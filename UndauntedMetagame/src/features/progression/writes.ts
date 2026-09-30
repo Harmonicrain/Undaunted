@@ -1,13 +1,13 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { progression, progressionobjectives, progressionrequests } from "../db/schema";
-import { DeriveRank, GetActiveHuntPassId, GetTrackConfig } from "./huntpass";
-import { GetSelectedHuntPassId } from "./huntpassSelection";
-import { ClaimRanksUpTo, RewardError, RewardKind } from "./huntpassRewards";
-import { IsLinkTrack } from "./slayerLinkConfig";
-import { ApplyHuntPassXpToLinks, IgnoreNativeLinkTrackGrant } from "./slayerLinks";
-import { logger } from "../logger";
+import { GetDb } from "../../db";
+import { progression, progressionobjectives, progressionrequests } from "../../db/schema";
+import { DeriveRank, GetActiveHuntPassId, GetTrackConfig } from "../huntpass/configuration";
+import { GetSelectedHuntPassId } from "../../controllers/huntpassSelection";
+import { ClaimRanksUpTo, RewardError, RewardKind } from "../huntpass/rewards";
+import { IsLinkTrack } from "../../controllers/slayerLinkConfig";
+import { ApplyHuntPassXpToLinks, IgnoreNativeLinkTrackGrant } from "../slayerLinks/slayerLinks";
+import { logger } from "../../logger";
 
 // Progression mutation: XP accrual, objective progress, and rank confirmation.
 //

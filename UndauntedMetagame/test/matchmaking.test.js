@@ -26,8 +26,8 @@ before(async () => {
     process.env.MATCHMAKING_MODE = "DEPLOYSERVER";
     process.env.DEPLOYSERVER_URL = `127.0.0.1:${Deploy.address().port}`;
     Context = Harness.CreateDisposableDatabase();
-    Matchmaking = require("../dist/controllers/matchmaking");
-    Party = require("../dist/controllers/party");
+    Matchmaking = require("../dist/features/party/matchmaking");
+    Party = require("../dist/features/party/party");
 });
 
 after(async () => { await new Promise((resolve) => Deploy.close(resolve)); Context.Db.$client.close(); Context.Cleanup(); });

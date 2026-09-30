@@ -1,12 +1,12 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { logger } from "../logger";
-import bundledProgressionConfig from "../vendor/progression_config.json";
-import { LinkTrackPaths } from "./slayerLinkConfig";
-import { EventPassWindows } from "./seasonalEvents";
-import { HuntPassLibrary, IsLibraryHuntPass, PermanentHuntPassEnd, HasFreeHuntPassRewards } from "./huntpassLibrary";
-import { IsSeasonalCoin } from "../currency";
-import { StoreItemKinds } from "./storeCatalog";
+import { logger } from "../../logger";
+import bundledProgressionConfig from "../../vendor/progression_config.json";
+import { LinkTrackPaths } from "../../controllers/slayerLinkConfig";
+import { EventPassWindows } from "../events/seasonal";
+import { HuntPassLibrary, IsLibraryHuntPass, PermanentHuntPassEnd, HasFreeHuntPassRewards } from "./library";
+import { IsSeasonalCoin } from "../wallet/currency";
+import { StoreItemKinds } from "../store/catalog";
 
 // Hunt Pass configuration.
 //

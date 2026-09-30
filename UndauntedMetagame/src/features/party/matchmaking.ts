@@ -1,4 +1,4 @@
-import { logger } from "../logger";
+import { logger } from "../../logger";
 import crypto from "node:crypto";
 import { GetPartyForPlayer } from "./party";
 

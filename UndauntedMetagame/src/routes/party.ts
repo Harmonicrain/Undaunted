@@ -2,8 +2,8 @@ import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
 import { GetUsernameForUserId } from "../controllers/login";
-import { AcceptPartyInvite, GetInvitesForPlayer, GetOrCreateParty, GetPartyForPlayer, InviteToParty, KickPartyMember, LeaveParty, PartyError, PromotePartyMember } from "../controllers/party";
-import { CancelPendingCandidateForPlayer, CheckAndUpdateQueueStatus } from "../controllers/matchmaking";
+import { AcceptPartyInvite, GetInvitesForPlayer, GetOrCreateParty, GetPartyForPlayer, InviteToParty, KickPartyMember, LeaveParty, PartyError, PromotePartyMember } from "../features/party/party";
+import { CancelPendingCandidateForPlayer, CheckAndUpdateQueueStatus } from "../features/party/matchmaking";
 
 export const partyRouter = Router();
 

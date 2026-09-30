@@ -26,12 +26,12 @@ before(() => {
     process.env.SEASONAL_EVENTS_FILE = path.join(dir, 'events.json');
     process.env.ACTIVE_HUNT_PASS = 'season19';
     context = Harness.CreateDisposableDatabase();
-    library = require('../dist/controllers/huntpassLibrary');
+    library = require('../dist/features/huntpass/library');
     selection = require('../dist/controllers/huntpassSelection');
-    tracks = require('../dist/controllers/progressionTracks');
-    config = require('../dist/controllers/huntpass');
-    rewards = require('../dist/controllers/huntpassRewards');
-    writes = require('../dist/controllers/progressionWrites');
+    tracks = require('../dist/features/progression/tracks');
+    config = require('../dist/features/huntpass/configuration');
+    rewards = require('../dist/features/huntpass/rewards');
+    writes = require('../dist/features/progression/writes');
 });
 after(() => {
     context.Db.$client.close(); context.Cleanup();
@@ -99,7 +99,7 @@ test('switching away and back retains XP and claims without paying the same rank
     selection.SetSelectedHuntPassId(a.UserId, 'season09a');
     writes.ApplyProgressAndObjectives(a.UserId, [{ progression_id: 'season09a', progress: 100 }], [], undefined, 'library-award-a');
     writes.ConfirmRank(a.UserId, a.CharacterId, 'season09a', 1, 'free');
-    const wallet = require('../dist/controllers/wallet');
+    const wallet = require('../dist/features/wallet/wallet');
     const balance = wallet.WalletBalance(context.Db, a.UserId, 'CURRENCY_PLATINUM_UNIV');
     selection.SetSelectedHuntPassId(a.UserId, 'season08a_vault');
     writes.ApplyProgressAndObjectives(a.UserId, [{ progression_id: 'season08a_vault', progress: 30 }], []);
@@ -120,7 +120,7 @@ test('switching away and back retains XP and claims without paying the same rank
 
 test('regular selection and cancelled checkout do not grant Elite; explicit redemption persists it once', () => {
     const a = Harness.SeedAccount(context);
-    const store = require('../dist/controllers/freeStore');
+    const store = require('../dist/features/store/store');
     selection.SetSelectedHuntPassId(a.UserId, 'season09a');
     const offer = store.GetOffersForTag(a.UserId, 'season09a_pass')[0];
     assert.equal(offer.platinumPrice, 0);
@@ -153,7 +153,7 @@ test('a free track requires actual rewards, not merely placeholder rank rows or 
 
 test('premium-only library passes are accessible without purchasing or creating entitlements; other passes are not', () => {
     const a = Harness.SeedAccount(context);
-    const store = require('../dist/controllers/freeStore');
+    const store = require('../dist/features/store/store');
     selection.SetSelectedHuntPassId(a.UserId, 'season08a_vault');
     assert.equal(tracks.HasPremiumForTrack(a.UserId, 'season08a_vault'), true);
     assert.equal(store.GetOffersForTag(a.UserId, 'season08a_vault_pass')[0].remaining, 0);
@@ -219,7 +219,7 @@ test('vault coins convert at ranks and prestige, and legacy cosmetics appear onc
 });
 
 test('legacy instanced cosmetics follow the current catalog grant kind without duplicating unlocks', () => {
-    const kinds = require('../dist/controllers/storeCatalog').StoreItemKinds;
+    const kinds = require('../dist/features/store/catalog').StoreItemKinds;
     const id = 'TEST_LEGACY_BANNER';
     kinds[id] = 'stacked';
     try {

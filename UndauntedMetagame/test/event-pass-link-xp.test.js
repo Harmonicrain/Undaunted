@@ -29,10 +29,10 @@ before(() => {
     process.env.ACTIVE_HUNT_PASS = "season_main";
     process.env.SEASONAL_EVENTS_FILE = path.join(Dir, "seasonal_events.json");
     Context = Harness.CreateDisposableDatabase();
-    Writes = require("../dist/controllers/progressionWrites");
+    Writes = require("../dist/features/progression/writes");
     Selection = require("../dist/controllers/huntpassSelection");
-    Links = require("../dist/controllers/slayerLinks");
-    Party = require("../dist/controllers/party");
+    Links = require("../dist/features/slayerLinks/slayerLinks");
+    Party = require("../dist/features/party/party");
 });
 after(() => {
     Links.SetSlayerLinkOnlineCheck();

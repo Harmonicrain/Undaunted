@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { entitlements } from "../db/schema";
-import { logger } from "../logger";
+import { GetDb } from "../../db";
+import { entitlements } from "../../db/schema";
+import { logger } from "../../logger";
 
 // Entitlements are the client's gate for premium content - the Hunt Pass Elite
 // track checks for one. GET /entitlementsv2 previously returned an empty list

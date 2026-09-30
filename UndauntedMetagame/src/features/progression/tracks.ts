@@ -1,10 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { entitlements, progression } from "../db/schema";
-import { DeriveRank, GetActiveHuntPassId, GetAllTrackIds, GetPremiumGatingEntitlement, GetPremiumMode, GetTrackConfig } from "./huntpass";
-import { IsLibraryHuntPass, IsUnlockedPremiumOnlyPass } from "./huntpassLibrary";
-import { GetSelectedHuntPassId } from "./huntpassSelection";
-import { HuntPassLibrary } from "./huntpassLibrary";
+import { GetDb } from "../../db";
+import { entitlements, progression } from "../../db/schema";
+import { DeriveRank, GetActiveHuntPassId, GetAllTrackIds, GetPremiumGatingEntitlement, GetPremiumMode, GetTrackConfig } from "../huntpass/configuration";
+import { IsLibraryHuntPass, IsUnlockedPremiumOnlyPass } from "../huntpass/library";
+import { GetSelectedHuntPassId } from "../../controllers/huntpassSelection";
+import { HuntPassLibrary } from "../huntpass/library";
 
 // Account-scoped progression. The existing controllers/progression.ts is
 // character-scoped and gates every operation on DoesCharacterBelongToUserId;

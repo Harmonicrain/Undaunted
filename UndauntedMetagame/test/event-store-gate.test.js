@@ -32,8 +32,8 @@ before(() => {
     process.env.STORE_DATA_DIR = Dir;
     process.env.SEASONAL_EVENTS_FILE = path.join(Dir, "seasonal_events.json");
     Context = Harness.CreateDisposableDatabase();
-    Store = require("../dist/controllers/freeStore");
-    Wallet = require("../dist/controllers/wallet");
+    Store = require("../dist/features/store/store");
+    Wallet = require("../dist/features/wallet/wallet");
 });
 after(() => {
     delete process.env.STORE_DATA_DIR;

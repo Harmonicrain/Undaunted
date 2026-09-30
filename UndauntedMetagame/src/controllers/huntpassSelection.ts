@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { selectedhuntpasses } from "../db/schema";
-import { GetActiveHuntPassId, GetProgressionConfigPayload } from "./huntpass";
-import { IsLibraryHuntPass } from "./huntpassLibrary";
+import { GetActiveHuntPassId, GetProgressionConfigPayload } from "../features/huntpass/configuration";
+import { IsLibraryHuntPass } from "../features/huntpass/library";
 
 // The hunt pass each player has chosen. The Hunt Pass selection screen lists
 // the season's main pass and the event passes on offer (huntpass_store); when

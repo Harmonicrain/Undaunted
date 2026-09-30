@@ -1,8 +1,8 @@
 import { and, eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { breadcrumbs, encounteredcontent } from "../db/schema";
-import { logger } from "../logger";
-import { DoesCharacterBelongToUserId } from "./character";
+import { GetDb } from "../../db";
+import { breadcrumbs, encounteredcontent } from "../../db/schema";
+import { logger } from "../../logger";
+import { DoesCharacterBelongToUserId } from "../../controllers/character";
 
 export type ProgressionError = "forbidden" | "conflict" | "invalid_data" | "db_error";
 export type ProgressionResult<T = void> = {success: true, data?: T} | {success: false, error: ProgressionError};

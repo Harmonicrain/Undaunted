@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
-import { GetNotesForUser } from "../controllers/store";
-import { GetWallet } from "../controllers/wallet";
-import { StoreCatalog as storeCatalog, StoreOfferFormat } from "../controllers/storeCatalog";
-import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, OfferPrice, RedeemFreePurchase, StoreError } from "../controllers/freeStore";
+import { GetNotesForUser } from "../features/store/notes";
+import { GetWallet } from "../features/wallet/wallet";
+import { StoreCatalog as storeCatalog, StoreOfferFormat } from "../features/store/catalog";
+import { CreateFreePurchase, GetFreeStoreOffers, GetOfferById, GetOffersForTag, OfferPrice, RedeemFreePurchase, StoreError } from "../features/store/store";
 import { RequestHandler } from "express";
 
 export const storeRouter = Router();

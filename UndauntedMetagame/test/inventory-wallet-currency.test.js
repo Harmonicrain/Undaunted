@@ -11,8 +11,8 @@ let Context, Inventory, Wallet;
 
 before(() => {
     Context = Harness.CreateDisposableDatabase();
-    Inventory = require("../dist/controllers/inventory");
-    Wallet = require("../dist/controllers/wallet");
+    Inventory = require("../dist/features/inventory/inventory");
+    Wallet = require("../dist/features/wallet/wallet");
 });
 after(() => {
     Context.Db.$client.close();

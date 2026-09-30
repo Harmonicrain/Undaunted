@@ -20,7 +20,7 @@ const reset = { bounties: [], draft_data: {
 before(async () => {
     context = Harness.CreateDisposableDatabase();
     context.Db.insert(context.Schema.gameserverapikeys).values({ keyHash: crypto.createHash('sha256').update(key).digest('hex') }).run();
-    bounties = require('../dist/controllers/bounties');
+    bounties = require('../dist/features/challenges/bounties');
     const express = require('express'), app = express();
     app.use(express.json());
     app.use(require('../dist/routes/playerJourney').playerJourneyRouter);
@@ -150,7 +150,7 @@ test('bounty protection and retirements survive a separate process and stay acco
     const a = account(), b = account();
     save(a, draft()); bounties.RemoveBountiesForUser(a, ['Bounty_Test']);
     save(b, draft());
-    const script = `const b=require('./dist/controllers/bounties');
+    const script = `const b=require('./dist/features/challenges/bounties');
         console.log(JSON.stringify(b.SaveBountiesForUser(process.argv[1], {bounties:[JSON.parse(process.argv[2])]}).bounties));
         require('./dist/db').GetDb().$client.close();`;
     const out = execFileSync(process.execPath, ['-e', script, a, JSON.stringify(draft('Bounty_Test', 20, 100))],

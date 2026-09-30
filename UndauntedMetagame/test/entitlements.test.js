@@ -22,8 +22,8 @@ before(() => {
     process.env.AUTH_SIGNING_PRIVKEY_B64 = Buffer.from(Keys.privateKey.export({ type: "pkcs8", format: "pem" })).toString("base64");
     process.env.AUTH_SIGNING_PUBKEY_B64 = Buffer.from(Keys.publicKey.export({ type: "spki", format: "pem" })).toString("base64");
     Context = Harness.CreateDisposableDatabase();
-    FreeStore = require("../dist/controllers/freeStore.js");
-    Entitlements = require("../dist/controllers/entitlements.js");
+    FreeStore = require("../dist/features/store/store.js");
+    Entitlements = require("../dist/features/entitlements/entitlements.js");
     Schema = Context.Schema;
 });
 

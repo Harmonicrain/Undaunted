@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { logger } from "../logger";
-import { ActiveFeatureFlags, SeasonalEventSchedule } from "../controllers/seasonalEvents";
-import { HuntPassLibrary, HiddenVaultRows } from "../controllers/huntpassLibrary";
+import { ActiveFeatureFlags, SeasonalEventSchedule } from "../features/events/seasonal";
+import { HuntPassLibrary, HiddenVaultRows } from "../features/huntpass/library";
 
 export const tuningRouter = Router();
 

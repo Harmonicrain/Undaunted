@@ -16,10 +16,10 @@ before(async () => {
     process.env.AUTH_SIGNING_PRIVKEY_B64 = Buffer.from(Keys.privateKey.export({ type: "pkcs8", format: "pem" })).toString("base64");
     process.env.AUTH_SIGNING_PUBKEY_B64 = Buffer.from(Keys.publicKey.export({ type: "spki", format: "pem" })).toString("base64");
     Context = Harness.CreateDisposableDatabase();
-    Writes = require("../dist/controllers/progressionWrites");
-    Tracks = require("../dist/controllers/progressionTracks");
-    Config = require("../dist/controllers/huntpass");
-    Rewards = require("../dist/controllers/huntpassRewards");
+    Writes = require("../dist/features/progression/writes");
+    Tracks = require("../dist/features/progression/tracks");
+    Config = require("../dist/features/huntpass/configuration");
+    Rewards = require("../dist/features/huntpass/rewards");
     Sign = require("../dist/controllers/auth").SignMetagameJWTForUid;
     Context.Db.insert(Context.Schema.gameserverapikeys).values({
         keyHash: crypto.createHash("sha256").update(GameKey).digest("hex")
@@ -96,8 +96,8 @@ test("native mastery awards persist identically through list, objectives and sin
     assert.equal(Tracks.GetDerivedProgress(A.UserId, Sword).rank, 1);
     // A new process opens the same SQLite file after the HTTP write.
     const Restart = spawnSync(process.execPath, ["-e", `
-        const t=require('./dist/controllers/progressionTracks');
-        const w=require('./dist/controllers/progressionWrites');
+        const t=require('./dist/features/progression/tracks');
+        const w=require('./dist/features/progression/writes');
         console.log(JSON.stringify({track:t.GetWireTrack(process.argv[1], process.argv[2]), objectives:w.GetObjectivesForUser(process.argv[1])}));
     `, A.UserId, Sword], { cwd: process.cwd(), env: process.env, encoding: "utf8" });
     assert.equal(Restart.status, 0, Restart.stderr);

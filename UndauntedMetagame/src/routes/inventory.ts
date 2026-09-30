@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
-import { GetInventoryForUserIdAndCharacterId, InventoryError, RunInventoryTransaction, UpdateInstancedItem } from "../controllers/inventory";
-import { ApplyLinkRewardGrant, GRANT_SOURCE, SlayerLinkError } from "../controllers/slayerLinks";
+import { GetInventoryForUserIdAndCharacterId, InventoryError, RunInventoryTransaction, UpdateInstancedItem } from "../features/inventory/inventory";
+import { ApplyLinkRewardGrant, GRANT_SOURCE, SlayerLinkError } from "../features/slayerLinks/slayerLinks";
 import { GetDb } from "../db";
 
 async function RunSlayerLinkGrant(Auth: any, UserId: string, CharacterId: string, TransactionId: string,

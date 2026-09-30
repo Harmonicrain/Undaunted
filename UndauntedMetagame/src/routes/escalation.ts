@@ -1,6 +1,6 @@
 import { RequestHandler, Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
-import { ApplyEscalationSnapshot, EscalationError, GetEscalationState } from "../controllers/escalation";
+import { ApplyEscalationSnapshot, EscalationError, GetEscalationState } from "../features/escalation/progress";
 import { logger } from "../logger";
 
 // GetSeasonalEscalationEndpoint and UpdateSeasonalEscalationEndpoint, both

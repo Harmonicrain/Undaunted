@@ -27,7 +27,7 @@ before(() => {
     ] }));
     process.env.HUNT_PASS_SEASONS_DIR = Seasons;
     process.env.SEASONAL_EVENTS_FILE = Events;
-    HuntPass = require("../dist/controllers/huntpass");
+    HuntPass = require("../dist/features/huntpass/configuration");
 });
 after(() => {
     delete process.env.HUNT_PASS_SEASONS_DIR;

@@ -1,9 +1,9 @@
 import { eq, sql } from "drizzle-orm";
-import { GetDb } from "../db";
-import { bounties, bountyretirements } from "../db/schema";
-import { logger } from "../logger";
-import { DailyChallengeWindowStart } from "./dailyChallenges";
-import { ApplyConfiguredWeeklyChallengeWindow } from "./weeklyChallenges";
+import { GetDb } from "../../db";
+import { bounties, bountyretirements } from "../../db/schema";
+import { logger } from "../../logger";
+import { DailyChallengeWindowStart } from "./daily";
+import { ApplyConfiguredWeeklyChallengeWindow } from "./weekly";
 
 // Bounty persistence.
 //

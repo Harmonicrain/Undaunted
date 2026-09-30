@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import vendorCatalog from "../vendor/store_catalog.json";
-import vendorItemKinds from "../vendor/store_item_kinds.json";
-import { AddHuntPassLibraryOffers } from "./huntpassLibrary";
-import { AddMiddlemanOffers } from "./middlemanStore";
+import vendorCatalog from "../../vendor/store_catalog.json";
+import vendorItemKinds from "../../vendor/store_item_kinds.json";
+import { AddHuntPassLibraryOffers } from "../huntpass/library";
+import { AddMiddlemanOffers } from "../middleman/offers";
 
 // The storefront. Dauntless 1.4.4 ships its catalogue in src/vendor. Another
 // client build points STORE_DATA_DIR at a directory holding its own

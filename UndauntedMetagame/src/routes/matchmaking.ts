@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { logger } from "../logger";
-import { CheckAndUpdateQueueStatus, HandlePlayerMatchmaking, WorldSessionId } from "../controllers/matchmaking";
-import { GetPartyForPlayer } from "../controllers/party";
+import { CheckAndUpdateQueueStatus, HandlePlayerMatchmaking, WorldSessionId } from "../features/party/matchmaking";
+import { GetPartyForPlayer } from "../features/party/party";
 
 export const matchmakingRouter = Router();
 

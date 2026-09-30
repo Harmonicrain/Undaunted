@@ -1,13 +1,13 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq, or, getTableColumns, sql } from "drizzle-orm";
-import { GetDb } from "../db";
-import { characters, friendblocks, friends, slayerlinkinvites, slayerlinkpools, slayerlinkrequests, slayerlinks, slayerlinkxp, users } from "../db/schema";
-import { logger } from "../logger";
-import { ApplyInventoryTransaction } from "./inventory";
-import { CreditWallet, IsCurrency } from "./wallet";
-import { DeriveLinkRank, IsKnownLinkReward, LINK_SLOTS, LinkTrackId, MAX_LINK_RANK, MAX_LINK_REWARDS, ParseLinkTrack } from "./slayerLinkConfig";
-import { GetPartyForPlayer } from "./party";
-import { isLocallyOnline } from "../realtime/PresenceService";
+import { GetDb } from "../../db";
+import { characters, friendblocks, friends, slayerlinkinvites, slayerlinkpools, slayerlinkrequests, slayerlinks, slayerlinkxp, users } from "../../db/schema";
+import { logger } from "../../logger";
+import { ApplyInventoryTransaction } from "../inventory/inventory";
+import { CreditWallet, IsCurrency } from "../wallet/wallet";
+import { DeriveLinkRank, IsKnownLinkReward, LINK_SLOTS, LinkTrackId, MAX_LINK_RANK, MAX_LINK_REWARDS, ParseLinkTrack } from "../../controllers/slayerLinkConfig";
+import { GetPartyForPlayer } from "../party/party";
+import { isLocallyOnline } from "../../realtime/PresenceService";
 
 // Slayer Links for the 1.4.4 client.
 //

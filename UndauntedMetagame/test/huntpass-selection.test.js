@@ -29,7 +29,7 @@ before(() => {
     process.env.SEASONAL_EVENTS_FILE = path.join(Dir, "seasonal_events.json");
     Context = Harness.CreateDisposableDatabase();
     Selection = require("../dist/controllers/huntpassSelection");
-    Tracks = require("../dist/controllers/progressionTracks");
+    Tracks = require("../dist/features/progression/tracks");
 });
 after(() => {
     for(const Key of ["HUNT_PASS_SEASONS_DIR", "ACTIVE_HUNT_PASS", "SEASONAL_EVENTS_FILE"]) delete process.env[Key];

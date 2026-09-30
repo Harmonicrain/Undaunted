@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { trackedobjectives } from "../db/schema";
+import { GetDb } from "../../db";
+import { trackedobjectives } from "../../db/schema";
 
 export type TrackingSettings = {
     current_set: string,

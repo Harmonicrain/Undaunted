@@ -5,15 +5,15 @@ let ctx, inv, store;
 before(() => {
     process.env.STORE_OFFER_FORMAT = 'prices';
     ctx = H.CreateDisposableDatabase();
-    inv = require('../dist/controllers/inventory');
-    const catalog = require('../dist/controllers/storeCatalog');
+    inv = require('../dist/features/inventory/inventory');
+    const catalog = require('../dist/features/store/catalog');
     // Fixture mimics the configured 1.12 game catalogue without live files.
     const id = 'CELL_AR_HEALTH_UC';
     catalog.StoreItemKinds[id] = 'stacked';
     catalog.StoreCatalog.weekly_cell_offering = [{ id: 'middleman_test_cell', tags: ['weekly_cell_offering'],
         items: [{ catalogId: id, quantity: 1 }], entitlements: [], repeatable: true,
         priceCurrency: 'CURRENCY_CELLDUST', price: 80 }];
-    store = require('../dist/controllers/freeStore');
+    store = require('../dist/features/store/store');
 });
 after(() => { ctx.Db.$client.close(); ctx.Cleanup(); });
 const run = (a, id, add = [], remove = [], stacks = []) => inv.RunInventoryTransaction(a.UserId, a.CharacterId, id, add, stacks, remove, [], []);
@@ -56,7 +56,7 @@ test('all three fusion slots persist independently and speed-up followed by reve
     const speedResult = await inv.RunInventoryTransaction(a.UserId, a.CharacterId, 'speed-2', [], [], [],
         [{ catalogId: 'CURRENCY_TOKEN_EXCHANGE_SPEED_UP', quantity: 132 }], [spedUp]);
     assert.equal(speedResult.success, true);
-    const wallet = require('../dist/controllers/wallet').GetWallet(a.UserId);
+    const wallet = require('../dist/features/wallet/wallet').GetWallet(a.UserId);
     assert.equal(wallet.CURRENCY_CELLDUST, 568);
     assert.equal(wallet.CURRENCY_TOKEN_EXCHANGE_SPEED_UP, undefined);
 

@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { logger } from "../logger";
+import { logger } from "../../logger";
 
 // Seasonal events (Dark Harvest, Frostfall, ...), switched on from here.
 //

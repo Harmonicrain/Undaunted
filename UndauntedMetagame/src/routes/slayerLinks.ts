@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
-import { AnswerInvite, DeleteLink, DeleteLinks, GetRewardGrant, Invite, INVITE_EXPIRY_HOURS, LINK_DURATION_HOURS, ListAvailability, ListInvites, ListLinks, ReplayLinkMutation, SlayerLinkError, StoreRewardPools } from "../controllers/slayerLinks";
+import { AnswerInvite, DeleteLink, DeleteLinks, GetRewardGrant, Invite, INVITE_EXPIRY_HOURS, LINK_DURATION_HOURS, ListAvailability, ListInvites, ListLinks, ReplayLinkMutation, SlayerLinkError, StoreRewardPools } from "../features/slayerLinks/slayerLinks";
 import { logger } from "../logger";
 
 export const slayerLinksRouter = Router();

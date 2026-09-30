@@ -3,10 +3,10 @@ import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { HasOptionalUndauntedMetagameAuth } from "../middleware/HasOptionalUndauntedMetagameAuth";
 import { UpdatePlayerActivity } from "../controllers/undauntedapi";
-import { GetEntitlementsForUser } from "../controllers/entitlements";
+import { GetEntitlementsForUser } from "../features/entitlements/entitlements";
 import { GetSelectedHuntPassId, HuntPassSelectionError, SetSelectedHuntPassId } from "../controllers/huntpassSelection";
 import { GetCooldownsForUser, SetCooldownsForUser, StartCooldownForUser } from "../controllers/cooldowns";
-import { GetBountiesForUser, RemoveBountiesForUser, SaveBountiesForUser } from "../controllers/bounties";
+import { GetBountiesForUser, RemoveBountiesForUser, SaveBountiesForUser } from "../features/challenges/bounties";
 import bountyData from "../vendor/bounty_data.json";
 
 export const systemRouter = Router();

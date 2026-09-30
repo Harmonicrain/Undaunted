@@ -29,8 +29,8 @@ before(async () => {
 
     Context = Harness.CreateDisposableDatabase();
 
-    HuntPass = require("../dist/controllers/huntpass");
-    Tracks = require("../dist/controllers/progressionTracks");
+    HuntPass = require("../dist/features/huntpass/configuration");
+    Tracks = require("../dist/features/progression/tracks");
     Sign = require("../dist/controllers/auth").SignMetagameJWTForUid;
 
     const express = require("express");

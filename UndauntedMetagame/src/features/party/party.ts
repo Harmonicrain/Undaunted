@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { GetDb } from "../db";
-import { users } from "../db/schema";
+import { GetDb } from "../../db";
+import { users } from "../../db/schema";
 
 // Parties represent live sessions. A backend restart dissolves them, which is
 // safer than restoring a party tied to an expired world/candidate.

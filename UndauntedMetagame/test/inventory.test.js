@@ -16,7 +16,7 @@ let Inventory;
 
 before(() => {
     Context = Harness.CreateDisposableDatabase();
-    Inventory = require("../dist/controllers/inventory.js");
+    Inventory = require("../dist/features/inventory/inventory.js");
 });
 
 after(() => {

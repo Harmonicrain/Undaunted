@@ -32,11 +32,11 @@ before(async () => {
 
     Context = Harness.CreateDisposableDatabase();
 
-    Writes = require("../dist/controllers/progressionWrites");
-    Rewards = require("../dist/controllers/huntpassRewards");
-    Wallet = require("../dist/controllers/wallet");
-    Bounties = require("../dist/controllers/bounties");
-    Tracks = require("../dist/controllers/progressionTracks");
+    Writes = require("../dist/features/progression/writes");
+    Rewards = require("../dist/features/huntpass/rewards");
+    Wallet = require("../dist/features/wallet/wallet");
+    Bounties = require("../dist/features/challenges/bounties");
+    Tracks = require("../dist/features/progression/tracks");
     Sign = require("../dist/controllers/auth").SignMetagameJWTForUid;
 
     const express = require("express");

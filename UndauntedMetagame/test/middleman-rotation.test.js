@@ -1,7 +1,7 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const H = require('./harness');
-const rotation = require('../dist/controllers/middlemanStore');
+const rotation = require('../dist/features/middleman/offers');
 const source = Array.from({ length: 12 }, (_, index) => {
     const family = Math.floor(index / 2), rank = index % 2 + 1;
     const id = `CELL_TEST_${family}_${rank === 1 ? 'UC' : 'R'}`;
@@ -14,11 +14,11 @@ before(() => {
     process.env.STORE_OFFER_FORMAT = 'prices';
     pool = rotation.AddMiddlemanOffers({ webstore: source }, kinds).weekly_cell_offering;
     ctx = H.CreateDisposableDatabase();
-    const catalog = require('../dist/controllers/storeCatalog');
+    const catalog = require('../dist/features/store/catalog');
     catalog.StoreCatalog.weekly_cell_offering = pool;
     Object.assign(catalog.StoreItemKinds, kinds);
-    store = require('../dist/controllers/freeStore');
-    wallet = require('../dist/controllers/wallet');
+    store = require('../dist/features/store/store');
+    wallet = require('../dist/features/wallet/wallet');
 });
 after(() => { ctx.Db.$client.close(); ctx.Cleanup(); });
 

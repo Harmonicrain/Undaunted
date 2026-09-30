@@ -27,8 +27,8 @@ before(() => {
     fs.writeFileSync(File, JSON.stringify({ revision: "cl-test-registry", seasons: [Radiant] }));
     process.env.ESCALATION_SEASONS_FILE = File;
     Context = Harness.CreateDisposableDatabase();
-    Config = require("../dist/controllers/escalationConfig");
-    Escalation = require("../dist/controllers/escalation");
+    Config = require("../dist/features/escalation/config");
+    Escalation = require("../dist/features/escalation/progress");
 });
 after(() => {
     delete process.env.ESCALATION_SEASONS_FILE;
