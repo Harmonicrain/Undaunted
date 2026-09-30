@@ -9,6 +9,14 @@ type Client = {
 
 const VALID_SLOTS = [1, 2, 3];
 
+// How many rows each repair would look at, so startup can back the database
+// up before a repair changes anything.
+export function CountPendingRepairs(Db: Client): number {
+    const Count = (Sql: string, ...Args: unknown[]) => Number(Db.prepare(Sql).all(...Args)[0]?.n ?? 0);
+    return Count("SELECT COUNT(*) AS n FROM slayerlinks WHERE senderSlot NOT IN (1, 2, 3) OR targetSlot NOT IN (1, 2, 3)")
+        + Count("SELECT COUNT(*) AS n FROM wallets WHERE currencyId = ?", "CURRENCY_TOKEN_EXCHANGE_SPEED_UP");
+}
+
 // The backend originally allocated Slayer Link slots 0..2, but the 1.4.4
 // client only understands 1..3, so a link stored with slot 0 is invisible to
 // that player. Each invalid side moves to the lowest slot its account is not
