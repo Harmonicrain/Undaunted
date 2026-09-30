@@ -178,8 +178,8 @@ eosRouter.get("/account/api/public/account", HasUndauntedMetagameAuth, async (re
 
 // The runtime builds this lookup by pasting the metagame address straight onto
 // "/account" with no separator, producing paths like GET /account127.0.0.1:60000
-// that match no route and 404. Until that concatenation is fixed in
-// UndauntedInternalServer, serve the same account info rather than a 404. The
+// that match no route and 404. Until that concatenation is fixed in the
+// runtime DLL, serve the same account info rather than a 404. The
 // pattern deliberately excludes "/account/..." so the real EOS routes above
 // still win.
 // It arrives without credentials, so it cannot require auth either.
