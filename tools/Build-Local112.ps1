@@ -59,12 +59,27 @@ function Wait-FileReleased([string]$Path) {
     $deadline = [DateTime]::UtcNow.AddSeconds(20)
     do {
         try {
-            # A process can exit before Windows releases its mapped DLL image.
-            $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::None)
+            # Read access can succeed while an executable image is still mapped.
+            # Require the write access that replacement needs, without changing bytes.
+            $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
             $stream.Dispose()
             return
         } catch [IO.IOException] {
             if ([DateTime]::UtcNow -ge $deadline) { throw "DLL is still locked after shutdown: $Path" }
+            Start-Sleep -Milliseconds 250
+        }
+    } while ($true)
+}
+
+function Copy-RuntimeFile([string]$Source, [string]$Target) {
+    $deadline = [DateTime]::UtcNow.AddSeconds(20)
+    do {
+        try {
+            # A scanner can reopen the file between the release check and copy.
+            [IO.File]::Copy($Source, $Target, $true)
+            return
+        } catch [IO.IOException] {
+            if ([DateTime]::UtcNow -ge $deadline) { throw "Runtime DLL replacement failed: $Target. $($_.Exception.Message)" }
             Start-Sleep -Milliseconds 250
         }
     } while ($true)
@@ -166,7 +181,7 @@ if ($Deploy) {
     for ($index = 0; $index -lt $targets.Count; $index++) {
         $target = $targets[$index]
         if (Test-Path -LiteralPath $target) { Copy-Item -LiteralPath $target -Destination (Join-Path $previous "runtime-$index.dll") }
-        Copy-Item -LiteralPath $dll -Destination $target -Force
+        Copy-RuntimeFile $dll $target
         $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
         if ($hash -ne $dllHash) { throw "Deployed DLL hash mismatch: $target" }
         $manifest.copies += @{ path = $target; sha256 = $hash }

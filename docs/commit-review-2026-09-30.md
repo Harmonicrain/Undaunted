@@ -21,8 +21,9 @@ before it was committed using a private index and build directory.
 | 8 | `e7e009b` | refactor(startup): centralize config and resets | Metagame compiled; 259 tests passed including explicit startup and UTC reset boundaries |
 | 9 | `847d15d` | chore(types): reject unused backend code | Both TypeScript packages compiled with unused checks; metagame 259 passed; deploy 3 passed and 1 fixture-dependent skip |
 | 10 | `c3abfbb` | build(1.12): add checked local build workflow | PowerShell syntax parsed; installed 1.12 executable matches pin; equivalent workflow previously built/tested/deployed successfully |
-| 11 | Documentation slice | Architecture map, cleanup report and this review guide | Paths and whitespace checked |
-| 12 | Final artifact slice | Checked launcher DLL and source/build record | Clean build, backend tests, matching installed hashes and restart |
+| 11 | `f009082` | Architecture map, cleanup report and this review guide | Paths and whitespace checked |
+| 12 | DLL activation fix | Wait for writable DLLs and retry racing copy locks | Mapped-image reproduction and both retry scenarios passed |
+| 13 | Final artifact slice | Checked launcher DLL and source/build record | Clean build, backend tests, matching installed hashes and restart |
 
 ## Review commands
 
@@ -35,9 +36,9 @@ git show --find-renames <commit>
 git diff --check 06919a10 HEAD
 ```
 
-Use the hashes above for the first ten slices; the final two appear in the
+Use the hashes above for the first ten slices; the final three appear in the
 ordered log. The source identity in `build-112-2026-09-30.json` points at the
-documentation commit immediately before the DLL refresh, avoiding a circular
+DLL activation fix immediately before the DLL refresh, avoiding a circular
 reference to the binary commit itself.
 
 ## Scope and preservation
@@ -60,3 +61,16 @@ reference to the binary commit itself.
 
 - [Architecture and build map](architecture-112.md)
 - [Full cleanup report](cleanup-report-2026-09-30.md)
+
+## DLL activation follow-up
+
+The first post-commit deployment exposed a Windows image-mapping lock after
+shutdown. A read-only exclusive open succeeded while the DLL image remained
+mapped. The follow-up requires write access and retries a lock that appears
+between the release check and the actual copy.
+
+The local reproduction maps a disposable copy with `LoadLibraryEx` using
+`DONT_RESOLVE_DLL_REFERENCES`, so the game DLL entry point never runs. Both
+the release wait and a new mapping opened before the copy held replacement
+until release (about 1.5 seconds), and the replacement hashes matched. The
+probe is saved in the commit-preparation backup as `check-dll-replacement.ps1`.

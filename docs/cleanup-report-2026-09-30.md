@@ -243,11 +243,11 @@ files still match the checked build’s source hashes.
 The regression suite includes three new tests for explicit/retryable database
 startup, invalid listener settings and the distinct reset boundaries.
 
-Installed build ID:
+Build ID checked before commit slicing:
 
 `112-06919a10-595db78dd2da`
 
-Both deployed DLLs have SHA-256:
+Both copies checked before commit slicing had SHA-256:
 
 `44615A9A53ED29A0CDDA3C6D2B2DD1271AA11D677C86EA71BA25D42D2E4E785F`
 
