@@ -27,6 +27,7 @@
 #include "core/EngineTick.h"
 #include "core/Logging.h"
 #include "diagnostics/RuntimeDiagnostics.h"
+#include "server/RenderData.h"
 #include "server/ServerHooks.h"
 
 void MainThread();
@@ -195,6 +196,7 @@ void Init() {
         }
 
         LogLoadedBuild();
+        StartServerRenderDataOptions();
         InitServerHooks();
 
     }

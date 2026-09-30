@@ -172,6 +172,18 @@ namespace Native112 {
     // initializer (0x0095B830) stores; [0] is the game thread's value, which
     // UEngine's frame limiter reads.
     inline constexpr uintptr_t CVarMaxFPSData = 0x06CFC2B0;
+    // CVarFreeSkeletalMeshBuffers ("r.FreeSkeletalMeshBuffers", int, default
+    // 0): the TConsoleVariableData<int32>* its static initializer (0x00819010)
+    // stores. FSkeletalMeshLODRenderData::ShouldForceKeepCPUResources
+    // (0x03F8E660) reads [0] on the game thread and [1] elsewhere while a mesh
+    // loads; 0 keeps a CPU copy of every skeletal mesh's buffers.
+    inline constexpr uintptr_t CVarFreeSkeletalMeshBuffersData = 0x06B1BA10;
+    // FWebBrowserWidgetModule::StartupModule (WebBrowserWidget plugin): makes
+    // its UWebBrowserAssetManager, then IWebBrowserModule::Get().GetSingleton()
+    // (vtable +0x48, FWebBrowserModule::GetSingleton 0x04376C80), which runs
+    // CefInitialize and starts UnrealCEFSubProcess.exe whatever -nocef says.
+    // Found by breaking on GetSingleton in a world server (first caller).
+    inline constexpr uintptr_t WebBrowserWidgetStartupModule = 0x00EF8990;
     inline constexpr uintptr_t LegendaryWeaponEquipped = 0x01DF77C0;
     inline constexpr uintptr_t ActorPreReplication = 0x0394B400;
     inline constexpr uintptr_t CreateActorChannel = 0x03D47AC0;

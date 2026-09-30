@@ -102,6 +102,9 @@
     <ClCompile Include="server\WorldLifecycle.cpp">
       <Filter>server</Filter>
     </ClCompile>
+    <ClCompile Include="server\RenderData.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
     <ClCompile Include="core\RuntimePch.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -234,6 +237,9 @@
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="server\WorldLifecycle.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\RenderData.h">
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">

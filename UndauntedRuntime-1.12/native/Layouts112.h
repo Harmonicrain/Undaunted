@@ -40,3 +40,21 @@ namespace Native112::MiddlemanLayout {
     inline constexpr size_t TooltipSize = 0x468;
     inline constexpr size_t TooltipCosts = 0x458;
 }
+
+// Native render data pointers, read from live world servers on 2026-09-30: each
+// points at a render data struct that begins with its LOD array
+// (TIndirectArray: data, num, max).
+namespace Native112::RenderDataLayout {
+    inline constexpr size_t StaticMeshRenderData = 0x70;    // UStaticMesh: TUniquePtr<FStaticMeshRenderData>
+    inline constexpr size_t SkeletalMeshRenderData = 0x78;  // USkeletalMesh: TUniquePtr<FSkeletalMeshRenderData>
+    inline constexpr size_t LodScanBytes = 0x400;           // bytes of each LOD struct searched for resource arrays
+    inline constexpr size_t PointeeScanBytes = 0x100;       // bytes searched behind each pointer in it
+    // UTexture2D -> FTexturePlatformData (size, then the mip TIndirectArray) ->
+    // FTexture2DMipMap, whose bulk data holds its pixels (null when streamed).
+    inline constexpr size_t TexturePlatformData = 0xF0;
+    inline constexpr size_t TextureCubePlatformData = 0xD8; // UTextureCube: FTexturePlatformData*, its first native member
+    inline constexpr size_t PlatformDataMips = 0x18;        // data, num, max
+    inline constexpr size_t MipBulkData = 0x18;             // pixel data, or null
+    inline constexpr size_t MipBulkSize = 0x20;             // int64 bytes
+    inline constexpr size_t MipBulkFlags = 0x30;            // EBulkDataFlags
+}
