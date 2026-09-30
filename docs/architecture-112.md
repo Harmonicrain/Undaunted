@@ -232,9 +232,17 @@ carry client-only costs. The runtime trims them on world servers only
 | `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
 | CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
 | The WebBrowserWidget plugin's startup skipped, so Chromium and `UnrealCEFSubProcess.exe` never start | `server/RenderData.cpp` | ~130 MB per world |
+| Working set emptied 30 s after load, 60 s after a player joins and whenever the world has been empty for 15 s | `server/WorkingSet.cpp` | Resident memory ~855 MB down to ~15-90 MB idle, ~130-180 MB with a player |
 
-Empty Ramsgate is now ~855 MB, the Training Grounds ~730 MB and a hunt island
-with one player ~810 MB; each player adds ~30 MB.
+Empty Ramsgate commits ~855 MB, the Training Grounds ~730 MB and a hunt island
+with one player ~810 MB; each player adds ~30 MB. Most of that is read only
+while loading. After the trim a world keeps only what it touches resident:
+emptying a world's working set and watching it refill (2026-09-30) gave 85 MB
+for an idle Ramsgate, 125-180 MB with a player running around it (garbage
+collection accounts for ~55 MB) and ~160 MB for a hunt island mid-fight. The
+trimmed pages stay committed on Windows' modified list; they are the first to
+go to the pagefile or compressed memory when RAM runs short, so a host needs
+pagefile (or RAM) for the full commit but RAM only for the resident part.
 
 | Command-line switch (world servers) | Effect |
 | --- | --- |
@@ -242,10 +250,13 @@ with one player ~810 MB; each player adds ~30 MB.
 | `-UndauntedIdleFPS=<n>` | Frame rate once the world has been empty for 10 s (default 10) |
 | `-UndauntedKeepRenderData` | Keep all render data (turns off the release and the skeletal-buffer setting) |
 | `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
+| `-UndauntedKeepWorkingSet` | Don't trim the working set |
+| `-UndauntedTrimSeconds=<n>` | Also trim every n seconds (default 0, off) |
 
 The DLL log shows the effect: `[Perf]` once a minute (frames, frame times,
 engine versus runtime time, connections), `[ServerFps]` on each rate change and
-`[RenderData]` after each release pass (freed, kept for CPU access, faulted).
+`[RenderData]` after each release pass (freed, kept for CPU access, faulted)
+and `[WorkingSet]` after each trim (working set before and after, commit).
 Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
 and `ExecuteConsoleCommand` needs a player controller, so the runtime writes
 console variables through their data pointers (`native/Addresses112.h`).
