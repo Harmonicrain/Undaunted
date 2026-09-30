@@ -5015,6 +5015,112 @@ static bool RunClientRolePumpGuarded(UObject* PC) {
     }
 }
 
+struct ChallengeSectionSlotStyle {
+    enum class Kind { None, VerticalBox, ScrollBox } SlotKind = Kind::None;
+    FSlateChildSize Size{};
+    FMargin Padding{};
+    EHorizontalAlignment Horizontal = EHorizontalAlignment::HAlign_Fill;
+    EVerticalAlignment Vertical = EVerticalAlignment::VAlign_Fill;
+};
+
+static UWidget* DirectChildBelow(UWidget* Descendant, UPanelWidget* Ancestor) {
+    UWidget* Current = Descendant;
+    for (int Depth = 0; Current && Depth < 32; ++Depth) {
+        auto* Parent = Current->GetParent();
+        if (Parent == Ancestor) return Current;
+        Current = Parent;
+    }
+    return nullptr;
+}
+
+static UPanelWidget* LowestCommonPanel(UWidget* Left, UWidget* Right) {
+    std::vector<UPanelWidget*> RightParents;
+    for (auto* Parent = Right ? Right->GetParent() : nullptr; Parent; Parent = Parent->GetParent())
+        RightParents.push_back(Parent);
+    for (auto* Parent = Left ? Left->GetParent() : nullptr; Parent; Parent = Parent->GetParent()) {
+        if (std::find(RightParents.begin(), RightParents.end(), Parent) != RightParents.end()) return Parent;
+    }
+    return nullptr;
+}
+
+static void PutDailyChallengesFirst(UChallengesLogPanel* Panel) {
+    if (!Panel || !IsReadablePointer(Panel, sizeof(UChallengesLogPanel))
+        || !Panel->DailyBountyList || !Panel->WeeklyBountyList) return;
+    auto* Common = LowestCommonPanel(Panel->DailyBountyList, Panel->WeeklyBountyList);
+    if (!Common || !IsReadablePointer(Common, sizeof(UPanelWidget))) return;
+    auto* DailySection = DirectChildBelow(Panel->DailyBountyList, Common);
+    auto* WeeklySection = DirectChildBelow(Panel->WeeklyBountyList, Common);
+    if (!DailySection || !WeeklySection || DailySection == WeeklySection) return;
+    const int32 DailyIndex = Common->GetChildIndex(DailySection);
+    const int32 WeeklyIndex = Common->GetChildIndex(WeeklySection);
+    if (DailyIndex < 0 || WeeklyIndex < 0 || DailyIndex < WeeklyIndex) return;
+    MpLog("[Challenges] reorder common=" + SafeObjectNameForDiagnostic(Common)
+        + " daily=" + SafeObjectNameForDiagnostic(DailySection) + "@" + std::to_string(DailyIndex)
+        + " weekly=" + SafeObjectNameForDiagnostic(WeeklySection) + "@" + std::to_string(WeeklyIndex));
+
+    ChallengeSectionSlotStyle Style;
+    auto* OldSlot = WeeklySection->Slot;
+    if (OldSlot && IsReadablePointer(OldSlot, sizeof(UPanelSlot))) {
+        if (OldSlot->IsA(UVerticalBoxSlot::StaticClass())) {
+            auto* Slot = static_cast<UVerticalBoxSlot*>(OldSlot);
+            Style.SlotKind = ChallengeSectionSlotStyle::Kind::VerticalBox;
+            Style.Size = Slot->Size;
+            Style.Padding = Slot->Padding;
+            Style.Horizontal = Slot->HorizontalAlignment;
+            Style.Vertical = Slot->VerticalAlignment;
+        } else if (OldSlot->IsA(UScrollBoxSlot::StaticClass())) {
+            auto* Slot = static_cast<UScrollBoxSlot*>(OldSlot);
+            Style.SlotKind = ChallengeSectionSlotStyle::Kind::ScrollBox;
+            Style.Padding = Slot->Padding;
+            Style.Horizontal = Slot->HorizontalAlignment;
+            Style.Vertical = Slot->VerticalAlignment;
+        }
+    }
+    if (!Common->RemoveChild(WeeklySection)) return;
+    auto* NewSlot = Common->AddChild(WeeklySection);
+    if (!NewSlot) return;
+    if (Style.SlotKind == ChallengeSectionSlotStyle::Kind::VerticalBox
+        && NewSlot->IsA(UVerticalBoxSlot::StaticClass())) {
+        auto* Slot = static_cast<UVerticalBoxSlot*>(NewSlot);
+        Slot->SetSize(Style.Size);
+        Slot->SetPadding(Style.Padding);
+        Slot->SetHorizontalAlignment(Style.Horizontal);
+        Slot->SetVerticalAlignment(Style.Vertical);
+    } else if (Style.SlotKind == ChallengeSectionSlotStyle::Kind::ScrollBox
+        && NewSlot->IsA(UScrollBoxSlot::StaticClass())) {
+        auto* Slot = static_cast<UScrollBoxSlot*>(NewSlot);
+        Slot->SetPadding(Style.Padding);
+        Slot->SetHorizontalAlignment(Style.Horizontal);
+        Slot->SetVerticalAlignment(Style.Vertical);
+    }
+    Common->InvalidateLayoutAndVolatility();
+    Panel->ForceLayoutPrepass();
+    for (UWidget* Parent = Common->GetParent(); Parent; Parent = Parent->GetParent()) {
+        if (!Parent->IsA(UScrollBox::StaticClass())) continue;
+        auto* Scroll = static_cast<UScrollBox*>(Parent);
+        Scroll->ScrollWhenFocusChanges = EScrollWhenFocusChanges::NoScroll;
+        Scroll->ScrollToStart();
+        break;
+    }
+    MpLog("[Challenges] moved Daily section before Weekly");
+}
+
+static void HideWeeklyDailyActivityBlock(UHUDChallengeObjectiveTracker* Tracker) {
+    if (!Tracker || !IsReadablePointer(Tracker, sizeof(UHUDChallengeObjectiveTracker))) return;
+    for (UWidget* Widget : { static_cast<UWidget*>(Tracker->WeeklyChallengesObjetiveBox),
+        static_cast<UWidget*>(Tracker->WeeklyRemainingTimeText),
+        static_cast<UWidget*>(Tracker->weekly_challenge_header) }) {
+        if (Widget && IsReadablePointer(Widget, sizeof(UWidget))) {
+            if (Widget->GetParent()) {
+                Widget->RemoveFromParent();
+                MpLog("[Challenges] removed weekly Daily Activities widget " + Widget->GetName());
+            }
+            if (Widget->Visibility != ESlateVisibility::Collapsed)
+                Widget->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    }
+}
+
 // The 1.12 affordability functions read InventoryData item quantities. The
 // account wallet is projected into that inventory by the metagame response.
 using ClientGetCurrentSpeedUpTokensFn = int32(__fastcall*)(AArchonInventory*);
@@ -5545,7 +5651,11 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
         && (FunctionName.ends_with(".Construct") || FunctionName.ends_with(".UpdateTooltip"))
         && IsDustOnlyCellTooltip(Object))
         ShowMiddlemanDustOnlyTooltip(static_cast<UUserWidget*>(Object));
-
+    if (Object && Object->IsA(UHUDChallengeObjectiveTracker::StaticClass()))
+        HideWeeklyDailyActivityBlock(static_cast<UHUDChallengeObjectiveTracker*>(Object));
+    if (Object && Object->IsA(UChallengesLogPanel::StaticClass())
+        && (FunctionName.ends_with(".Construct") || FunctionName.ends_with(".OnUpdateViewModel")))
+        PutDailyChallengesFirst(static_cast<UChallengesLogPanel*>(Object));
 
     if (IsAccessoryUnlockDiagFn) {
         static std::atomic<int> s_accessoryUnlockDiagCount{ 0 };
@@ -6705,6 +6815,8 @@ static bool CoreCaptureEnabled() {
     return c == 1;
 }
 
+static void PatchWeeklyChallengeTable(UBountyComponent_Weekly* Component);
+
 void ProcessEventHook(UObject* Object, UFunction* Function, void* Parms) {
     
     
@@ -6748,6 +6860,8 @@ void ProcessEventHook(UObject* Object, UFunction* Function, void* Parms) {
     static UFunction* OnPostMitDealtAnyDamage = nullptr;
 
     std::string FunctionName = Function ? Function->GetFullName() : "null";
+    if (Globals::AmServer && Object && Object->IsA(UBountyComponent_Weekly::StaticClass()))
+        PatchWeeklyChallengeTable(static_cast<UBountyComponent_Weekly*>(Object));
     const int EscalationFlowServerSeq = TraceEscalationFlowEnter(
         "Server", Object, FunctionName, Parms);
 
@@ -7855,6 +7969,129 @@ static std::string HttpGetFromMetagame(const std::wstring& Path) {
     return Body;
 }
 
+static INIT_ONCE g_WeeklyChallengeRowsOnce = INIT_ONCE_STATIC_INIT;
+static std::set<std::string> g_WeeklyChallengeRows;
+static SRWLOCK g_WeeklyChallengeTablesLock = SRWLOCK_INIT;
+static std::set<UDataTable*> g_PatchedWeeklyChallengeTables;
+
+static BOOL CALLBACK LoadWeeklyChallengeRows(PINIT_ONCE, PVOID, PVOID*) {
+    const std::string Body = HttpGetFromMetagame(L"/game_tuning/bounty_game_data_weekly");
+    const std::string Key = "\"bounty_id\":\"";
+    for (size_t At = Body.find(Key); At != std::string::npos; At = Body.find(Key, At)) {
+        At += Key.size();
+        const size_t End = Body.find('"', At);
+        if (End == std::string::npos) break;
+        const std::string Id = Body.substr(At, End - At);
+        if (Id.rfind("Challenge_Season_", 0) == 0 && Id.size() < 128
+            && Id.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_") == std::string::npos)
+            g_WeeklyChallengeRows.insert(Id);
+        At = End + 1;
+    }
+    MpLog("[WeeklyChallenges] backend selected rows=" + std::to_string(g_WeeklyChallengeRows.size()));
+    return TRUE;
+}
+
+static void PatchWeeklyChallengeTable(UBountyComponent_Weekly* Component) {
+    if (!Component || !IsReadablePointer(Component, sizeof(UBountyComponent_Weekly))) return;
+    InitOnceExecuteOnce(&g_WeeklyChallengeRowsOnce, LoadWeeklyChallengeRows, nullptr, nullptr);
+    if (g_WeeklyChallengeRows.empty()) return;
+    auto* Table = Component->BountyTable;
+    if (!Table || !IsReadablePointer(Table, sizeof(UDataTable))) return;
+
+    AcquireSRWLockExclusive(&g_WeeklyChallengeTablesLock);
+    if (g_PatchedWeeklyChallengeTables.count(Table) != 0) {
+        ReleaseSRWLockExclusive(&g_WeeklyChallengeTablesLock);
+        return;
+    }
+
+    FChallengeWeeklyData Template{};
+    bool HasTemplate = false;
+    for (auto& Pair : Table->RowMap) {
+        const std::string Id = Pair.Key().GetRawString();
+        if (Id.rfind("Challenge_Season_", 0) != 0) continue;
+        auto* Row = reinterpret_cast<FBountyTableData*>(Pair.Value());
+        if (!Row || !IsReadablePointer(Row, sizeof(FBountyTableData))) continue;
+        for (const auto& Weekly : Row->HuntPassSeasonsData) {
+            const std::string Season = Weekly.TargetHuntPassSeason.RowName.GetRawString();
+            if (Weekly.WeekId == 0 && Season.find("19") != std::string::npos) {
+                Template = Weekly;
+                HasTemplate = true;
+                break;
+            }
+        }
+        if (HasTemplate) break;
+    }
+    if (!HasTemplate) {
+        ReleaseSRWLockExclusive(&g_WeeklyChallengeTablesLock);
+        MpLog("[WeeklyChallenges] table patch skipped: Season 19 week-zero template missing");
+        return;
+    }
+
+    // SDK TArray::Add does not grow arrays. Prepare every replacement before
+    // changing the table, using the engine allocator and independently owned tags.
+    std::map<FBountyTableData*, TArray<FChallengeWeeklyData>> Replacements;
+    auto CopyTags = [](const TArray<FGameplayTag>& Source) {
+        if (Source.Num() == 0) return TArray<FGameplayTag>{};
+        auto* Data = static_cast<FGameplayTag*>(EngineRealloc(nullptr, Source.Num() * sizeof(FGameplayTag)));
+        if (!Data) return TArray<FGameplayTag>{};
+        memcpy(Data, Source.GetDataPtr(), Source.Num() * sizeof(FGameplayTag));
+        return TArray<FGameplayTag>(Data, Source.Num(), Source.Num());
+    };
+    for (auto& Pair : Table->RowMap) {
+        if (g_WeeklyChallengeRows.count(Pair.Key().GetRawString()) == 0) continue;
+        auto* Row = reinterpret_cast<FBountyTableData*>(Pair.Value());
+        if (!Row || !IsReadablePointer(Row, sizeof(FBountyTableData))) continue;
+        auto* Data = static_cast<FChallengeWeeklyData*>(EngineRealloc(nullptr, sizeof(FChallengeWeeklyData)));
+        if (!Data) continue;
+        *Data = Template;
+        Data->Tags.GameplayTags = CopyTags(Template.Tags.GameplayTags);
+        Data->Tags.ParentTags = CopyTags(Template.Tags.ParentTags);
+        if (Data->Tags.GameplayTags.Num() != Template.Tags.GameplayTags.Num()
+            || Data->Tags.ParentTags.Num() != Template.Tags.ParentTags.Num()) {
+            EngineRealloc(const_cast<FGameplayTag*>(Data->Tags.GameplayTags.GetDataPtr()), 0);
+            EngineRealloc(const_cast<FGameplayTag*>(Data->Tags.ParentTags.GetDataPtr()), 0);
+            EngineRealloc(Data, 0);
+            continue;
+        }
+        Replacements.emplace(Row, TArray<FChallengeWeeklyData>(Data, 1, 1));
+    }
+    if (Replacements.size() != 10 || g_WeeklyChallengeRows.size() != 10) {
+        for (auto& Pair : Replacements) {
+            auto& Data = Pair.second[0];
+            EngineRealloc(const_cast<FGameplayTag*>(Data.Tags.GameplayTags.GetDataPtr()), 0);
+            EngineRealloc(const_cast<FGameplayTag*>(Data.Tags.ParentTags.GetDataPtr()), 0);
+            EngineRealloc(const_cast<FChallengeWeeklyData*>(Pair.second.GetDataPtr()), 0);
+        }
+        ReleaseSRWLockExclusive(&g_WeeklyChallengeTablesLock);
+        MpLog("[WeeklyChallenges] refusing incomplete replacement; original table retained");
+        return;
+    }
+    int Selected = 0, Cleared = 0;
+    for (auto& Pair : Table->RowMap) {
+        const std::string Id = Pair.Key().GetRawString();
+        if (Id.rfind("Challenge_Season_", 0) != 0) continue;
+        auto* Row = reinterpret_cast<FBountyTableData*>(Pair.Value());
+        if (!Row || !IsReadablePointer(Row, sizeof(FBountyTableData))) continue;
+        for (auto& Old : Row->HuntPassSeasonsData) {
+            EngineRealloc(const_cast<FGameplayTag*>(Old.Tags.GameplayTags.GetDataPtr()), 0);
+            EngineRealloc(const_cast<FGameplayTag*>(Old.Tags.ParentTags.GetDataPtr()), 0);
+        }
+        EngineRealloc(const_cast<FChallengeWeeklyData*>(Row->HuntPassSeasonsData.GetDataPtr()), 0);
+        const auto Replacement = Replacements.find(Row);
+        if (Replacement != Replacements.end()) {
+            Row->HuntPassSeasonsData = Replacement->second;
+            ++Selected;
+        } else {
+            Row->HuntPassSeasonsData = {};
+            ++Cleared;
+        }
+    }
+    g_PatchedWeeklyChallengeTables.insert(Table);
+    ReleaseSRWLockExclusive(&g_WeeklyChallengeTablesLock);
+    MpLog("[WeeklyChallenges] patched table selected=" + std::to_string(Selected)
+        + " cleared=" + std::to_string(Cleared));
+}
+
 // {"payload":{"enabled":["city_event_dark_harvest_bpff", ...]}}
 static void LoadForcedFeatureFlags() {
     if (Globals::MetagameAddress.empty()) {
@@ -7896,12 +8133,16 @@ static bool __fastcall FeatureFlagIsEnabledHook(void* This) {
     if (!Class || !IsReadablePointer(Class, 0x20)) return Baked;
     std::string Name = Class->GetName();
     if (Name.size() > 2 && Name.compare(Name.size() - 2, 2, "_C") == 0) Name.resize(Name.size() - 2);
+    // Use the pre-Hunt-Pass journal on clients. Worlds keep the component
+    // active so the selected weekly rows still replicate and track progress.
+    const bool ForcedOff = !Globals::AmServer && Name == "HuntPassWeeklyChallengesFeature";
     const bool Forced = !Baked && g_ForcedFeatureFlags.count(Name) > 0;
     AcquireSRWLockExclusive(&g_FeatureFlagLogLock);
     const bool First = g_LoggedFeatureFlags.insert(Name).second;
     ReleaseSRWLockExclusive(&g_FeatureFlagLogLock);
-    if (First) MpLog("[FeatureFlags] " + Name + " baked=" + (Baked ? "1" : "0") + (Forced ? " -> forced on" : ""));
-    return Baked || Forced;
+    if (First) MpLog("[FeatureFlags] " + Name + " baked=" + (Baked ? "1" : "0")
+        + (ForcedOff ? " -> forced off" : (Forced ? " -> forced on" : "")));
+    return ForcedOff ? false : (Baked || Forced);
 }
 
 // UHuntPassSelectionViewModel::QueryOffers, verified in CL392819 at

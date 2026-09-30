@@ -3,6 +3,7 @@ import { GetDb } from "../db";
 import { bounties, bountyretirements } from "../db/schema";
 import { logger } from "../logger";
 import { DailyChallengeWindowStart } from "./dailyChallenges";
+import { ApplyConfiguredWeeklyChallengeWindow } from "./weeklyChallenges";
 
 // Bounty persistence.
 //
@@ -42,19 +43,16 @@ export function EmptyBountyPayload(){
 
 export function GetBountiesForUser(UserId: string, Now = new Date()){
     const Row = GetDb().select().from(bounties).where(eq(bounties.userId, UserId)).get();
-
-    if(Row == undefined){
-        return EmptyBountyPayload();
+    let Board = EmptyBountyPayload();
+    if(Row != undefined){
+        try{
+            Board = WithoutExpiredDailyChallenges(JSON.parse(Row.payload), Now);
+        } catch{
+            // A corrupt row must not lock the player out of the bounty board.
+            logger.error(`Stored bounties for ${UserId} are not valid JSON; returning an empty board`);
+        }
     }
-
-    try{
-        return WithoutExpiredDailyChallenges(JSON.parse(Row.payload), Now);
-    } catch{
-        // A corrupt row must not lock the player out of the bounty board.
-        logger.error(`Stored bounties for ${UserId} are not valid JSON; returning an empty board`);
-
-        return EmptyBountyPayload();
-    }
+    return ApplyConfiguredWeeklyChallengeWindow(Board, Now);
 }
 
 // The client posts an INCREMENTAL update, not the whole board. Drafting three
@@ -254,7 +252,9 @@ export function SaveBountiesForUser(UserId: string, Payload: unknown){
         throw new Error("Invalid bounty entries or update_version");
     }
     return GetDb().transaction(tx => {
-        const Serialised = JSON.stringify(MergeBounties(tx, UserId, GetBountiesForUser(UserId), Payload));
+        const Now = new Date();
+        const Serialised = JSON.stringify(ApplyConfiguredWeeklyChallengeWindow(
+            MergeBounties(tx, UserId, GetBountiesForUser(UserId, Now), Payload), Now));
         const Values = { userId: UserId, payload: Serialised, updatedAt: Date.now() };
         tx.insert(bounties).values(Values).onConflictDoUpdate({ target: bounties.userId, set: Values }).run();
         return GetBountiesForUser(UserId);

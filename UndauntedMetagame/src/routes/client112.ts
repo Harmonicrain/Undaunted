@@ -7,6 +7,8 @@ import { logger } from "../logger";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../controllers/trackedObjectives";
 import { DailyChallengeResetHourUtc } from "../controllers/dailyChallenges";
+import { GetSelectedWeeklyChallenges, GetSupportedWeeklyChallenges, WeeklyChallengeResetHourUtc,
+    WeeklyChallengeSlots } from "../controllers/weeklyChallenges";
 
 export const client112Router = Router();
 
@@ -120,17 +122,23 @@ const Tuning: Record<string, unknown> = {
         premium_bounty_token_id: "TOKEN_DAILY_CHALLENGE_DRAFT_PREMIUM", silver_count: 0, token_rollover_warning_days: 1000
     },
     bounty_game_data_weekly: {
-        automatic_claim: true, automatic_draft: true,
-        bounty_data: [{ bounty_id: "26_11_7_Challenge_Season_BreakParts_Firesacs_Aether_Sally_Terra", enabled: false }],
-        item_grant_data: [], bounty_token_id: "TOKEN_WEEKLY_CHALLENGE_DRAFT", bounty_token_grant_hour: 0,
-        bronze_count: 0, silver_count: 0, gold_count: 0, history_length: 8, max_slots: 4,
-        num_draft_options: 3, num_spicy_options: 1, num_tokens_hp_start: 4, num_tokens_per_day: 0,
-        new_season_reset_bounties: true, delete_claimed_bounties: false,
+        automatic_claim: true, automatic_draft: false,
+        bounty_data: [],
+        item_grant_data: [], bounty_token_id: "TOKEN_WEEKLY_CHALLENGE_DRAFT",
+        bounty_token_grant_hour: WeeklyChallengeResetHourUtc,
+        bronze_count: 0, silver_count: 0, gold_count: WeeklyChallengeSlots,
+        history_length: 167, max_slots: WeeklyChallengeSlots,
+        num_draft_options: 3, num_spicy_options: 1, num_tokens_hp_start: 0, num_tokens_per_day: 0,
+        new_season_reset_bounties: false, delete_claimed_bounties: false,
         premium_bounty_token_id: "TOKEN_WEEKLY_CHALLENGE_DRAFT_PREMIUM", token_rollover_warning_days: 1000
     }
 };
 client112Router.get("/game_tuning/:blobId", (req, res, next) => {
-    const Payload = Tuning[req.params.blobId];
+    let Payload = Tuning[req.params.blobId];
     if(Payload === undefined){ next(); return; }
+    if(req.params.blobId === "bounty_game_data_weekly" && GetSupportedWeeklyChallenges().length >= WeeklyChallengeSlots){
+        Payload = { ...(Payload as object),
+            bounty_data: GetSelectedWeeklyChallenges().map(Definition => ({ bounty_id: Definition.id, enabled: true })) };
+    }
     res.json({ code: null, message: "OK", payload: Payload });
 });
