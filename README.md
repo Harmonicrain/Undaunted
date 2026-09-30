@@ -12,9 +12,10 @@ This is the `1.12` branch, the project's main line. The server for the older
 
 > [!IMPORTANT]
 > This project is not affiliated with or endorsed by Phoenix Labs. The repository
-> contains no game client, game assets or data extracted from the game. You need
-> your own installed copy of the client, and any game data a server needs is
-> generated from that copy on your own machine (see [Game data](#game-data)).
+> contains no game client or game assets. You need your own installed copy of the
+> 1.12.0 client. The game data the servers read (identifiers, tables, tuning and
+> names) is included in [`data/1.12`](data/1.12) for interoperability, with its
+> provenance (see [Game data](#game-data)).
 
 ## Contents
 
@@ -158,7 +159,7 @@ The 1.12 scripts in [`tools`](tools) read your machine's paths from
 `tools/local112.json`, which git ignores. Copy
 [`tools/local112.example.json`](tools/local112.example.json) and set:
 
-- `dataRoot`: a folder for `data/` (the database, account files and game data) and `logs/`;
+- `dataRoot`: a folder for `data/` (the database and account files) and `logs/`;
 - `gameDirectory`: the 1.12.0 client's `Archon\Binaries\Win64` folder;
 - `defaultAccount` (optional): the account `Start-Local112.ps1` launches a client for.
 
@@ -207,7 +208,7 @@ commit a `.env` file: it holds signing keys and API keys.
 | `SKIP_FTUE` | `true` to start new characters in Ramsgate instead of the tutorial island. |
 | `ACTIVE_HUNT_PASS` | The season's Hunt Pass id. |
 | `HUNT_PASS_PREMIUM_MODE` | `entitlement` (default) or `free`. |
-| `STORE_DATA_DIR`, `HUNT_PASS_SEASONS_DIR`, `HUNT_PASS_LIBRARY_FILE`, `ESCALATION_SEASONS_FILE`, `LINKED_SLAYER_REWARDS_FILE`, `CHALLENGE_REWARDS_FILE`, `SEASONAL_EVENTS_FILE` | Game data for the client being served; see [Game data](#game-data). |
+| `STORE_DATA_DIR`, `HUNT_PASS_SEASONS_DIR`, `HUNT_PASS_LIBRARY_FILE`, `ESCALATION_SEASONS_FILE`, `LINKED_SLAYER_REWARDS_FILE`, `CHALLENGE_REWARDS_FILE`, `SEASONAL_EVENTS_FILE` | The 1.12.0 game data; `.env.example` points them at [`data/1.12`](#game-data). |
 | `LOG_LEVEL`, `WIRE_CAPTURE` | Logging, and optional request capture for investigating what the client sends. |
 
 ### Deploy server (`UndauntedDeployServer/.env`)
@@ -224,21 +225,22 @@ commit a `.env` file: it holds signing keys and API keys.
 
 ## Game data
 
-A 1.12 server needs the 1.12.0 client's own data, generated from your
-installed client and kept outside the repository. The identifiers and tables
-bundled in the repository are the 1.4.4 client's, kept for interoperability
-with their provenance recorded in each file; they are only used for a setting
-left unset.
+The 1.12.0 client's data is in [`data/1.12`](data/1.12), and the `.env.example`
+files already point at it:
 
-| Setting | Contents |
-| --- | --- |
-| `STORE_DATA_DIR` | `store_catalog.json` and `store_item_kinds.json` |
-| `HUNT_PASS_SEASONS_DIR`, `HUNT_PASS_LIBRARY_FILE` | Hunt Pass seasons, and the optional library of past passes |
-| `ESCALATION_SEASONS_FILE` | Escalation season registry |
-| `LINKED_SLAYER_REWARDS_FILE` | Slayer Link reward table |
-| `CHALLENGE_REWARDS_FILE` | Weekly challenge pool |
-| `SEASONAL_EVENTS_FILE` | Seasonal events (below) |
-| `HUNT_DATA_DIR` (deploy server) | Hunt and Trials tables |
+| Setting | Path (from the package folder) | Contents |
+| --- | --- | --- |
+| `STORE_DATA_DIR` | `../data/1.12/store` | `store_catalog.json` and `store_item_kinds.json` |
+| `HUNT_PASS_SEASONS_DIR`, `HUNT_PASS_LIBRARY_FILE` | `../data/1.12/huntpass`, `../data/1.12/huntpass-library.json` | Hunt Pass seasons, and the library of past passes |
+| `ESCALATION_SEASONS_FILE` | `../data/1.12/escalation/seasons.json` | Escalation season registry |
+| `LINKED_SLAYER_REWARDS_FILE` | `../data/1.12/linked-slayer/linked_slayer_rewards.json` | Slayer Link reward table |
+| `CHALLENGE_REWARDS_FILE` | `../data/1.12/challenges/challenge_rewards.json` | Daily and weekly challenge tables |
+| `SEASONAL_EVENTS_FILE` | `../data/1.12/events/seasonal_events.json` | Seasonal events (below) |
+| `HUNT_DATA_DIR` (deploy server) | `../data/1.12/hunts` | Hunt and Trials tables |
+
+[`data/1.12/README.md`](data/1.12/README.md) records where each file comes from
+and credits its sources. The packages' `src/vendor` folders still hold the 1.4.4
+data, used only for a setting left unset.
 
 ### Seasonal events file
 
@@ -279,8 +281,9 @@ schedule and flags when they launch, so restart them after changing it.
   They run automatically on start. Before applying pending migrations, or a
   data repair with rows to fix, startup copies the database next to itself
   (`<db>.bak-preMigration-…` or `<db>.bak-preRepair-…`).
-- Never commit game data, extracted assets, the generated SDK, captures, `.env`
-  files or account keys.
+- Never commit `.env` files, account keys, player databases or the generated
+  SDK. Game data goes in `data/1.12`, with its source recorded in
+  `data/1.12/README.md`.
 - The runtime DLL is pinned to one executable build. Its function addresses are
   collected in `UndauntedRuntime-1.12/native/Addresses112.h`.
 

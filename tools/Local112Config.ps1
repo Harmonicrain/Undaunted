@@ -3,7 +3,7 @@
 # variable, then tools/local112.json (ignored by git; start from
 # tools/local112.example.json).
 #
-#   dataRoot       holds data/ (databases, account files, game data) and logs/
+#   dataRoot       holds data/ (databases, account files) and logs/
 #   gameDirectory  the 1.12.0 client's Archon\Binaries\Win64 folder
 #   defaultAccount optional; the account Start-Local112.ps1 launches a client for
 #

@@ -122,7 +122,8 @@ Machine-specific paths are never stored in the repository.
 `-DataRoot` / `-GameDirectory` parameter, the `UNDAUNTED112_DATA_ROOT` /
 `UNDAUNTED112_GAME_DIR` environment variables, then `tools/local112.json`
 (ignored by git; copy `tools/local112.example.json`). The data root holds
-`data/` (databases, `account-1.12-<Name>.json` files, game data) and `logs/`.
+`data/` (databases and `account-1.12-<Name>.json` files) and `logs/`. The
+1.12.0 game data is in the repository, in `data/1.12`.
 `-Test` needs neither path, `-Deploy` needs the game directory and `-Restart`
 the data root. Ports come from the packages' `.env` files.
 
