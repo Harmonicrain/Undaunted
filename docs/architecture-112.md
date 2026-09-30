@@ -1,11 +1,10 @@
 # Working on the 1.12 runtime and servers
 
-This is the current code map for the September 2026 organization work. The
-1.12 behavior already present in the working tree was preserved in
-`E:/Dauntless/backups/organization-20260929-232638` before extraction. That
-snapshot includes fixes that were uncommitted at capture time. The local
-commit series records those fixes before the organization changes; see
-`commit-review-2026-09-30.md`. The series starts after `06919a10`.
+This is the current code map, from the September 2026 organization work. The
+commit series that produced it starts after `06919a10` and is described in
+[the commit review](history/commit-review-2026-09-30.md). Dated session reports
+live in [`history/`](history/); they record what was true at the time and are
+not current instructions.
 
 ## Runtime ownership
 
@@ -116,15 +115,33 @@ powershell -NoProfile -File tools/Build-Local112.ps1 -Deploy -Restart
 
 `UndauntedRuntime-1.12/_build.bat` delegates to the same workflow. It discovers
 MSBuild and uses the installed v143 toolset. Dependencies must already be
-installed from each package's lockfile. `-LocalRoot` and `-GameDirectory` allow
-explicit local paths; the restart uses that local root's existing
-`tools/Start-Local112.ps1` and launcher/account configuration.
+installed from each package's lockfile.
+
+Machine-specific paths are never stored in the repository.
+`tools/Local112Config.ps1` resolves them for every script, in this order: a
+`-DataRoot` / `-GameDirectory` parameter, the `UNDAUNTED112_DATA_ROOT` /
+`UNDAUNTED112_GAME_DIR` environment variables, then `tools/local112.json`
+(ignored by git; copy `tools/local112.example.json`). The data root holds
+`data/` (databases, `account-1.12-<Name>.json` files, game data) and `logs/`.
+`-Test` needs neither path, `-Deploy` needs the game directory and `-Restart`
+the data root. Ports come from the packages' `.env` files.
+
+| Script | Purpose |
+| --- | --- |
+| `tools/Build-Local112.ps1` | Build, test and optionally deploy and restart the stack |
+| `tools/Start-Local112.ps1` | Start the metagame, deploy server and initial worlds, then optionally a client (`-ServerOnly`, `-Account`) |
+| `tools/Launch-Local112.ps1` | Launch the 1.12 client for an account |
+| `tools/New-Account112.mjs` | Add an account (backs the database up first; the key is saved, never printed) |
+
+The deploy step builds `UndauntedRuntime-1.12/MysticParadox.sln` and installs
+the DLL in the 1.12 game directory as `UndauntedInternalServer.dll`, the name
+the game loads. The 1.4.4 runtime and launcher are on the `1.4.4` branch.
 
 Every run stages fresh compiler output under ignored `artifacts/`, so deleted
 source modules cannot be masked by stale compiled controllers. Tests run against
 that staged output with the existing test harness and source/vendor fixtures.
 Deploy requires passing tests. Activation saves previous server output and DLLs
-under the build's `previous/` directory, then checks both deployed DLL hashes.
+under the build's `previous/` directory, then checks the deployed DLL hash.
 Nothing is recursively deleted from a computed workspace path.
 
 `tools/client112.json` pins the shipping executable SHA-256, version, changelist,
@@ -209,7 +226,7 @@ Completed 30 September 2026 (local time):
 - Metagame: 259 passing tests, zero failures, including the three new startup/reset regression tests.
 - Deploy server: three passing bundled-table tests, one 1.12-only case skipped with bundled data; all four passed again using the installed 1.12 hunt tables.
 - Clean Release/x64 runtime rebuild passed. Generated SDK enum warnings remain; no authored-code build errors.
-- Both deployed DLL copies match SHA-256 `44615A9A53ED29A0CDDA3C6D2B2DD1271AA11D677C86EA71BA25D42D2E4E785F`.
+- Both deployed DLL copies (at the time, the game directory and the launcher assets) match SHA-256 `44615A9A53ED29A0CDDA3C6D2B2DD1271AA11D677C86EA71BA25D42D2E4E785F`.
 - Client and both initial worlds report loaded build `112-06919a10-595db78dd2da`; TCP 61000/61001/61002 and UDP 8788/8789 are live, and the metagame status endpoint is ready.
 - User reported that the restarted stack appears to be working.
 

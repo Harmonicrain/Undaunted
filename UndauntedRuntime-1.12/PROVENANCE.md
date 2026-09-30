@@ -2,8 +2,9 @@
 
 This directory is the injected runtime for the Dauntless **1.12.0** client
 (`rel-1.12.0-Archon`, changelist 392819, Unreal Engine 4.26.2). It is imported
-from Mystic Paradox and is being adapted for this fork. The 1.4.4 runtime in
-`UndauntedInternalServer/` is unchanged and still serves the 1.4.4 client.
+from Mystic Paradox and is being adapted for this fork. It is built from here and
+installed as `UndauntedInternalServer.dll`, the name the game loads. The 1.4.4
+runtime, `UndauntedInternalServer/`, is on the `1.4.4` branch.
 
 ## Source
 
@@ -33,6 +34,18 @@ Later changes for this fork are recorded in the commit history, and each
 modified file's header says that it was modified here, as AGPLv3 Section 5
 and the additional terms require. This is not an official release of Mystic
 Paradox or of Undaunted.
+
+## Reorganization (September 2026)
+
+The imported `dllmain.cpp` was split by feature into `core/`, `client/`,
+`server/`, `diagnostics/` and `native/` (commit `ea24829`); `dllmain.cpp`
+itself is now only the DLL entry point. The code in those folders is the
+imported Mystic Paradox runtime plus this fork's modifications, moved rather
+than rewritten, so every file carries the original copyright notices, the
+AGPL and Section 7 notice, and this fork's modification notice. That notice
+lists the fork's changes to the runtime as a whole, since they were made
+before the split; the commit history records which file each change is in.
+`docs/architecture-112.md` maps the folders to the features they own.
 
 ## Not included: generate these yourself
 

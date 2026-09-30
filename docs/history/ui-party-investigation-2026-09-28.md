@@ -1,4 +1,4 @@
-> Historical investigation notes. See [the current architecture and build workflow](architecture-112.md) for current ownership and validation. Deployment statements below describe the original investigation date.
+> Historical investigation notes. See [the current architecture and build workflow](../architecture-112.md) for current ownership and validation. Deployment statements below describe the original investigation date.
 
 # Daily Activities, party return, and intermittent HUD failures
 
@@ -17,8 +17,8 @@ has not been installed over the running client/server DLL or visually verified.
 
 User confirmed the affected players were invited party members.
 
-Observed in `E:/Dauntless/logs/metagame-1.12.log`, approximately lines
-14307â€“14364 (19:16:48â€“19:17:00 UTC):
+Observed in the 1.12 metagame log (`metagame-1.12.log`), approximately lines
+14307–14364 (19:16:48–19:17:00 UTC):
 
 - John's CITY request allocated Ramsgate with **two expected players**.
 - The allocation succeeded on port 8789. John travelled immediately.
@@ -105,7 +105,8 @@ is confirmed, and forcing the overlay closed would hide the failure.
 
 ## Read-only reproduction capture
 
-`E:/Dauntless/tools/inspect-live-ui112.py <client-PID>` uses
+A local inspection script (`inspect-live-ui112.py <client-PID>`, not in the
+repository) uses
 `PROCESS_QUERY_INFORMATION | PROCESS_VM_READ` only. It reports health-widget
 bindings/queue, loot lifecycle flags, party objects, and native function RVAs.
 Run while a reported symptom remains on screen, before restarting. The

@@ -16,7 +16,7 @@ and HUD fixes were treated as the working baseline rather than discarded.
 Before editing, I saved the existing modified and untracked files, authored
 source, project/package configuration and tests under:
 
-`E:/Dauntless/backups/organization-20260929-232638`
+a local backup folder (`organization-20260929-232638`, not in the repository)
 
 This matters because your existing working tree already contained fixes that
 were not in Git HEAD. Resetting to HEAD would have lost some of that work.
@@ -253,12 +253,12 @@ Both copies checked before commit slicing had SHA-256:
 
 Full logs and manifest:
 
-`E:/Dauntless/research/Undaunted-1.12/artifacts/112-06919a10-595db78dd2da-20260930-001653/`
+`artifacts/112-06919a10-595db78dd2da-20260930-001653/` (local build output, not in the repository)
 
 At the time of the deployment check above, these changes were uncommitted.
 They were subsequently divided into local commits; the review sequence and
-intermediate validation are recorded in `commit-review-2026-09-30.md`. No push
-has been performed. The final DLL refresh records its source identity in
+intermediate validation are recorded in `commit-review-2026-09-30.md`. The
+series was pushed to the fork on 30 September 2026. The final DLL refresh records its source identity in
 `build-112-2026-09-30.json`.
 The automated tests and startup/user smoke checks establish the results above;
 this report does not claim a separate exhaustive replay of every party-travel
@@ -269,7 +269,7 @@ or intermittent HUD scenario.
 The current map of features, interfaces, compatibility rules, reset policies,
 active flags and build commands is in:
 
-`E:/Dauntless/research/Undaunted-1.12/docs/architecture-112.md`
+[`docs/architecture-112.md`](../architecture-112.md)
 
 Earlier UI/party investigation notes are marked historical and point at that
 current document, so their old deployment statements do not read as present

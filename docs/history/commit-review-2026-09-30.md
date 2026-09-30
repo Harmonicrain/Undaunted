@@ -1,8 +1,8 @@
 # Local commit review: 30 September 2026
 
 The changes were sliced on `port-1.12`, starting after
-`06919a10b1aff127e7aaa017339fedfa65da1114`. Nothing has been pushed. Review the
-entire sequence before any push. Existing earlier commits were left intact.
+`06919a10b1aff127e7aaa017339fedfa65da1114`. The sequence was reviewed and
+pushed to the fork on 30 September 2026. Existing earlier commits were left intact.
 
 Gameplay fixes come first, then organization and cleanup, then build tooling,
 documentation and the checked launcher DLL. Moves are separate from rule
@@ -52,14 +52,13 @@ reference to the binary commit itself.
 - Existing party and HUD behavior is preserved through the module moves.
 - The running game was left alone during slicing; activation of the final
   checked build stops and restarts the local stack with permission.
-- The source snapshot is preserved under
-  `E:/Dauntless/backups/organization-20260929-232638` and the commit preparation
-  and intermediate test logs under
-  `E:/Dauntless/backups/commit-slices-20260930-004722`.
+- The source snapshot, the commit preparation and the intermediate test logs
+  were kept in local backup folders (`organization-20260929-232638` and
+  `commit-slices-20260930-004722`), not in the repository.
 
 ## Related reports
 
-- [Architecture and build map](architecture-112.md)
+- [Architecture and build map](../architecture-112.md)
 - [Full cleanup report](cleanup-report-2026-09-30.md)
 
 ## DLL activation follow-up
