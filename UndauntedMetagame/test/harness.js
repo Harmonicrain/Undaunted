@@ -13,10 +13,14 @@ const os = require("node:os");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
-// Anything under here is real player data and is off limits to tests.
-const PROTECTED_DIRECTORIES = [
-    path.resolve("E:/Dauntless/data"),
-];
+// Anything under here is real player data and is off limits to tests. Tests
+// only ever use the system temp directory (checked below), so this is a second
+// guard: set UNDAUNTED_PROTECTED_DATA_DIRS (separated by the platform's path
+// delimiter) to the directories holding live databases.
+const PROTECTED_DIRECTORIES = (process.env.UNDAUNTED_PROTECTED_DATA_DIRS ?? "")
+    .split(path.delimiter)
+    .filter(Directory => Directory.trim().length > 0)
+    .map(Directory => path.resolve(Directory));
 
 function AssertDisposable(DbPath) {
     const Resolved = path.resolve(DbPath);

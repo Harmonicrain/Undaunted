@@ -1,28 +1,34 @@
 # Build and optionally activate the complete 1.12 stack. Tests run in staged
 # packages with disposable databases; no live .env or account files are copied.
+#
+# Paths come from tools/Local112Config.ps1: -DataRoot and -GameDirectory, the
+# UNDAUNTED112_* environment variables, or tools/local112.json. -Test needs
+# neither; -Deploy needs the game directory and -Restart the data root.
 [CmdletBinding()]
 param(
     [switch]$Test,
     [switch]$Deploy,
     [switch]$Restart,
-    [string]$LocalRoot,
+    [Alias('LocalRoot')][string]$DataRoot,
     [string]$GameDirectory
 )
 $ErrorActionPreference = 'Stop'
-$repo = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
-if (-not $LocalRoot) { $LocalRoot = Split-Path -Parent (Split-Path -Parent $repo) }
-if (-not $GameDirectory) {
-    $GameDirectory = Join-Path (Split-Path -Parent $LocalRoot) 'Dauntless-1.12.0\Dauntless\Archon\Binaries\Win64'
-}
 if ($Restart -and -not $Deploy) { throw '-Restart requires -Deploy.' }
 if ($Deploy) { $Test = $true }
+. (Join-Path $PSScriptRoot 'Local112Config.ps1')
+$config = Resolve-Local112Config -DataRoot $DataRoot -GameDirectory $GameDirectory `
+    -RequireGameDirectory:$Deploy -RequireDataRoot:$Restart
+$repo = $config.Repo
 $client = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'client112.json') -Raw | ConvertFrom-Json
-$gameExe = Join-Path $GameDirectory $client.executable
-if (Test-Path -LiteralPath $gameExe) {
-    if ((Get-FileHash -LiteralPath $gameExe -Algorithm SHA256).Hash -ne $client.sha256) {
-        throw 'Executable differs from the verified 1.12 CL392819 build. Review native addresses and signatures first.'
-    }
-} elseif ($Deploy) { throw "Game executable missing: $gameExe" }
+$gameExe = $null
+if ($config.GameDirectory) {
+    $gameExe = Join-Path $config.GameDirectory $client.executable
+    if (Test-Path -LiteralPath $gameExe) {
+        if ((Get-FileHash -LiteralPath $gameExe -Algorithm SHA256).Hash -ne $client.sha256) {
+            throw 'Executable differs from the verified 1.12 CL392819 build. Review native addresses and signatures first.'
+        }
+    } elseif ($Deploy) { throw "Game executable missing: $gameExe" }
+}
 
 function Assert-RepoPath([string]$Path) {
     $absolute = [IO.Path]::GetFullPath($Path)
@@ -44,8 +50,9 @@ function Invoke-Checked([string]$Executable, [string[]]$Arguments, [string]$Dire
 }
 
 function Get-StackProcesses {
+    $ports = Get-Local112Ports $config
     $owners = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
-        Where-Object { $_.LocalPort -in @(61000, 61001, 61002) } |
+        Where-Object { $_.LocalPort -in @($ports.Metagame, $ports.Deploy, $ports.Xmpp) } |
         Select-Object -ExpandProperty OwningProcess -Unique)
     # Never output command lines: the game arguments contain account keys.
     return @(Get-CimInstance Win32_Process | Where-Object {
@@ -104,7 +111,8 @@ foreach ($folder in @('core','client','server','native','diagnostics','MinHook')
     $files += Get-ChildItem -LiteralPath (Join-Path $runtime $folder) -File -Recurse |
         Where-Object { $_.Extension -in @('.cpp','.c','.h','.hpp') -and $_.Name -ne 'BuildIdentity.generated.h' }
 }
-$files += Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse | Where-Object { $_.Extension -in @('.ps1','.mjs','.json') }
+$files += Get-ChildItem -LiteralPath $PSScriptRoot -File -Recurse |
+    Where-Object { $_.Extension -in @('.ps1','.mjs','.json') -and $_.Name -ne 'local112.json' }
 foreach ($package in @('UndauntedMetagame','UndauntedDeployServer')) {
     $dir = Join-Path $repo $package
     foreach ($folder in @('src','test')) { $files += Get-ChildItem -LiteralPath (Join-Path $dir $folder) -File -Recurse }
@@ -167,7 +175,7 @@ if ($Deploy) {
         }
         foreach ($process in $processes) { Wait-Process -Id $process.ProcessId -Timeout 10 -ErrorAction SilentlyContinue }
     }
-    $targets = @((Join-Path $repo 'UndauntedLauncher\assets\UndauntedInternalServer.dll'),(Join-Path $GameDirectory 'UndauntedInternalServer.dll'))
+    $targets = @(Join-Path $config.GameDirectory 'UndauntedInternalServer.dll')
     foreach ($target in $targets) { Wait-FileReleased $target }
     $previous = Assert-RepoPath (Join-Path $stage 'previous')
     New-Item -ItemType Directory -Path $previous -Force | Out-Null
@@ -189,8 +197,8 @@ if ($Deploy) {
     $manifest.deployed = $true
     $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
     if ($Restart) {
-        $start = Join-Path $LocalRoot 'tools\Start-Local112.ps1'
-        Invoke-Checked 'powershell.exe' @('-NoProfile','-File',$start) $LocalRoot (Join-Path $stage 'restart.log')
+        $start = Join-Path $PSScriptRoot 'Start-Local112.ps1'
+        Invoke-Checked 'powershell.exe' @('-NoProfile','-File',$start,'-DataRoot',$config.DataRoot,'-GameDirectory',$config.GameDirectory) $repo (Join-Path $stage 'restart.log')
         $manifest.restarted = $true
         $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
         Get-Content -LiteralPath (Join-Path $stage 'restart.log') -Tail 6 | Write-Output
