@@ -1,0 +1,33 @@
+# Type-check, build and test the two server packages on every push and pull
+# request. The runtime DLL is not built here: it needs the generated SDK, which
+# is game-derived and never committed.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.package }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [UndauntedMetagame, UndauntedDeployServer]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
