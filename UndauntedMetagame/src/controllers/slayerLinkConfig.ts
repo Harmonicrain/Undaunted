@@ -5,8 +5,8 @@ import bundledRewardTable from "../vendor/linked_slayer_rewards.json";
 // 1.4.4's; each client version has its own (1.12.0 pays different amounts, e.g.
 // 15000 Rams, and adds Combat Merits and Aethersparks), and a pool rolled from
 // one is refused by the other. LINKED_SLAYER_REWARDS_FILE points at the table
-// decoded from the client being served, in the same shape, kept outside the
-// repo because it is game data.
+// decoded from the client being served, in the same shape (1.12.0's is
+// data/1.12/linked-slayer/linked_slayer_rewards.json).
 const RewardTableFile = process.env.LINKED_SLAYER_REWARDS_FILE;
 const nativeRewardTable: any = RewardTableFile != undefined && RewardTableFile.length > 0
     ? JSON.parse(readFileSync(RewardTableFile, "utf8"))

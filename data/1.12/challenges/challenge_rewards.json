@@ -1,0 +1,6292 @@
+{
+ "_comment": [
+  "Challenge rewards for the Dauntless 1.12.0 metagame (CHALLENGE_REWARDS_FILE).",
+  "From Archon_24 pak Gameplay/Bounty: challenge_seasons_daily_table, challenge_seasons_weekly_table,",
+  "challenge_category_table. Committed as data/1.12/challenges."
+ ],
+ "categories": {
+  "DailyChallengeBronze": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 100
+   }
+  ],
+  "Seasonal_Challenge_Small": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 200
+   }
+  ],
+  "Seasonal_Challenge_Medium": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 400
+   }
+  ],
+  "Seasonal_Challenge_Large": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 600
+   }
+  ],
+  "Seasonal_Challenge_ExtraLarge": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 800
+   }
+  ],
+  "Special_Title_S15A_01": [
+   {
+    "itemId": "TITLE_HP14B_PROTECTOR_01",
+    "amount": 1
+   }
+  ],
+  "DailyChallengeSilver": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 100
+   }
+  ],
+  "WeeklyChallengeGold": [
+   {
+    "itemId": "CURRENCY_S19_COIN",
+    "amount": 1000
+   }
+  ]
+ },
+ "challenges": {
+  "Challenge_Daily_Bronze_ASInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_ASInterrupts",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_AxeInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_AxeInterrupts",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_BreakAllPartsKill": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_BreakAllPartsKill",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_DPInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_DPInterrupts",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_Gatherables": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_Gatherables",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherCommon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherCommon",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherDamage": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherDamage",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherDefense": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherDefense",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherHealing": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherHealing",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherPylon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherPylon",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherSpecial": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherSpecial",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherSpeed": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherSpeed",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GatherWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GatherWeapon",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GrenadeDamage": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GrenadeDamage",
+     "amount": 8000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GrenadeInterrupt": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GrenadeInterrupt",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HammerBlastInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HammerBlastInterrupts",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsASTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsASTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_GetHuntPassXP": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_GetHuntPassXP",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyAny": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyAny",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyFrost": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyFrost",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyBlaze": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyBlaze",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyShock": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyShock",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyUmbral": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyUmbral",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyTerra": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyTerra",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationEasyRadiant": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationEasyRadiant",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardAny": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardAny",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardFrost": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardFrost",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardBlaze": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardBlaze",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardShock": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardShock",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardUmbral": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardUmbral",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardTerra": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardTerra",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_EscalationHardRadiant": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_EscalationHardRadiant",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsAxeTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsAxeTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsChainbladesTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsChainbladesTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsDPTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsRepeatersTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsHammerTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsHammerTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsPikeTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsPikeTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_HuntsSwordTwo": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_HuntsSwordTwo",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_InterruptEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_InterruptEnraged",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_Interrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_Interrupts",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillASChain": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillASChain",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillAxePike": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillAxePike",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillBlazeFrost": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillBlazeFrost",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillBlazeWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillBlazeWeapon",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillChainPike": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillChainPike",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillFrostShock": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillFrostShock",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillFrostWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillFrostWeapon",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillHammerDP": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillHammerDP",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillNeutralWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillNeutralWeapon",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillRadiant": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillRadiant",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillRadiantNeutral": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillRadiantNeutral",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillRadiantWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillRadiantWeapon",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillRage": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillRage",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillShockBlaze": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillShockBlaze",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillShockWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillShockWeapon",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillSwordAxe": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillSwordAxe",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillTerraShock": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillTerraShock",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillTerraWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillTerraWeapon",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillUmbral": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_BronzeHuntUmbral",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillUmbralNeutral": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillUmbralNeutral",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillUmbralWeapon": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillUmbralWeapon",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_KillWithFriends": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_KillWithFriends",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_LanternDamage": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_LanternDamage",
+     "amount": 5000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PartDamageEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PartDamageEnraged",
+     "amount": 10000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PartDamageReduce": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PartDamageReduce",
+     "amount": 30000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PartsEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PartsEnraged",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PerfectDodges": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PerfectDodges",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PhysicalDodges": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PhysicalDodges",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_PikeBlastInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_PikeBlastInterrupts",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_ProjectileDodges": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_ProjectileDodges",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_StaggerDamageEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_StaggerDamageEnraged",
+     "amount": 15000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_StaggerDamageReduce": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_StaggerDamageReduce",
+     "amount": 30000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_StaggerEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_StaggerEnraged",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_SwordInterrupts": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_SwordInterrupts",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_WoundDamageEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_WoundDamageEnraged",
+     "amount": 1000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_WoundDamageReduce": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_WoundDamageReduce",
+     "amount": 5000
+    }
+   ]
+  },
+  "Challenge_Daily_Bronze_WoundEnraged": {
+   "category": "DailyChallengeBronze",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Bronze_WoundEnraged",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_ASInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_ASInterrupts",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_AxeInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_AxeInterrupts",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_BreakAllPartsKill": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_BreakAllPartsKill",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_DPInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_DPInterrupts",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_Gatherables": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_Gatherables",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherCommon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherCommon",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherDamage": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherDamage",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherDefense": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherDefense",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherHealing": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherHealing",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherPylon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherPylon",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherSpecial": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherSpecial",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherSpeed": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherSpeed",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GatherWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GatherWeapon",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GrenadeDamage": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GrenadeDamage",
+     "amount": 10000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_GrenadeInterrupt": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_GrenadeInterrupt",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HammerBlastInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HammerBlastInterrupts",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsASTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsASTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsAxeTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsAxeTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsChainbladesTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsChainbladesTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsDPTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsRepeatersTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsHammerTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsHammerTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsPikeTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsPikeTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_HuntsSwordTwo": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_HuntsSwordTwo",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_InterruptEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_InterruptEnraged",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_Interrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_Interrupts",
+     "amount": 12
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillASChain": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillASChain",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillAxePike": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillAxePike",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillBlazeFrost": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillBlazeFrost",
+     "amount": 8
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillBlazeWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillBlazeWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillChainPike": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillChainPike",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillFrostShock": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillFrostShock",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillFrostWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillFrostWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillHammerDP": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillHammerDP",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillNeutralWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillNeutralWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillRadiant": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillRadiant",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillRadiantNeutral": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillRadiantNeutral",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillRadiantWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillRadiantWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillRage": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillRage",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillShockBlaze": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillShockBlaze",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillShockWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillShockWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillSwordAxe": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillSwordAxe",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillTerraShock": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillTerraShock",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillTerraWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillTerraWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillUmbral": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillUmbral",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillUmbralNeutral": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillUmbralNeutral",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillUmbralWeapon": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillUmbralWeapon",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_KillWithFriends": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_KillWithFriends",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_LanternDamage": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_LanternDamage",
+     "amount": 17500
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PartDamageEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PartDamageEnraged",
+     "amount": 35000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PartDamageReduce": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PartDamageReduce",
+     "amount": 120000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PartsEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PartsEnraged",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PerfectDodges": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PerfectDodges",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PhysicalDodges": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PhysicalDodges",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_PikeBlastInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_PikeBlastInterrupts",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_ProjectileDodges": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_ProjectileDodges",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_StaggerDamageEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_StaggerDamageEnraged",
+     "amount": 35000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_StaggerDamageReduce": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_StaggerDamageReduce",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_StaggerEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_StaggerEnraged",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_SwordInterrupts": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_SwordInterrupts",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_WoundDamageEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_WoundDamageEnraged",
+     "amount": 6000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_WoundDamageReduce": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_WoundDamageReduce",
+     "amount": 5000
+    }
+   ]
+  },
+  "Challenge_Daily_Silver_WoundEnraged": {
+   "category": "DailyChallengeSilver",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Daily_Silver_WoundEnraged",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_Seasonal_Challenges_All_S15": {
+   "category": "Special_Title_S15A_01",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Seasonal_Challenges_All_S15",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_01": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_02": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_03": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_04": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_05": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_06": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15A_07": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15A_07",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16A_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16A_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S16B_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S16B_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S15B_07": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S15B_07",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_01_v2": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_01_v2",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17A_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17A_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S17B_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S17B_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18A_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18A_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S18B_07": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S18B_07",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_01",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_02",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_03",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_04": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_04",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_05": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_05",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_06": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_06",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Quest_S19a_07": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Quest_S19A_07",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Event_S19_DarkHarvest_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_01_CompleteQuest",
+     "amount": 5
+    },
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_01_SpendCoins",
+     "amount": 300
+    }
+   ]
+  },
+  "Challenge_Season_Event_S19_DarkHarvest_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_01_CompleteHunt",
+     "amount": 3
+    },
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_01_GatherCoins",
+     "amount": 300
+    }
+   ]
+  },
+  "Challenge_Season_Event_S19_DarkHarvest_03": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_03_KillShrowdClones",
+     "amount": 5
+    },
+    {
+     "objectiveId": "Challenge_Season_Event_S19_DarkHarvest_03_UmbralKillsWithRadiant",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Event_S19_Ramsgiving_01": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Event_S19_Ramsgiving_01_Objective1",
+     "amount": 5000
+    }
+   ]
+  },
+  "Challenge_Season_Event_S19_Ramsgiving_02": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Event_S19_Ramsgiving_02_Objective1",
+     "amount": 5000
+    }
+   ]
+  },
+  "Challenge_Season_Reforge_Any": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Reforge_Any",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Daily_Challenges": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Daily_Challenges",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_GatherablesAny": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GatherablesAny",
+     "amount": 250
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandA": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandA",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandB": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandB",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandC": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandC",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandD": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandD",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandE": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandE",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandF": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandF",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandG": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandG",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandH": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandH",
+     "amount": 150
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandI": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandI",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandJ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandJ",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandK": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandK",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandL": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandL",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandM": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandM",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandN": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandN",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandO": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandO",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandP": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandP",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandQ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandQ",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandR": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandR",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandS": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandS",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandT": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandT",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_Gatherables_IslandU": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gatherables_IslandU",
+     "amount": 200
+    }
+   ]
+  },
+  "Challenge_Season_CellFuse_Rare": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_CellFuse_Rare",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_CellFuse_Epic": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_CellFuse_Epic",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Any": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Any",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Darkness": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Darkness",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Tempest": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Tempest",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Iceborne": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Iceborne",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Frank": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Frank",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Damage_Iceborne": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Damage_Iceborne",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Damage_Darkness": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Damage_Darkness",
+     "amount": 150000
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Damage_Bastion": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Damage_Bastion",
+     "amount": 150000
+    }
+   ]
+  },
+  "Challenge_Season_Omnicell_Use_Bastion": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Omnicell_Use_Bastion",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChests_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChests_Any",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_PatrolKeys_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolKeys_Any",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandA": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandA",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandB": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandB",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandC": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandC",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandD": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandD",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandE": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandE",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandF": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandF",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandG": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandG",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandH": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandH",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandI": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandI",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandJ": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandJ",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandK": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandK",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandL": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandL",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandM": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandM",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandN": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandN",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandO": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandO",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandP": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandP",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandQ": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandQ",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandR": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandR",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandS": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandS",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandT": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandT",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_PatrolChest_IslandU": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PatrolChest_IslandU",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_KillNeutralBlaze": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillNeutralBlaze",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Swordx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Swordx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Axex2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Axex2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Repeatersx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Repeatersx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Hammerx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Hammerx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Warpikex2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Warpikex2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Chainbladesx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Chainbladesx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Strikersx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Strikersx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Blazex2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Blazex2",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Kills_vs_Blaze_Friendsx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_vs_Blaze_Friendsx2",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Kills_vs_Blaze": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_vs_Blaze",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Frostx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Frostx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Umbralx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Umbralx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Shockx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Shockx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Radiantx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Radiantx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Neutralx2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Neutralx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoth_Terrax2": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoth_Terrax2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_IslandEventsAny": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEventsAny",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandC": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandC",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandC": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandC",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandC",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandD": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandD",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandD",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandE": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandE",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandE",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandF": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandF",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandF",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandG": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandG",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandG",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandH": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandH",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandH",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandI": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandI",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandI",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandJ": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandJ",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandJ",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandK": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandK",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandK",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandL": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandL",
+     "amount": 10
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandL",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandM": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandM",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandM",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandN": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandN",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandN",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandO": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandO",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandO",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandP": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandP",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandP",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandQ": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandQ",
+     "amount": 4
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandQ",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandR": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandR",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandR",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandS": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandS",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandS",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandT": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandT",
+     "amount": 7
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandT",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandTour_IslandU": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandTour_PatrolKeys_IslandU",
+     "amount": 6
+    },
+    {
+     "objectiveId": "Challenge_Season_IslandTour_Events_IslandU",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandD": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandD",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandE": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandE",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandF": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandF",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandG": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandG",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandH": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandH",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandI": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandI",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandJ": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandJ",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandK": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandK",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandL": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandL",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandM": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandM",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandN": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandN",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandO": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandO",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandP": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandP",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandQ": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandQ",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandR": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandR",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandS": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandS",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandT": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandT",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_IslandEvents_IslandU": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_IslandEvents_IslandU",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Total": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Total",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Total_Friendsx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Total_Friendsx2",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Kill_Funguy_Friendsx2": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kill_Funguy_Friendsx2",
+     "amount": 6
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Funguy": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Funguy",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Funguy": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Funguy",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Mint": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Mint",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Radiant_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Radiant_Paper",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Radiant_Paper_Thorns": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Radiant_Paper_Thorns",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Total_Friendsx2_IslandN": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Total_Friendsx2_IslandN",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Total_Chainblades_Mantis": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Total_Chainblades_Mantis",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Fauna_Gruks": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Fauna_Gruks",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Fauna_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Fauna_Any",
+     "amount": 200
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Fauna_Any_IslandF": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Fauna_Any_IslandF",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Total_IslandU": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Total_IslandU",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Bullseye_Alpha_Heroic_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Bullseye_Alpha_Heroic_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Lavaroller_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Lavaroller_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_All_Fulgars": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Fulgar",
+     "amount": 3
+    },
+    {
+     "objectiveId": "Challenge_Season_Kills_Fulgar_Alpha",
+     "amount": 2
+    },
+    {
+     "objectiveId": "Challenge_Season_Kills_Fulgar_Umbral",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Enraged_Radiant_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Enraged_Radiant_Paper",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging_Host_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging_Host_Alpha",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Mantis_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Mantis_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging_IslandU": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging_IslandU",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging_Rock_Frost": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging_Rock_Frost",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Aethercharged": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Aethercharged",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Aethercharged_Island_U": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Aethercharged_Island_U",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Kills_RagingAethercharged": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_RagingAethercharged",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_RagingAether_Wolf": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_RagingAether_Wolf",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging_Frostwulf": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging_Frostwulf",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Raging_McRollin": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Raging_McRollin",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Kills_Aether_McRollin_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Kills_Aether_McRollin_Alpha",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAny": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAny",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_EscalationPatrolAny": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationPatrolAny",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_EscalationPatrolHard": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationPatrolHard",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyFrost": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyFrost",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyBlaze": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyBlaze",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyShock": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyShock",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyUmbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyUmbral",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyTerra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyTerra",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_EscalationAnyRadiant": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_EscalationAnyRadiant",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_LanternDamage": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_LanternDamage",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths_1Fight",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Fulgar_Alpha_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Fulgar_Alpha_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths_Enraged_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths_Enraged_1Fight",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths_Aether_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths_Aether_1Fight",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths_Raging": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths_Raging",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_StaggerBehemoths_Aether": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerBehemoths_Aether",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Habanero": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Habanero",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Thunderbird_Enraged": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Thunderbird_Enraged",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Rock_Alpha_Aethercharged": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Rock_Alpha_Aethercharged",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_McRollin_Alpha_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_McRollin_Alpha_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Frost": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Frost",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Shock": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Shock",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Blaze": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Blaze",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Umbral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Umbral",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Radiant": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Radiant",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Terra": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Terra",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Behemoths_Neutral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Behemoths_Neutral",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_StaggerDamageTotal": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerDamageTotal",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_StaggerDamage_CrowbearAlpha_HitReduces": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerDamage_CrowbearAlpha_HitReduces",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_WoundDamageTotal_Warpike": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_WoundDamageTotal_Warpike",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_PartDamageTotal": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PartDamageTotal",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Habanero_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Habanero_IslandU",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_DamageTotal": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageTotal",
+     "amount": 10000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageTotal_Friendsx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageTotal_Friendsx2",
+     "amount": 600000
+    }
+   ]
+  },
+  "Challenge_Season_KillBehemoths_Friendsx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_KillBehemoths_Friendsx2",
+     "amount": 60
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Shock_vs_Terra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Shock_vs_Terra",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Blaze_vs_Terra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Blaze_vs_Terra",
+     "amount": 600000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Shock": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Shock",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Terra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Terra",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Mantis": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Mantis",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Armstrong": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Armstrong",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Randall": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Randall",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Electroquill": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Electroquill",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Sally_Alpha_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Sally_Alpha_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Fulgar_Alpha_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Fulgar_Alpha_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Frost_Thorns_Bugbear_Blaze": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Frost_Thorns_Bugbear_Blaze",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Shadowcat_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Shadowcat_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Crowbear_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Crowbear_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Chainblades_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Chainblades_1Fight",
+     "amount": 35000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_McRollin": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_McRollin",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Raging",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Raging",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_1Fight",
+     "amount": 20000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_1Fight_Bullseye_Blaze": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_1Fight_Bullseye_Blaze",
+     "amount": 20000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Bullseye_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Bullseye_Alpha",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_1Fight_Scissors_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_1Fight_Scissors_Alpha",
+     "amount": 20000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Terramane": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Terramane",
+     "amount": 20000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Thorns_Warpike_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Thorns_Warpike_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Damage_Thorns_Warpike": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Damage_Thorns_Warpike",
+     "amount": 50000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Raging_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Raging_IslandU",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Aethercharged_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Aethercharged_IslandU",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Aethercharged": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Aethercharged",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Frost_IslandH": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Frost_IslandH",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Umbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Umbral",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Shock_IslandI": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Shock_IslandI",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Blaze_IslandI": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Blaze_IslandI",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Neutral_Shock_IslandL": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Neutral_Shock_IslandL",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Umbral_IslandM": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Umbral_IslandM",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Terra_IslandN": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Terra_IslandN",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Shock_IslandO": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Shock_IslandO",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Blaze_IslandP": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Blaze_IslandP",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_vs_Terra_IslandQ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_vs_Terra_IslandQ",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandA": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_A",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandB": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_B",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandC": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_C",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandD": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_D",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandE": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_E",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandF": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_F",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandG": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_G",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandH": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_H",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandI": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_I",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandJ": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_J",
+     "amount": 5000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandK": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_K",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandL": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_L",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandM": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_M",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Enraged_Island_M": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Enraged_Island_M",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandN": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_N",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandO": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_O",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandP": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_P",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandQ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_Q",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandR": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_R",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandS": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_S",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandT": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_T",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Island_U",
+     "amount": 2000000
+    }
+   ]
+  },
+  "Challenge_Season_StaggerDamage_Island_U": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_StaggerDamage_Island_U",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_WoundDamage_Island_U": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_WoundDamage_Island_U",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_PartDamage_Island_U": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PartDamage_Island_U",
+     "amount": 200000
+    }
+   ]
+  },
+  "Challenge_Season_AxeInterrupts": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_AxeInterrupts",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Mantis": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Mantis",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Bugbear": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Bugbear",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Electroquill_Umbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Electroquill_Umbral",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Alpha_Beaver": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Alpha_Beaver",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Radiant_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Radiant_Paper",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Bullseye_Blaze": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Bullseye_Blaze",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Aether_Sally": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Aether_Sally",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Firesacs_Aether_Sally_Terra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Aether_Sally_Terra",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_BreakAllPartsKill_Fulgars": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakAllPartsKill_Fulgars",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_Enraged_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_Enraged_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_Aether_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_Aether_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Mantis": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Mantis",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Moonface_AlphaHeroic": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Moonface_AlphaHeroic",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Radiant_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Radiant_Paper",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Salt": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Salt",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Paper_Umbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Paper_Umbral",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_McRollin_Alpha": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_McRollin_Alpha",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Wounds_1Fight_Crowbear": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wounds_1Fight_Crowbear",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Damage_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_1Fight",
+     "amount": 50000
+    }
+   ]
+  },
+  "Challenge_Season_Part_Damage_Sword_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Part_Damage_Sword_1Fight",
+     "amount": 25000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Enraged_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Enraged_1Fight",
+     "amount": 50000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_Aether_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_Aether_1Fight",
+     "amount": 50000
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_1Fight": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_1Fight",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_3_1Fight_Crowbear": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_3_1Fight_Crowbear",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Randall_1Fight": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Randall_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Alpha_Moonface_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Moonface_1Fight",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_5_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_5_1Fight",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_4_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_4_1Fight",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Enraged_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Enraged_1Fight",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Enraged_Radiant_Host": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Enraged_Radiant_Host",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Aether_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Aether_1Fight",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Chainblades": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Chainblades",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Warpike": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Warpike",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Enraged_Behemoths_Warpike": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Enraged_Behemoths_Warpike",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Raging",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Habanero": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Habanero",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Snowflake_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Snowflake_Alpha",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Habanero_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Habanero_1Fight",
+     "amount": 4
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Blaze": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Blaze",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Frost": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Frost",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Shock": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Shock",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Umbral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Umbral",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Radiant": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Radiant",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Behemoths_Neutral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Behemoths_Neutral",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Damage_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Damage_1Fight",
+     "amount": 15000
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Damage_Enraged_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Damage_Enraged_1Fight",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Wound_Damage_Aether_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Wound_Damage_Aether_1Fight",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Damage_1Fight": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Damage_1Fight",
+     "amount": 50000
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Damage_Enraged_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Damage_Enraged_1Fight",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_Stagger_Damage_Aether_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Stagger_Damage_Aether_1Fight",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_Part_Damage_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Part_Damage_1Fight",
+     "amount": 15000
+    }
+   ]
+  },
+  "Challenge_Season_Damage_ChainBlades_SingleFight_Penalty": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Damage_ChainBlades_SingleFight_Penalty",
+     "amount": 35000
+    }
+   ]
+  },
+  "Challenge_Season_Part_Damage_Enraged_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Part_Damage_Enraged_1Fight",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_Part_Damage_Aether_1Fight": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Part_Damage_Aether_1Fight",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Any",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_Break_Radiant": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Radiant",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Break_Terra": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Terra",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Break_Heads": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Heads",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Break_Heads_Raging": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Heads_Raging",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Break_Heads_Umbral": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Heads_Umbral",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Break_Shock_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Shock_Raging",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_Break_Shock_Hammer": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Shock_Hammer",
+     "amount": 30
+    }
+   ]
+  },
+  "Challenge_Season_Break_Tails": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Tails",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_Break_Tails_Raging": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Tails_Raging",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Compound_BreakParts_Radiant": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Compound_BreakParts_Heads_Radiant",
+     "amount": 10
+    },
+    {
+     "objectiveId": "Challenge_Season_Compound_BreakParts_Tails_Radiant",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Break_AlphaBeaver_Tail_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_AlphaBeaver_Tail_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_RadiantPaper_Tail_Raging": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_RadiantPaper_Tail_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_Antlers_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Antlers_Paper",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Break_Shockmane_Alpha_Tail_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Shockmane_Alpha_Tail_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_Mint_Head": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Mint_Head",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_Crowbear_Tail": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Crowbear_Tail",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Break_Kaltuga_Head": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Kaltuga_Head",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_Snowflake": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Snowflake",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Break_BlazeBeaver_Tail_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_BlazeBeaver_Tail_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_Terramane_Alpha_Head_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Terramane_Alpha_Head_Raging",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_Break_Crowbear_Alpha_Tail": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_BloodshotCrowbear_Tail",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_BlazeBugbear_Limbs": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_BlazeBugbear_Limbs",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Break_Bugbear_Limbs": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Bugbear_Limbs",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Compound_Showdown_1_Bugbear": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Compound_BreakParts_Bugbear_1Fight",
+     "amount": 1
+    },
+    {
+     "objectiveId": "Challenge_Compound_Damage_Wound_Bugbear_1Fight",
+     "amount": 10000
+    }
+   ]
+  },
+  "Challenge_Season_Break_Moonface_Leg": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Moonface_Leg",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Raging",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Raging_Aether": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Raging_Aether",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Salt_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Salt_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Scissors_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Scissors_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Thunderbird_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Thunderbird_Raging",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Funguy": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Funguy",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Bullseye": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Bullseye",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Bullseye_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Bullseye_Alpha",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Bugbear_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Bugbear_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_McRollin_Alpha_RagingAether": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_McRollin_Alpha_RagingAether",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Lerawr_Alpha_RagingAether": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Lerawr_Alpha_RagingAether",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_McRollin_Alpha_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_McRollin_Alpha_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Mint_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Mint_Raging",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_BreakParts_Raging_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BreakParts_Raging_IslandU",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Break_FulgarAlpha_Tail": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_FulgarAlpha_Tail",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_Raging_FulgarUmbral_TailOrHead": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Raging_FulgarUmbral_TailOrHead",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Break_Host_Tail": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Host_Tail",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_LeRawr_Head": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_LeRawr_Head",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_Armour_Rock": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Armour_Rock",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Break_McRollinAlpha_Head_Aether": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_McRollinAlpha_Head_Aether",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Break_McRollinAlpha_Tail_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_McRollinAlpha_Tail_Raging",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_Break_Salt_Tail_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Salt_Tail_Raging",
+     "amount": 2
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Habanero": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Habanero",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_IslandU",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Frost": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Frost",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Blaze": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Blaze",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Shock": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Shock",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Umbral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Umbral",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Radiant": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Radiant",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Terra": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Terra",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeDamage_Behemoth_Neutral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeDamage_Behemoth_Neutral",
+     "amount": 100000
+    }
+   ]
+  },
+  "Challenge_Season_GrenadeInterrupts": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GrenadeInterrupts",
+     "amount": 25
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_IslandU": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_IslandU",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_vs_Blaze": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_vs_Blaze",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_Raging": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_Raging",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_Aether": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_Aether",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_Beaver_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_Beaver_Alpha",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_AnyWeapon_Electroquill": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_AnyWeapon_Electroquill",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Any_Enraged_Beaver_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Any_Enraged_Beaver_Alpha",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Any_Aether_LeRawr": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Any_Aether_LeRawr",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Sword": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Sword",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Sword_Salt": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Sword_Salt",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Axe": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Axe",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Axe_Shadowcat": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Axe_Shadowcat",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Chainblades": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Chainblades",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BigHit_Chainblades_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BigHit_Chainblades_1Fight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_DamageSwordx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageSwordx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageTotal_FrostBehemothx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageTotal_FrostBehemothx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageTotal_ShockBehemothx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageTotal_ShockBehemothx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageAxex2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageAxex2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageRepeatersx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageRepeatersx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageRepeaters_Total": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageRepeaters_Total",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_DamageHammerx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageHammerx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageHammer": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_DamageHammer",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_DamageWarpikex2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageWarpikex2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageChainbladesx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageChainbladesx2",
+     "amount": 1000000
+    }
+   ]
+  },
+  "Challenge_Season_DamageStrikersx2": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gold_DamageStrikersx2",
+     "amount": 1500000
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_1Fight_Enraged_Beaver_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_1Fight_Enraged_Beaver_Alpha",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_FulgarAlpha": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_FulgarAlpha",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_McRollin_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_McRollin_Alpha",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Rock_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Rock_Any",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Snowflake_Alpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Snowflake_Alpha",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Scissors_Alpha": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Scissors_Alpha",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Shadowcat": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Shadowcat",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Electroquill_Umbral": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Electroquill_Umbral",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_Shadowcat_Tail": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Shadowcat_Tail",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Break_Shadowtouched_HeadOrTail": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Break_Shadowtouched_HeadOrTail",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Radiant_Paper": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Radiant_Paper",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Sword": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Sword",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Axe": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Axe",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Chainblades": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Chainblades",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Omnicell_Any": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Omnicell_Any",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Warpike": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Warpike",
+     "amount": 15
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Strikers": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Strikers",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Hammer": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Hammer",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Repeaters": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Repeaters",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Habanero": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Habanero",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_LeRawr": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_LeRawr",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Thunderbird_Chainblades": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Thunderbird_Chainblades",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_Umbral_Paper_Strikers": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_Umbral_Paper_Strikers",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_UmbralPaper_SingleFight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_UmbralPaper_SingleFight",
+     "amount": 3
+    }
+   ]
+  },
+  "Challenge_Season_Interrupt_McRollin": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupt_McRollin",
+     "amount": 5
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandA": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandA",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandB": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandB",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandC": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandC",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandD": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandD",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandE": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandE",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandF": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandF",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandG": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandG",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandH": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandH",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandI": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandI",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandJ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandJ",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandK": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandK",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandL": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandL",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandM": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandM",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandN": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandN",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandO": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandO",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandP": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandP",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandQ": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandQ",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandR": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandR",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandS": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandS",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandT": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandT",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_IslandU": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_IslandU",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Blaze": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Blaze",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Frost": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Frost",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Shock": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Shock",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Umbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Umbral",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Radiant": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Radiant",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Terra": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Terra",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Interrupts_Neutral": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Interrupts_Neutral",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Seasonal_WoundDamage_vs_Frost": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Seasonal_WoundDamage_vs_Frost",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_PerfectDodges_50": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PerfectDodges_50",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_PerfectDodges_Physical": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_PerfectDodges_Physical",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_FulgarAlpha": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_FulgarAlpha",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Mantis": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Mantis",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Rock": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Rock",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Beaver": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Beaver",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Paper_Umbral": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Paper_Umbral",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_ShockmaneAlpha": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_ShockmaneAlpha",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_ScissorsAlphaHeroic": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_ScissorsAlphaHeroic",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Habanero": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Habanero",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Terra_Enraged": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Terra",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Radiant_Enraged": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Radiant_Enraged",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Moonface_Alpha": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Moonface_Alpha",
+     "amount": 50
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Shadowcat_1Fight": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Shadowcat_1Fight",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Habanero_Raging": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Habanero_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Umbral_Raging": {
+   "category": "Seasonal_Challenge_ExtraLarge",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Umbral_Raging",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Frost": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Frost",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Mint_Raging": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Mint_Raging",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_Dodge_Projectiles_Glitter": {
+   "category": "Seasonal_Challenge_Large",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Dodge_Projectiles_Glitter",
+     "amount": 20
+    }
+   ]
+  },
+  "Challenge_Season_BountiesAny": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesAny",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BountiesAny_15": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesAny_15",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BountiesBronze": {
+   "category": "WeeklyChallengeGold",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesBronze",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BountiesSilver": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesSilver",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BountiesGold": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesGold",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_BountiesGold_5": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_BountiesGold_5",
+     "amount": 1
+    }
+   ]
+  },
+  "Challenge_Season_GatherNotes": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GatherNotes",
+     "amount": 500000
+    }
+   ]
+  },
+  "Challenge_Season_Gather_Aethersparks": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gather_Aethersparks",
+     "amount": 200
+    }
+   ]
+  },
+  "Challenge_Season_GatherAetherDust": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_GatherAetherDust",
+     "amount": 200
+    }
+   ]
+  },
+  "Challenge_Season_Gather_Marks_Steel": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gather_Marks_Steel",
+     "amount": 300
+    }
+   ]
+  },
+  "Challenge_Season_Gather_Combat_Merits": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Gather_Combat_Merits",
+     "amount": 500
+    }
+   ]
+  },
+  "Challenge_Season_Glide_Total": {
+   "category": "Seasonal_Challenge_Medium",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Glide_Total",
+     "amount": 600
+    }
+   ]
+  },
+  "Challenge_Season_Glider_Gyms_10": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Glider_Gyms_10",
+     "amount": 10
+    }
+   ]
+  },
+  "Challenge_Season_Spend_Notes": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Spend_Notes",
+     "amount": 250000
+    }
+   ]
+  },
+  "Challenge_Season_Spend_RewardCacheCoins": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Spend_RewardCacheCoins",
+     "amount": 1000
+    }
+   ]
+  },
+  "Challenge_Season_Spend_Aethersparks": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Spend_Aethersparks",
+     "amount": 500
+    }
+   ]
+  },
+  "Challenge_Season_Spend_AetherDust": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Spend_AetherDust",
+     "amount": 500
+    }
+   ]
+  },
+  "Challenge_Season_Spend_SteelMarks": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Spend_SteelMarks",
+     "amount": 100
+    }
+   ]
+  },
+  "Challenge_Season_Craft_Consumables": {
+   "category": "Seasonal_Challenge_Small",
+   "objectives": [
+    {
+     "objectiveId": "Challenge_Season_Craft_Consumables",
+     "amount": 50
+    }
+   ]
+  }
+ }
+}

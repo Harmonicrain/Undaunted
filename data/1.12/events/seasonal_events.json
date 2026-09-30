@@ -1,0 +1,41 @@
+{
+ "_comment": [
+  "Seasonal events the 1.12 metagame runs (SEASONAL_EVENTS_FILE). Each event is served in",
+  "/game_tuning/seasonal_event_schedule while start..end covers now, and its featureFlags are",
+  "forced on in the client and gameserver by the runtime DLL (GET /undaunted/feature_flags).",
+  "Dark Harvest: EVENT_DARKHARVEST is the EventId of the EVENT_DARKHARVEST_* quest series; the Dark_Harvest_* ids",
+  "show the five ciphers in Ramsgate's Dark Harvest level (lore_object_bp hides one unless its EventId is scheduled);",
+  "world servers answer schedule checks from this schedule through the runtime DLL, fetched once per launch;",
+  "city_event_dark_harvest_bpff streams Ramsgate's Dark Harvest level (decorations, the Unseen),",
+  "city_event_stall_bpff the event stall (Ozz). Remove an event or move its end to switch it off;",
+  "the DLL reads the flags once per launch, so clients and world servers need a restart.",
+  "eventPasses: progression tracks served with the event's window (the Unseen Recruit event pass).",
+  "storeTags: store tags listed and sold only while the event runs (Honest Ozz's Event Store, the event pass premium)."
+ ],
+ "events": [
+  {
+   "name": "Dark Harvest",
+   "start": "2026-09-25T00:00:00Z",
+   "end": "2026-11-06T00:00:00Z",
+   "scheduledItems": [
+    "EVENT_DARKHARVEST",
+    "Dark_Harvest_Wreckage",
+    "Dark_Harvest_Icicle",
+    "Dark_Harvest_Stump",
+    "Dark_Harvest_Stream",
+    "Dark_Harvest_Trees"
+   ],
+   "featureFlags": [
+    "city_event_dark_harvest_bpff",
+    "city_event_stall_bpff"
+   ],
+   "eventPasses": [
+    "eventpass_unseenrecruit"
+   ],
+   "storeTags": [
+    "seasonal_event",
+    "eventpass_unseenrecruit_pass"
+   ]
+  }
+ ]
+}

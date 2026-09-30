@@ -1,0 +1,259 @@
+{
+ "source": "Decoded read-only from the installed 1.12.0 client (CL392819): Archon_UI_0-WindowsClient.pak Social/LinkedSlayers/linked_slayer_rewards and linked_slayer_config. The gameserver rolls prize pools from these natively; this copy only validates what it stores. Committed as data/1.12/linked-slayer.",
+ "config": {
+  "classes_to_draw": [
+   5,
+   4,
+   2,
+   1
+  ],
+  "max_rewards": 4
+ },
+ "rewards": [
+  {
+   "row": "Rams_0_00",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 2000,
+   "weight": 100,
+   "class": 0
+  },
+  {
+   "row": "Rams_0_01",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 3000,
+   "weight": 80,
+   "class": 0
+  },
+  {
+   "row": "Rams_0_02",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 4000,
+   "weight": 60,
+   "class": 0
+  },
+  {
+   "row": "Rams_0_03",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 5000,
+   "weight": 50,
+   "class": 0
+  },
+  {
+   "row": "Aetherdust_0_00",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 60,
+   "weight": 15,
+   "class": 0
+  },
+  {
+   "row": "BountyToken_0_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 2,
+   "weight": 20,
+   "class": 0
+  },
+  {
+   "row": "BountyToken_0_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 3,
+   "weight": 10,
+   "class": 0
+  },
+  {
+   "row": "PatrolChest_0_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 5,
+   "weight": 60,
+   "class": 0
+  },
+  {
+   "row": "CombatMerits_0_00",
+   "catalog_id": "CURRENCY_PJM_WEAPON",
+   "quantity": 20,
+   "weight": 100,
+   "class": 0
+  },
+  {
+   "row": "Aetherdust_1_00",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 60,
+   "weight": 50,
+   "class": 1
+  },
+  {
+   "row": "Aetherdust_1_01",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 90,
+   "weight": 25,
+   "class": 1
+  },
+  {
+   "row": "Aetherdust_1_02",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 120,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_1_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 4,
+   "weight": 40,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_1_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 8,
+   "weight": 20,
+   "class": 1
+  },
+  {
+   "row": "PatrolChest_1_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 5,
+   "weight": 60,
+   "class": 1
+  },
+  {
+   "row": "PatrolChest_1_01",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 10,
+   "weight": 10,
+   "class": 1
+  },
+  {
+   "row": "CombatMerits_1_01",
+   "catalog_id": "CURRENCY_PJM_WEAPON",
+   "quantity": 30,
+   "weight": 80,
+   "class": 1
+  },
+  {
+   "row": "BountyToken_2_00",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 2,
+   "weight": 100,
+   "class": 2
+  },
+  {
+   "row": "BountyToken_2_01",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 3,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "BountyToken_2_02",
+   "catalog_id": "TOKEN_BOUNTY_DRAFT_PREMIUM",
+   "quantity": 5,
+   "weight": 10,
+   "class": 2
+  },
+  {
+   "row": "Aetherdust_2_00",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 150,
+   "weight": 100,
+   "class": 2
+  },
+  {
+   "row": "Aetherdust_2_01",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 300,
+   "weight": 50,
+   "class": 2
+  },
+  {
+   "row": "Aetherdust_2_02",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 450,
+   "weight": 25,
+   "class": 2
+  },
+  {
+   "row": "Rams_2_00",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 8000,
+   "weight": 25,
+   "class": 2
+  },
+  {
+   "row": "Rams_2_01",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 12000,
+   "weight": 10,
+   "class": 2
+  },
+  {
+   "row": "PatrolChest_2_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 10,
+   "weight": 60,
+   "class": 2
+  },
+  {
+   "row": "Rams_3_00",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 15000,
+   "weight": 100,
+   "class": 3
+  },
+  {
+   "row": "Rams_3_01",
+   "catalog_id": "CURRENCY_NOTES",
+   "quantity": 18000,
+   "weight": 50,
+   "class": 3
+  },
+  {
+   "row": "PatrolChest_3_00",
+   "catalog_id": "TOKEN_DAILY_PATROL_BONUS_PURCHASED",
+   "quantity": 12,
+   "weight": 15,
+   "class": 3
+  },
+  {
+   "row": "Aetherdust_3_00",
+   "catalog_id": "CURRENCY_CELLDUST",
+   "quantity": 600,
+   "weight": 75,
+   "class": 3
+  },
+  {
+   "row": "SlayerHalo_3_00",
+   "catalog_id": "AC_HEAD_CROWN",
+   "quantity": 1,
+   "weight": 100,
+   "class": 3
+  },
+  {
+   "row": "CombatMerits_3_00",
+   "catalog_id": "CURRENCY_PJM_WEAPON",
+   "quantity": 100,
+   "weight": 100,
+   "class": 3
+  },
+  {
+   "row": "CombatMerits_3_01",
+   "catalog_id": "CURRENCY_PJM_WEAPON",
+   "quantity": 200,
+   "weight": 50,
+   "class": 3
+  },
+  {
+   "row": "Aethersparks_3_00",
+   "catalog_id": "CURRENCY_PJM_PRESTIGE_EMPTY",
+   "quantity": 25,
+   "weight": 25,
+   "class": 3
+  },
+  {
+   "row": "Aethersparks_3_00_0",
+   "catalog_id": "CURRENCY_PJM_PRESTIGE_EMPTY",
+   "quantity": 50,
+   "weight": 10,
+   "class": 3
+  }
+ ]
+}

@@ -58,6 +58,7 @@ sponsorship, endorsement or affiliation (ADDITIONAL_TERMS.md, terms 3 and 4).
 
 - This repository does not include the game client or packaged game assets.
   Credentials and keys are kept out of version control (`.env` files are ignored).
-- Some data files (for example `UndauntedMetagame/src/vendor/escalation/seasons.json`
-  and the store catalogue) contain identifiers and tuning values read from the
-  installed client for interoperability. Their provenance is recorded in each file.
+- Some data files contain identifiers, tables, tuning values and names read from
+  the installed client for interoperability: the 1.12.0 data in `data/1.12`
+  (provenance and credits in `data/1.12/README.md`) and the 1.4.4 data in the
+  packages' `src/vendor` folders (provenance recorded in each file).

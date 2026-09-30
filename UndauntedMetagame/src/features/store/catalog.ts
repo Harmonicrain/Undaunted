@@ -7,9 +7,8 @@ import { AddMiddlemanOffers } from "../middleman/offers";
 
 // The storefront. Dauntless 1.4.4 ships its catalogue in src/vendor. Another
 // client build points STORE_DATA_DIR at a directory holding its own
-// store_catalog.json and store_item_kinds.json (1.12.0: generated from the
-// running client's item catalogue by tools/Build-Store112.mjs). That data is
-// game-derived, so it lives outside the repository.
+// store_catalog.json and store_item_kinds.json (1.12.0's, generated from the
+// running client's item catalogue, is data/1.12/store).
 function Load(): { catalog: Record<string, any>; itemKinds: Record<string, string> } {
     const Dir = process.env.STORE_DATA_DIR;
 

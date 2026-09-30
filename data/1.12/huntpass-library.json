@@ -1,0 +1,462 @@
+[
+  {
+    "trackId": "season09a",
+    "rowName": "HuntPass_Season09a",
+    "sku": "season09a_premium",
+    "storeTag": "season09a_pass",
+    "entitlement": "season09a_premium",
+    "title": "Searing Talons",
+    "description": "Earn Hunt Pass XP to progress through Searing Talons and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season09b",
+    "rowName": "HuntPass_Season09b",
+    "sku": "season09b_premium",
+    "storeTag": "season09b_pass",
+    "entitlement": "season09b_premium",
+    "title": "Rogue Elements",
+    "description": "Earn Hunt Pass XP to progress through Rogue Elements and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season10a",
+    "rowName": "HuntPass_Season10a",
+    "sku": "season10a_premium",
+    "storeTag": "season10a_pass",
+    "entitlement": "season10a_premium",
+    "title": "Relics & Ruin",
+    "description": "Earn Hunt Pass XP to progress through Relics & Ruin and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season10b",
+    "rowName": "HuntPass_Season10b",
+    "sku": "season10b_premium",
+    "storeTag": "season10b_pass",
+    "entitlement": "season10b_premium",
+    "title": "Clear Skies",
+    "description": "Earn Hunt Pass XP to progress through Clear Skies and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season10c",
+    "rowName": "HuntPass_Season10c",
+    "sku": "season10c_premium",
+    "storeTag": "season10c_pass",
+    "entitlement": "season10c_premium",
+    "title": "FARSLAYER'S FALL",
+    "description": "Earn Hunt Pass XP to progress through FARSLAYER'S FALL and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season11a",
+    "rowName": "HuntPass_Season11a",
+    "sku": "season11a_premium",
+    "storeTag": "season11a_pass",
+    "entitlement": "season11a_premium",
+    "title": "Strange Horizons",
+    "description": "Earn Hunt Pass XP to progress through Strange Horizons and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season11b",
+    "rowName": "HuntPass_Season11b",
+    "sku": "season11b_premium",
+    "storeTag": "season11b_pass",
+    "entitlement": "season11b_premium",
+    "title": "Alchemy of War",
+    "description": "Earn Hunt Pass XP to progress through Alchemy of War and unlock its rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season12a",
+    "rowName": "HuntPass_Season12a",
+    "sku": "season12a_premium",
+    "storeTag": "season12a_pass",
+    "entitlement": "season12a_premium",
+    "title": "Cold Front",
+    "description": "Ramsgate has made first contact with the Frostwardens of Skaldeskar, protectors of a wintery realm isolated from the rest of the Shattered Isles for centuries. Gregario Flynt has wasted little time adapting their distinctive Frostwarden gear for the latest Hunt Pass.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season12b",
+    "rowName": "HuntPass_Season12b",
+    "sku": "season12b_premium",
+    "storeTag": "season12b_pass",
+    "entitlement": "season12b_premium",
+    "title": "Realm of Ice",
+    "description": "As auroras curtain the skies and foretell unknown challenges upon the horizon, Skaldeskar itself opens up to the outside world for the first time in its history. Gregario Flynt brings those brilliantly chilled looks to the Slayers of Ramsgate.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season13a",
+    "rowName": "HuntPass_Season13a",
+    "sku": "season13a_premium",
+    "storeTag": "season13a_pass",
+    "entitlement": "season13a_premium",
+    "title": "Time Strike",
+    "description": "Time itself is striking at the heart of reality—and the Slayers of Ramsgate may be the only thing standing in the way of a time-lost apocalypse. Fight the past to save the future!",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season13b",
+    "rowName": "HuntPass_Season13b",
+    "sku": "season13b_premium",
+    "storeTag": "season13b_pass",
+    "entitlement": "season13b_premium",
+    "title": "Echoes of the Future",
+    "description": "The forces of time are at war, past and future waging an eternal battle within the timestream just outside our reality—with our world as the prize. As the Chronovore breaches our dimension, the Void Runners and the Scions of Infinity both see a gateway to conquest...and a way out of their eternal prison. Will Ramsgate choose a side, or stand alone against the tides of fate?",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season14a",
+    "rowName": "HuntPass_Season14a",
+    "sku": "season14a_premium",
+    "storeTag": "season14a_pass",
+    "entitlement": "season14a_premium",
+    "title": "Wild Thunder",
+    "description": "The Ostian Hinterlands Rangers have been operating mostly in secret, beyond territory usually frequented by the Slayers of Ramsgate. Deserters by Ostian law, they’ve sworn to protect the settlers abandoned by Ostigaard’s Imperial Triumvirate. But a returning threat will force them to seek the aid of the exiled Admiral Zai.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season14b",
+    "rowName": "HuntPass_Season14b",
+    "sku": "season14b_premium",
+    "storeTag": "season14b_pass",
+    "entitlement": "season14b_premium",
+    "title": "Ostigaard Justice",
+    "description": "Heavily armoured Slayer shock troopers, the Ostigaard Enforcers are the iron right hand of Ostia’s Imperial Triumvirate—dispatched, officially, to defend against the rising threats facing Ostian civilians. But that's not Ostigaard's only motive. A long-lost industrial island has been found, and the Enforcers are determined to retake it for the empire. \r\n\r\nIf the island will allow it...",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season15a",
+    "rowName": "HuntPass_Season15a",
+    "sku": "season15a_premium",
+    "storeTag": "season15a_pass",
+    "entitlement": "season15a_premium",
+    "title": "Power Balance",
+    "description": "The Orrery’s archives have opened, unlocking long lost technologies and equipment. Don the unique creations of the aethersmiths of Avellania in the Power Balance Hunt Pass.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season15b",
+    "rowName": "HuntPass_Season15b",
+    "sku": "season15b_premium",
+    "storeTag": "season15b_pass",
+    "entitlement": "season15b_premium",
+    "title": "Warlords of Krolach",
+    "description": "The Krolachi Warlords were driven from their home by Ostia and its meddling with Behemoth creation. As Sahvyt, the Ostian blade, made its way trhough the Shattered Isles, the Warlords of Krolach were forced to seek refuge in Ramsgate. This group of warriors is ready to fight back for their homeland. \r\n\r\nUnlock this pass to join the Wild Hunt and earn Krolachi Warlod rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season16a",
+    "rowName": "HuntPass_Season16a",
+    "sku": "season16a_premium",
+    "storeTag": "season16a_pass",
+    "entitlement": "season16a_premium",
+    "title": "Lawless Skies",
+    "description": "There are many pirate crews that sail the skies of the Shattered Isles. Each one plays by it's own set of rules, searching for the treasures in the Shattered Isles. But as Ostia grows more powerful, they're banding together to protect their lawless way of life. Now they turn to Ramsgate. Will you help the outlaws?",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season16b",
+    "rowName": "HuntPass_Season16b",
+    "sku": "season16b_premium",
+    "storeTag": "season16b_pass",
+    "entitlement": "season16b_premium",
+    "title": "Reach of Radiance",
+    "description": "During a recent archeological dig on Conundrum Rocks, Orrery Secretkeepers discovered the key to a new radiant power. They won't share where the power comes from, but claim it could be the last weapon humanity ever needs.\r\n\r\nUnlock this pass to harness the power of Radiant aether and earn gleaming Orrery rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season17",
+    "rowName": "HuntPass_Season17",
+    "sku": "season17_premium",
+    "storeTag": "season17_pass",
+    "entitlement": "season17_premium",
+    "title": "Slayer Commission",
+    "description": "Slayers earn valuable prizes for their work in the Shattered Isles. Slay Behemoths and complete bounties to earn Hunt Pass XP. Reach level 100 to earn maximum rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season19",
+    "rowName": "HuntPass_Season19",
+    "sku": "season19_premium",
+    "storeTag": "season19_pass",
+    "entitlement": "season19_premium",
+    "title": "Elemental Fury (Slayer Commission)",
+    "description": "Slayers earn valuable prizes for their work in the Shattered Isles. Slay Behemoths and complete bounties to earn Hunt Pass XP. Reach level 100 to earn maximum rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season18",
+    "rowName": "HuntPass_Season18",
+    "sku": "season18_premium",
+    "storeTag": "season18_pass",
+    "entitlement": "season18_premium",
+    "title": "Dire Discovery (Slayer Commission)",
+    "description": "Slayers earn valuable prizes for their work in the Shattered Isles. Slay Behemoths and complete bounties to earn Hunt Pass XP. Reach level 100 to earn maximum rewards.",
+    "hasFreeTrack": true
+  },
+  {
+    "trackId": "season03_vault",
+    "rowName": "HuntPass_Season03_vault",
+    "sku": "season03_vault_premium",
+    "storeTag": "season03_vault_pass",
+    "entitlement": "season03_vault_premium",
+    "title": "Farslayer Vengeance",
+    "description": "The Farslayers were driven from their outpost on Arbourhome by an Agarus that took root in their gigantic home-tree. Now, their sanctuary stands in Ramsgate as a beacon of hope to all Farslayers who still wander the Shattered Isles. \r\n\r\nUnlock this pass to avenge Arbourhome and earn Farslayer rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season04_vault",
+    "rowName": "HuntPass_Season04_vault",
+    "sku": "season04_vault_premium",
+    "storeTag": "season04_vault_pass",
+    "entitlement": "season04_vault_premium",
+    "title": "Krolachi Flame",
+    "description": "The Krolachi people live at the arid edges of civilization, learning to harness the destructive power of blaze aether. While some Slayers believe their way of life to be barbaric, Krolach remains a strong ally to Ramsgate. \r\n\r\nUnlock this pass to join the Krolachi commoners and earn fiery-hot rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season05_vault",
+    "rowName": "HuntPass_Season05_vault",
+    "sku": "season05_vault_premium",
+    "storeTag": "season05_vault_pass",
+    "entitlement": "season05_vault_premium",
+    "title": "Secret Assassins",
+    "description": "These stealth warriors strike at Behemoths from the shadows. Only a few of their most trusted allies know the true identity of these secretive slayers.\r\n\r\nUnlock this pass to access the secrets of the Hidden Blades and earn shadowy ninja rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season06a_vault",
+    "rowName": "HuntPass_Season06a_vault",
+    "sku": "season06a_vault_premium",
+    "storeTag": "season06a_vault_pass",
+    "entitlement": "season06a_vault_premium",
+    "title": "Corsair Crew",
+    "description": "Lady Luck's pirate crew first arrived in Ramsgate around the same time the Malkarion was discovered in the maelstrom. The pirate captain brought her island of trials along with her, challenging Slayers to take on her dangerous test. Now, the corsairs have made Ramsgate their permanent home.\r\n\r\nUnlock this pass to join Lady Luck's crew and earn a bounty of pirate-themed rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season06b_vault",
+    "rowName": "HuntPass_Season06b_vault",
+    "sku": "season06b_vault_premium",
+    "storeTag": "season06b_vault_pass",
+    "entitlement": "season06b_vault_premium",
+    "title": "Battle Academy",
+    "description": "The Ostian Naval Academy trains new recruits to hunt the Behemoth threat with discipline. The academy's most elite students form the Zephyr Strike squad and train to control neutral aether in battle. Zephyr Strike is committed to patrolling the skyways to protect the innocent and keep Ostian rule intact. \r\n\r\nUnlock this pass to join Zephyr Strike and earn a set of academy cosmetics.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season07a_vault",
+    "rowName": "HuntPass_Season07a_vault",
+    "sku": "season07a_vault_premium",
+    "storeTag": "season07a_vault_pass",
+    "entitlement": "season07a_vault_premium",
+    "title": "The Adamant Fists",
+    "description": "The Scarred Master and her monks, the Adamant Fists, helped create the Aether Strikers weapon used by many Slayers today. After their temple was destroyed by the Skyquake, the monks found refuge in Ramsgate. Their mysterious leader is always looking for new students to teach. \r\n\r\nUnlock this pass to learn from the Scarred Master and earn combat-monk rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season08a_vault",
+    "rowName": "HuntPass_Season08a_vault",
+    "sku": "season08a_vault_premium",
+    "storeTag": "season08a_vault_pass",
+    "entitlement": "season08a_vault_premium",
+    "title": "The First Slayer",
+    "description": "The First Slayer is a hero of legend. It is said that they were able to single-handedly turn the tide of battle when humanity was nearly overrun - using a single, special weapon. Many Slayers of Ramsgate wear the symbolic First Slayer armour to inspire their own great deeds. \r\n\r\nUnlock this pass to honor the First Slayer and earn heroic rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season08b_vault",
+    "rowName": "HuntPass_Season08b_vault",
+    "sku": "season08b_vault_premium",
+    "storeTag": "season08b_vault_pass",
+    "entitlement": "season08b_vault_premium",
+    "title": "Underground Style",
+    "description": "Young people across the Shattered Isles have developed a new style that mixes aether technology and fashion. These aetherpunks protest against the rigid rulings of Ostia, Avellainia, and even Ramsgate. \r\n\r\nUnlock this pass to raise your voice and earn aetherpunk rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season09a_vault",
+    "rowName": "HuntPass_Season09a_vault",
+    "sku": "season09a_vault_premium",
+    "storeTag": "season09a_vault_pass",
+    "entitlement": "season09a_vault_premium",
+    "title": "Blaze Hawk Down",
+    "description": "Deep in the steaming jungles near Mount Torgadoro, the Blaze Hawks live in constant combat. Every day is a fight for survival when you live in one of the most dangerous places in the world. \r\n\r\nUnlock this pass to join the Blaze Hawks and earn golden rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season09b_vault",
+    "rowName": "HuntPass_Season09b_vault",
+    "sku": "season09b_vault_premium",
+    "storeTag": "season09b_vault_pass",
+    "entitlement": "season09b_vault_premium",
+    "title": "Ostian Rogues",
+    "description": "Admiral Zai and a group of rogue Ostian enforcers knew a coming surge of umbral aether would come to Ramsgate. Unfortunately for Ramsgate, Ostia's leaders didn't heed Zai's warnings. Now these rogue enforcers have defected, choosing to protrect the Shattered Isles from threats most haven't even heard of. \r\n\r\nUnlock this pass to accept your mission and earn rogue Ostian rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season10a_vault",
+    "rowName": "HuntPass_Season10a_vault",
+    "sku": "season10a_vault_premium",
+    "storeTag": "season10a_vault_pass",
+    "entitlement": "season10a_vault_premium",
+    "title": "Voidrunner Discovery",
+    "description": "The Voidrunners are an ancient civilization that worshipped the Thrax. Not much is known about these people, other than paintings on cavern walls that tell stories of using umbral aether to create personal transportation portals. \r\n\r\nUnlock this pass to discover Voidrunner secrets and earn shadowy rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season10b_vault",
+    "rowName": "HuntPass_Season10b_vault",
+    "sku": "season10b_vault_premium",
+    "storeTag": "season10b_vault_pass",
+    "entitlement": "season10b_vault_premium",
+    "title": "Dungeon Delvers",
+    "description": "Dr. Priyani led a team of researchers deep into a shadowy island full of Umbral Aether. There, they discovered powerful relics and mysterious ruins...and a portal to a dark dimension ruled by the Thrax. \r\n\r\nUnlock this pass to start your research and earn dungeon-delver rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season11a_vault",
+    "rowName": "HuntPass_Season11a_vault",
+    "sku": "season11a_vault_premium",
+    "storeTag": "season11a_vault_pass",
+    "entitlement": "season11a_vault_premium",
+    "title": "Alchemancer's Dream",
+    "description": "Granny Strega and other Alchemists helped derive antidotes that could protect Slayers from the poison spewed by some terra Behemoths. Her work inspired other Slayers to study alchemancy, the art of mixing potent ingredients to create powerful potions. \r\n\r\nUnlock this pass to find new recipes and earn alchemist-themed cosmetics.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season11b_vault",
+    "rowName": "HuntPass_Season11b_vault",
+    "sku": "season11b_vault_premium",
+    "storeTag": "season11b_vault_pass",
+    "entitlement": "season11b_vault_premium",
+    "title": "Explosive Engineering",
+    "description": "In an effort to take Arbourhome back from the Agarus that took root in the giant home-tree, the Slayers of Ramsgate build new kinds of explosives that should have brought the whole island down. That Behemoth has proven to be more resilient, however, growing back each time it's taken out. \r\n\r\nUnlock this pass to suit up and earn explosive rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season12a_vault",
+    "rowName": "HuntPass_Season12a_vault",
+    "sku": "season12a_vault_premium",
+    "storeTag": "season12a_vault_pass",
+    "entitlement": "season12a_vault_premium",
+    "title": "Frozen Frostwardens",
+    "description": "Linnea Silver's Frostwardens shape frost aether as a defensive force, using it to protect themselves from the cold. The Urksa living deep in the frigid mountains preys upon their people, but the Frostwardens have put up a valiant defense, fighting back alongside the Slayers of Ramsgate.\r\n\r\nUnlock this pass to join the hunt and earn frosty rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season12b_vault",
+    "rowName": "HuntPass_Season12b_vault",
+    "sku": "season12b_vault_premium",
+    "storeTag": "season12b_vault_pass",
+    "entitlement": "season12b_vault_premium",
+    "title": "Paladins of Vylmark",
+    "description": "The Paladins of Vylmark are sworn to protect their frozen home. Unlike the Frostwardens, these Paladins shape frost aether and weild its beautiful power as a weapon.\r\n\r\nUnlock this pass to swear your loyalty and earn shining polar rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season13a_vault",
+    "rowName": "HuntPass_Season13a_vault",
+    "sku": "season13a_vault_premium",
+    "storeTag": "season13a_vault_pass",
+    "entitlement": "season13a_vault_premium",
+    "title": "Ancient Tribes",
+    "description": "The Chronovore continues to feed on time itself, opening rifts in the timeline that bring powerful primal behemoths to the present. Years ago, ancient Slayers dressed for battle in Primal War-Plating, ready to take on any foe. \r\n\r\nUnlock this pass to travel through time and earn ancient rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season13b_vault",
+    "rowName": "HuntPass_Season13b_vault",
+    "sku": "season13b_vault_premium",
+    "storeTag": "season13b_vault_pass",
+    "entitlement": "season13b_vault_premium",
+    "title": "Divine Armour",
+    "description": "The Chronovore caused tears in time itself, revealing relics from a future that hasn't yet come to pass. Dr. Priyani and her researchers are still trying to determine who made this armour, and why it has lasted for so long without so much as a dent. \r\n\r\nUnlock this pass to see the future and earn divine rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season14a_vault",
+    "rowName": "HuntPass_Season14a_vault",
+    "sku": "season14a_vault_premium",
+    "storeTag": "season14a_vault_pass",
+    "entitlement": "season14a_vault_premium",
+    "title": "Ostian Rangers",
+    "description": "Deep in the Hinterwilds, these Rangers track dangerous prey. These Slayers are especially skilled at tracking and striking their targets from afar. \r\n\r\nUnlock this pass to track down your enemies and earn ranger-themed cosmetics.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season14b_vault",
+    "rowName": "HuntPass_Season14b_vault",
+    "sku": "season14b_vault_premium",
+    "storeTag": "season14b_vault_pass",
+    "entitlement": "season14b_vault_premium",
+    "title": "Ostian Enforcers",
+    "description": "Ostia has begun experimenting on Behemoths, building their own monstrosities to aid in their expansion across the isles. These enforcers are loyal to their homeland, protecting its secrets and fighting back against any who oppose them.\r\n\r\nUnlock this pass to stand with the enforcers and earn Ostian rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season15a_vault",
+    "rowName": "HuntPass_Season15a_vault",
+    "sku": "season15a_vault_premium",
+    "storeTag": "season15a_vault_pass",
+    "entitlement": "season15a_vault_premium",
+    "title": "Orrery Scientists",
+    "description": "The Orrery, an academic organization, is finally standing up to Ostian rule. Their scientists and secretkeepers use their knowledge of aether and the Shattered Isles to get the upper hand in combat. \r\n\r\nUnlock this pass to learn the Orrery's secrets and earn state-of-the-art rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season15b_vault",
+    "rowName": "HuntPass_Season15b_vault",
+    "sku": "season15b_vault_premium",
+    "storeTag": "season15b_vault_pass",
+    "entitlement": "season15b_vault_premium",
+    "title": "Barbaric Fury",
+    "description": "The Krolachi Warlords were driven from their home by Ostia and its meddling with Behemoth creation. As Sahvyt, the Ostian blade, made its way trhough the Shattered Isles, the Warlords of Krolach were forced to seek refuge in Ramsgate. This group of warriors is ready to fight back for their homeland. \r\n\r\nUnlock this pass to join the Wild Hunt and earn Krolachi Warlod rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season16a_vault",
+    "rowName": "HuntPass_Season16a_vault",
+    "sku": "season16a_vault_premium",
+    "storeTag": "season16a_vault_pass",
+    "entitlement": "season16a_vault_premium",
+    "title": "Marauder's Mask",
+    "description": "There are many pirate crews that sail the skies of the Shattered Isles. Each one plays by it's own set of rules, searching for the treasures in the Shattered Isles. But as Ostia grows more powerful, they're banding together to protect their lawless way of life. Now they turn to Ramsgate. Will you help the outlaws?",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season16b_vault",
+    "rowName": "HuntPass_Season16b_vault",
+    "sku": "season16b_vault_premium",
+    "storeTag": "season16b_vault_pass",
+    "entitlement": "season16b_vault_premium",
+    "title": "Glorious Battle",
+    "description": "During a recent archeological dig on Conundrum Rocks, Orrery Secretkeepers discovered the key to a new radiant power. They won't share where the power comes from, but claim it could be the last weapon humanity ever needs.\r\n\r\nUnlock this pass to harness the power of Radiant aether and earn gleaming Orrery rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season17a_vault",
+    "rowName": "HuntPass_Season17a_vault",
+    "sku": "season17a_vault_premium",
+    "storeTag": "season17a_vault_pass",
+    "entitlement": "season17a_vault_premium",
+    "title": "Monster Inside",
+    "description": "Some Slayers spend so much time with Behemoths, they become just like the beasts they hunt. Wearing their hide and weilding their fangs, those Slayers blur the line between behemoths and humanity.\r\n\r\nUnlock this pass to unleash your inner fury and earn monstrous rewards.",
+    "hasFreeTrack": false
+  },
+  {
+    "trackId": "season17b_vault",
+    "rowName": "HuntPass_Season17b_vault",
+    "sku": "season17b_vault_premium",
+    "storeTag": "season17b_vault_pass",
+    "entitlement": "season17b_vault_premium",
+    "title": "Shadow Slayers",
+    "description": "The last time the Andari Assassins visited Ramsgate, was during a particularly strong convergence of aether in the Shattered Isles. They appeared just as the Slayers of Ramsgate began to grow their numbers to push back the Behemoth threat. What new danger brings them out of the shadows and into the light?\r\n\r\nUnlock this pass to embrace the darkness and earn shadowy rewards.",
+    "hasFreeTrack": false
+  }
+]

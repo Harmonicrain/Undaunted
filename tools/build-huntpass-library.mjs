@@ -1,6 +1,6 @@
 // Build selector metadata from locally exported 1.12 data. Does not alter
-// progression rewards or overwrite the store. Game-derived inputs/output
-// belong outside the repository. Usage: node tools/build-huntpass-library.mjs
+// progression rewards or overwrite the store. The 1.12.0 output is
+// data/1.12/huntpass-library.json. Usage: node tools/build-huntpass-library.mjs
 // <progression.json> <huntpass-season-table.jsonl> <catalog.jsonl> <output.json> <resolved-client-text.json>
 // Text input: { [trackId]: { title, description } }, resolved from the shipped
 // English localization using each canonical season row's FText keys. The old

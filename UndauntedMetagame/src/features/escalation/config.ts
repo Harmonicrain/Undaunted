@@ -8,7 +8,7 @@ import bundledRegistry from "../../vendor/escalation/seasons.json";
 // Frost (ESC_SEASON_5) with different talents and adds Radiant (ESC_SEASON_6),
 // and a snapshot for a season this registry lacks or disables is refused.
 // ESCALATION_SEASONS_FILE points at the registry exported from the client being
-// served, in the same shape, kept outside the repo because it is game data.
+// served, in the same shape (1.12.0's is data/1.12/escalation/seasons.json).
 const RegistryFile = process.env.ESCALATION_SEASONS_FILE;
 const registry: any = RegistryFile != undefined && RegistryFile.length > 0
     ? JSON.parse(readFileSync(RegistryFile, "utf8"))

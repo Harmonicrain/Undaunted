@@ -10,9 +10,9 @@ import { logger } from "../logger";
 type Rows = Record<string, any>;
 
 // The bundled tables are 1.4.4's. HUNT_DATA_DIR points at tables of the same
-// shape for the client being served - tools/Build-Hunts112.mjs builds 1.12.0's,
-// with its new islands, escalations and trials - kept outside the repo because
-// they are game data. A table missing there falls back to the bundled one.
+// shape for the client being served: data/1.12/hunts holds 1.12.0's, with its
+// new islands, escalations and trials. A table missing there falls back to the
+// bundled one.
 function Load(File: string, Bundled: any[] | undefined): Rows | undefined {
     const Dir = process.env.HUNT_DATA_DIR;
 
