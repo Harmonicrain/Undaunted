@@ -1,14 +1,14 @@
 import { app } from "./app";
 import { DrainAndRegisterAPIKeys } from "./controllers/apikeys";
 import { DrainAndRegisterUserAPIKeys } from "./controllers/auth";
-import { GetDb } from "./db";
+import { InitializeDatabase } from "./db";
+import { HttpListenerConfig } from "./config/environment";
 import { logger } from "./logger";
 import { initRealtime } from "./realtime";
 
-const PORT = process.env.PORT;
-const HOST = process.env.HOST || "127.0.0.1";
+const { host: HOST, port: PORT } = HttpListenerConfig();
 
-GetDb(); // This runs migrations TODO make this more explicit
+InitializeDatabase();
 
 DrainAndRegisterAPIKeys().then(async () => {
   await DrainAndRegisterUserAPIKeys();

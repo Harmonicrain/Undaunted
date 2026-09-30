@@ -54,7 +54,7 @@ test('native snapshots survive fresh logins and a separate process reading the d
     assert.deepEqual(saved.body, { code: null, message: 'OK', payload: null });
     assert.deepEqual((await request(a.UserId, a.UserId)).body.payload, data);
     // A fresh process has neither the original controller nor its DB connection.
-    const script = `const {GetTrackedObjectives}=require('./dist/features/progression/trackedObjectives');
+    const script = `require('./dist/db').InitializeDatabase(); const {GetTrackedObjectives}=require('./dist/features/progression/trackedObjectives');
         console.log(JSON.stringify(GetTrackedObjectives(process.argv[1]))); require('./dist/db').GetDb().$client.close();`;
     const reopened = execFileSync(process.execPath, ['-e', script, a.UserId], { encoding: 'utf8', env: { ...process.env, LOG_LEVEL: 'silent' } });
     assert.deepEqual(JSON.parse(reopened.trim()), data);

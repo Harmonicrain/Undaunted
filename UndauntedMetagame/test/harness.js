@@ -2,9 +2,8 @@
 
 // Disposable database harness.
 //
-// src/db.ts binds process.env.DB_FILENAME at module load, so DB_FILENAME must
-// be set before anything that reaches db.js is required. Every helper here
-// takes that into account: nothing from dist/ is required until the env is set.
+// Database initialization is explicit. Set DB_FILENAME to a checked temporary
+// path before InitializeDatabase; importing a feature never opens the live DB.
 //
 // F01's acceptance is that the test setup never reads or writes the live player
 // database. That is enforced below rather than left as an intention.
@@ -66,10 +65,10 @@ function CreateDisposableDatabase() {
     process.env.AUTH_SIGNING_PUBKEY_B64 = process.env.AUTH_SIGNING_PUBKEY_B64 || Buffer.from("unused").toString("base64");
 
     // Only now is it safe to pull in anything that reaches db.js.
-    const { GetDb } = require("../dist/db.js");
+    const { InitializeDatabase } = require("../dist/db.js");
     const Schema = require("../dist/db/schema.js");
 
-    const Db = GetDb(); // also runs migrations
+    const Db = InitializeDatabase();
 
     return {
         Db,

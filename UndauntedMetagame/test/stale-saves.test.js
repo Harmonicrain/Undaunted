@@ -150,7 +150,7 @@ test('bounty protection and retirements survive a separate process and stay acco
     const a = account(), b = account();
     save(a, draft()); bounties.RemoveBountiesForUser(a, ['Bounty_Test']);
     save(b, draft());
-    const script = `const b=require('./dist/features/challenges/bounties');
+    const script = `require('./dist/db').InitializeDatabase(); const b=require('./dist/features/challenges/bounties');
         console.log(JSON.stringify(b.SaveBountiesForUser(process.argv[1], {bounties:[JSON.parse(process.argv[2])]}).bounties));
         require('./dist/db').GetDb().$client.close();`;
     const out = execFileSync(process.execPath, ['-e', script, a, JSON.stringify(draft('Bounty_Test', 20, 100))],

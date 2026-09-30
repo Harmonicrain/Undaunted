@@ -96,6 +96,7 @@ test("native mastery awards persist identically through list, objectives and sin
     assert.equal(Tracks.GetDerivedProgress(A.UserId, Sword).rank, 1);
     // A new process opens the same SQLite file after the HTTP write.
     const Restart = spawnSync(process.execPath, ["-e", `
+        require('./dist/db').InitializeDatabase();
         const t=require('./dist/features/progression/tracks');
         const w=require('./dist/features/progression/writes');
         console.log(JSON.stringify({track:t.GetWireTrack(process.argv[1], process.argv[2]), objectives:w.GetObjectivesForUser(process.argv[1])}));

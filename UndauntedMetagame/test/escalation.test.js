@@ -136,7 +136,7 @@ test("an accepted snapshot reads back identically, including from a new process"
     assert.deepEqual(Read1.unlock_progress, [{ collected: true, reward_id: "ESC_Reward_3" }]);
 
     const Restart = spawnSync(process.execPath, ["-e",
-        "console.log(JSON.stringify(require('./dist/features/escalation/progress').GetEscalationState(process.argv[1], process.argv[2])))",
+        "require('./dist/db').InitializeDatabase(); console.log(JSON.stringify(require('./dist/features/escalation/progress').GetEscalationState(process.argv[1], process.argv[2])))",
         A.UserId, S1], { cwd: process.cwd(), env: process.env, encoding: "utf8" });
     assert.equal(Restart.status, 0, Restart.stderr);
     assert.deepEqual(JSON.parse(Restart.stdout.trim().split(/\r?\n/).at(-1)), Read1);

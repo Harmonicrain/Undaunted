@@ -3,7 +3,7 @@
 // Paradox's ParadoxBackend (pranav158/Mystic-Paradox@355934c:
 // src/routes/login.ts, system.ts, progression.ts); see NOTICE.md.
 import { Router } from "express";
-import { logger } from "../logger";
+
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } from "../features/progression/trackedObjectives";
 import { DailyChallengeResetHourUtc } from "../features/challenges/daily";
@@ -14,7 +14,7 @@ export const client112Router = Router();
 
 // IsBannedEndpoint: checked right after login; a 404 stops the client with
 // "An error occurred while communicating with the game servers".
-client112Router.get("/isbanned", (req, res) => {
+client112Router.get("/isbanned", (_req, res) => {
     res.json({ isBanned: false });
 });
 
@@ -37,16 +37,16 @@ client112Router.get("/patchnotes/:language/:buildId", (req, res) => {
 
 // PlayerDataMigrationTrigger/CheckStatusEndpoint: accounts here were never on
 // the live service, so there is nothing to migrate.
-client112Router.post("/migration/trigger", HasUndauntedMetagameAuth, (req, res) => {
+client112Router.post("/migration/trigger", HasUndauntedMetagameAuth, (_req, res) => {
     res.json({ migration_failed: false, migration_finished: true });
 });
-client112Router.get("/migration/status", HasUndauntedMetagameAuth, (req, res) => {
+client112Router.get("/migration/status", HasUndauntedMetagameAuth, (_req, res) => {
     res.json({ code: null, message: "OK", payload: { migration_failed: false, migration_finished: true } });
 });
 
 // MailboxQueryTriggerConfigEndpoint: no surveys. The client treats the error
 // as "nothing to show", as it did against the live service.
-client112Router.get("/survey/config", HasUndauntedMetagameAuth, (req, res) => {
+client112Router.get("/survey/config", HasUndauntedMetagameAuth, (_req, res) => {
     res.sendStatus(400);
 });
 
@@ -67,7 +67,7 @@ client112Router.post("/trials/leaderboards/all", HasUndauntedMetagameAuth, (req:
         }
     });
 });
-client112Router.post(["/trials/leaderboards/solo", "/trials/leaderboards/solo/individual"], HasUndauntedMetagameAuth, (req, res) => {
+client112Router.post(["/trials/leaderboards/solo", "/trials/leaderboards/solo/individual"], HasUndauntedMetagameAuth, (_req, res) => {
     res.json({ code: null, message: "OK", payload: {} });
 });
 

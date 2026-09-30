@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
-import { WeeklyChallengeWindowStart } from "../challenges/weekly";
+import { WeeklyWindowStart, WeekMilliseconds, ResetWindows } from "../../shared/timeWindows";
 
-const WeekMilliseconds = 7 * 24 * 60 * 60 * 1000;
+const MiddlemanWindowStart = (now: Date) => WeeklyWindowStart(now.getTime(),
+    ResetWindows.middleman.dayUtc, ResetWindows.middleman.hourUtc);
+
+
 const RotationEpoch = Date.UTC(1970, 0, 1, 18); // Thursday, like weekly challenges.
 
 export function IsRotatingMiddlemanOffer(offer: any): boolean {
@@ -10,7 +13,7 @@ export function IsRotatingMiddlemanOffer(offer: any): boolean {
 
 export function MiddlemanOfferWindow(offer: any, now = new Date()) {
     if (!IsRotatingMiddlemanOffer(offer)) return offer;
-    const start = WeeklyChallengeWindowStart(now);
+    const start = MiddlemanWindowStart(now);
     return { ...offer, availableFrom: new Date(start).toISOString(),
         availableTo: new Date(start + WeekMilliseconds).toISOString() };
 }
@@ -23,7 +26,7 @@ export function SelectWeeklyMiddlemanOffers(pool: any[], now = new Date()): any[
         .map(id => ({ id, score: createHash("sha256").update(`middleman-weekly-v1:${id}`).digest("hex") }))
         .sort((a, b) => a.score.localeCompare(b.score))
         .map(row => row.id);
-    const week = Math.floor((WeeklyChallengeWindowStart(now) - RotationEpoch) / WeekMilliseconds);
+    const week = Math.floor((MiddlemanWindowStart(now) - RotationEpoch) / WeekMilliseconds);
     const offset = ((week * 3) % families.length + families.length) % families.length;
     // Advance three different cell families each week. With six or more
     // families, none of this week's cells reappear the following week.

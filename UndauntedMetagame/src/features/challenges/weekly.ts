@@ -1,12 +1,13 @@
+import { ResetWindows, WeeklyWindowStart, WeekMilliseconds } from "../../shared/timeWindows";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 export const WeeklyChallengeSlots = 10;
-export const WeeklyChallengeResetDayUtc = 4; // Thursday
-export const WeeklyChallengeResetHourUtc = 18;
+export const WeeklyChallengeResetDayUtc = ResetWindows.weeklyChallenges.dayUtc; // Thursday
+export const WeeklyChallengeResetHourUtc = ResetWindows.weeklyChallenges.hourUtc;
 
-const WeekMilliseconds = 7 * 24 * 60 * 60 * 1000;
-const DayMilliseconds = 24 * 60 * 60 * 1000;
+
+
 const WeeklyCategory = "WeeklyChallengeGold";
 const BoardSeason = "season19";
 // The native component stamps Season 19 week zero onto every generated row.
@@ -59,12 +60,7 @@ export function GetSupportedWeeklyChallenges(): WeeklyChallengeDefinition[] {
 }
 
 export function WeeklyChallengeWindowStart(Now: Date): number {
-    const TodayAtReset = Date.UTC(Now.getUTCFullYear(), Now.getUTCMonth(), Now.getUTCDate(),
-        WeeklyChallengeResetHourUtc);
-    const DaysSinceThursday = (Now.getUTCDay() - WeeklyChallengeResetDayUtc + 7) % 7;
-    let Start = TodayAtReset - DaysSinceThursday * DayMilliseconds;
-    if(Now.getTime() < Start) Start -= WeekMilliseconds;
-    return Start;
+    return WeeklyWindowStart(Now.getTime(), WeeklyChallengeResetDayUtc, WeeklyChallengeResetHourUtc);
 }
 
 export function SelectWeeklyChallenges(Pool: WeeklyChallengeDefinition[], Now = new Date()): WeeklyChallengeDefinition[] {
