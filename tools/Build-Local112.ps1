@@ -197,8 +197,29 @@ if ($Deploy) {
     $manifest.deployed = $true
     $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
     if ($Restart) {
+        # The servers the start script launches inherit whatever inheritable
+        # handles they are given. Read through a pipe, the start script's output
+        # never ended while they ran, so this step waited until the servers
+        # stopped. Keep this script's own handles out of them, send the start
+        # script's output to files, and wait only for the start script.
+        Add-Type -Namespace Undaunted -Name Handles -MemberDefinition @'
+[DllImport("kernel32.dll")] public static extern System.IntPtr GetStdHandle(int n);
+[DllImport("kernel32.dll")] public static extern bool SetHandleInformation(System.IntPtr h, int mask, int flags);
+'@
+        foreach ($stdHandle in -10, -11, -12) {
+            [void][Undaunted.Handles]::SetHandleInformation([Undaunted.Handles]::GetStdHandle($stdHandle), 1, 0)
+        }
         $start = Join-Path $PSScriptRoot 'Start-Local112.ps1'
-        Invoke-Checked 'powershell.exe' @('-NoProfile','-File',$start,'-DataRoot',$config.DataRoot,'-GameDirectory',$config.GameDirectory) $repo (Join-Path $stage 'restart.log')
+        $restartLog = Join-Path $stage 'restart.log'
+        $restartArgs = @('-NoProfile', '-File', "`"$start`"", '-DataRoot', "`"$($config.DataRoot)`"", '-GameDirectory', "`"$($config.GameDirectory)`"")
+        $restartProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList $restartArgs -WorkingDirectory $repo -WindowStyle Hidden `
+            -RedirectStandardOutput $restartLog -RedirectStandardError (Join-Path $stage 'restart.err.log') -PassThru
+        $null = $restartProcess.Handle   # keeps the exit code readable once it exits
+        $restartProcess.WaitForExit()
+        if ($restartProcess.ExitCode -ne 0) {
+            Get-Content -LiteralPath $restartLog -Tail 20 | Write-Output
+            throw "Restart failed (exit $($restartProcess.ExitCode)). Log: $restartLog"
+        }
         $manifest.restarted = $true
         $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
         Get-Content -LiteralPath (Join-Path $stage 'restart.log') -Tail 6 | Write-Output
