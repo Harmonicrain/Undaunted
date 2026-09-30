@@ -8,6 +8,8 @@ from [SyST3MDeV/Undaunted](https://github.com/SyST3MDeV/Undaunted).
 - `UndauntedInternalServer`: injected integration DLL
 - `UndauntedLauncher`: launcher
 
+For the parallel 1.12.0 port, see [the current architecture and local build workflow](docs/architecture-112.md) and [the September cleanup report](docs/cleanup-report-2026-09-30.md). The active 1.12 native integration lives in `UndauntedRuntime-1.12`.
+
 ## License and attribution
 
 Licensed under the GNU Affero General Public License v3.0 (`AGPL-3.0-only`), see
