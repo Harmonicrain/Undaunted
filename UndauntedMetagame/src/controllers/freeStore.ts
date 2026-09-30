@@ -6,6 +6,7 @@ import { ApplyInventoryTransaction } from "./inventory";
 import { StoreCatalog as catalog, StoreItemKinds as itemKinds } from "./storeCatalog";
 import { CanonicaliseCurrency, CreditWallet, DebitWallet, InsufficientFundsError, IsCurrency, WalletBalance } from "./wallet";
 import { IsEntitlementActive } from "./entitlements";
+import { IsUnlockedPremiumOnlyOffer } from "./huntpassLibrary";
 import { IsStoreTagOpen, StoreTagWindow } from "./seasonalEvents";
 import { IsRotatingMiddlemanOffer, MiddlemanOfferWindow, SelectWeeklyMiddlemanOffers } from "./middlemanStore";
 
@@ -236,6 +237,7 @@ function OwnershipMarker(userId: string, characterId: string) {
         .filter(row => IsEntitlementActive(row)).map(row => row.entitlement));
 
     return (offer: any) => {
+        if (IsUnlockedPremiumOnlyOffer(offer.id)) return { ...offer, remaining: 0 };
         if (IsBundle(offer)) return { ...offer, remaining: BoughtThisWindow(GetDb(), userId, offer, Date.now()) ? 0 : 1 };
         if (IsRepeatable(offer)) return { ...offer, remaining: 1 };
         // A timed entitlement (a Slayers Club membership) can always be

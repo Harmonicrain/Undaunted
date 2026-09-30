@@ -1,14 +1,21 @@
 import { Router } from "express";
 import { logger } from "../logger";
 import { ActiveFeatureFlags, SeasonalEventSchedule } from "../controllers/seasonalEvents";
-import { HuntPassLibrary } from "../controllers/huntpassLibrary";
+import { HuntPassLibrary, HiddenVaultRows } from "../controllers/huntpassLibrary";
 
 export const tuningRouter = Router();
 
 // Only explicitly validated regular/vault rows may be enabled by the 1.12
 // runtime. No rewards, account data or event feature flags are changed here.
 tuningRouter.get("/undaunted/huntpass_library", (_req, res) => {
-    res.json({ code: null, message: "OK", payload: { rows: HuntPassLibrary.map(Pass => Pass.rowName) } });
+    res.json({ code: null, message: "OK", payload: {
+        rows: HuntPassLibrary.map(Pass => Pass.rowName),
+          hidden_rows: HiddenVaultRows,
+          selectable_tracks: HuntPassLibrary.map(Pass => Pass.trackId),
+        // Regular archive passes shipped with public and premium reward lanes.
+        // Vault passes remain the client's intentionally premium-only format.
+          main_style_tracks: HuntPassLibrary.filter(Pass => Pass.hasFreeTrack).map(Pass => Pass.trackId)
+    } });
 });
 
 // The seasonal events that are running: see controllers/seasonalEvents.

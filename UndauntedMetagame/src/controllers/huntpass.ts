@@ -4,7 +4,9 @@ import { logger } from "../logger";
 import bundledProgressionConfig from "../vendor/progression_config.json";
 import { LinkTrackPaths } from "./slayerLinkConfig";
 import { EventPassWindows } from "./seasonalEvents";
-import { HuntPassLibrary, IsLibraryHuntPass, PermanentHuntPassEnd } from "./huntpassLibrary";
+import { HuntPassLibrary, IsLibraryHuntPass, PermanentHuntPassEnd, HasFreeHuntPassRewards } from "./huntpassLibrary";
+import { IsSeasonalCoin } from "../currency";
+import { StoreItemKinds } from "./storeCatalog";
 
 // Hunt Pass configuration.
 //
@@ -105,8 +107,59 @@ const DiskPaths = SEASONS_DIR ? LoadPathsFromDisk(SEASONS_DIR) : [];
 
 const PathsById = new Map<string, ProgressionPath>();
 
+// Share the same currency definition between the displayed rewards and claims.
+// Each Ace Chip reward slot becomes a fixed 100 Aetherdust. Other reward
+// amounts stay intact; this is not a wallet migration.
+export function WithElementalCacheRewards(Path: ProgressionPath): ProgressionPath {
+    if(!/^season\d+[a-z]?(?:_vault)?$/.test(Path.progression_id)) return Path;
+    const Reward = (Value: any) => {
+        if(Value == null) return Value;
+        // Older passes use the legacy list; the 1.12 reward cards consume the
+        // ordered list. Move missing entries across without paying both lists.
+        const Ordered = [...(Value.ordered_instanced_items ?? [])];
+        const Listed = new Set(Ordered.map((Item: any) => Item.catalog_id ?? Item));
+        for(const Id of Value.instanced_items ?? []){
+            if(!Listed.has(Id)){
+                Ordered.push({ catalog_id: Id, hidden: false, priority: 0 });
+                Listed.add(Id);
+            }
+        }
+        // Historical instanced cosmetics became stackable unlocks in 1.12.
+        // The native item lookup rejects them in an instanced reward list.
+        const Stacked = [...(Value.stacked_items ?? [])];
+        const StackedIds = new Set(Stacked.map((Item: any) => Item.catalog_id));
+        const Instances = Ordered.filter((Item: any) => {
+            const Id = Item.catalog_id ?? Item;
+            if(StoreItemKinds[Id] !== "stacked") return true;
+            if(!StackedIds.has(Id)){
+                Stacked.push({ catalog_id: Id, quantity: 1, hidden: Item.hidden ?? false, priority: Item.priority ?? 0 });
+                StackedIds.add(Id);
+            }
+            return false;
+        });
+        return {
+            ...Value,
+            ...(Array.isArray(Value.instanced_items) || Array.isArray(Value.ordered_instanced_items)
+                ? { instanced_items: [], ordered_instanced_items: Instances } : {}),
+            ...(Array.isArray(Value.stacked_items) || Stacked.length > 0 ? { stacked_items: Stacked.map((Item: any) =>
+                Item.catalog_id === "CURRENCY_TOKEN_EXCHANGE_SPEED_UP"
+                    ? { ...Item, catalog_id: "CURRENCY_CELLDUST", quantity: 100 }
+                    : IsSeasonalCoin(Item.catalog_id) || Item.catalog_id === "CURRENCY_PRESTIGE"
+                        ? { ...Item, catalog_id: "CURRENCY_S19_COIN" } : Item) } : {})
+        };
+    };
+    return {
+        ...Path,
+        ...(Path.free_rewards ? { free_rewards: Path.free_rewards.map(Reward) } : {}),
+        ...(Path.premium_rewards ? { premium_rewards: Path.premium_rewards.map(Reward) } : {}),
+        ...(Path.prestige ? { prestige: { ...Path.prestige,
+            free_rewards: Reward(Path.prestige.free_rewards),
+            premium_rewards: Reward(Path.prestige.premium_rewards) } } : {})
+    };
+}
+
 for(const Path of BundledPaths){
-    PathsById.set(Path.progression_id, Path);
+    PathsById.set(Path.progression_id, WithElementalCacheRewards(Path));
 }
 
 for(const Path of DiskPaths){
@@ -114,7 +167,7 @@ for(const Path of DiskPaths){
         logger.info(`Hunt Pass season ${Path.progression_id} overridden from ${SEASONS_DIR}`);
     }
 
-    PathsById.set(Path.progression_id, Path);
+    PathsById.set(Path.progression_id, WithElementalCacheRewards(Path));
 }
 
 // Slayer Link slot tracks. The client reads them per slot and the gameserver
@@ -136,6 +189,9 @@ for(const Pass of HuntPassLibrary){
     const Path = PathsById.get(Pass.trackId);
     if(!Path || Path.premium_gating_entitlement !== Pass.entitlement || !Number.isFinite(Date.parse(Path.start_date ?? ""))){
         throw new HuntPassConfigError(`Library pass ${Pass.trackId} has no matching dated progression definition and premium entitlement`);
+    }
+    if(Pass.hasFreeTrack !== HasFreeHuntPassRewards(Path)){
+        throw new HuntPassConfigError(`Library pass ${Pass.trackId} free-track metadata does not match its rewards; regenerate the library`);
     }
 }
 

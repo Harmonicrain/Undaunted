@@ -1,10 +1,14 @@
 // Build selector metadata from locally exported 1.12 data. Does not alter
 // progression rewards or overwrite the store. Game-derived inputs/output
 // belong outside the repository. Usage: node tools/build-huntpass-library.mjs
-// <progression.json> <huntpass-season-table.jsonl> <catalog.jsonl> <output.json>
+// <progression.json> <huntpass-season-table.jsonl> <catalog.jsonl> <output.json> <resolved-client-text.json>
+// Text input: { [trackId]: { title, description } }, resolved from the shipped
+// English localization using each canonical season row's FText keys. The old
+// table export loses string-table references, so it cannot supply all titles.
 import { readFileSync, writeFileSync } from 'node:fs';
-const [progressionFile, tableFile, catalogFile, outputFile] = process.argv.slice(2);
-if(!outputFile) throw new Error('Expected progression, season table, item catalogue and output paths');
+const [progressionFile, tableFile, catalogFile, outputFile, textFile] = process.argv.slice(2);
+if(!outputFile || !textFile) throw new Error('Expected progression, season table, item catalogue, output and resolved client text JSON paths');
+const localized = JSON.parse(readFileSync(textFile, 'utf8'));
 const paths = JSON.parse(readFileSync(progressionFile, 'utf8'));
 const lines = file => readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
 const rows = lines(tableFile), catalog = new Set(lines(catalogFile).map(item => item.itemId.toUpperCase()));
@@ -25,8 +29,16 @@ for(const path of paths){
             if(!catalog.has(id.toUpperCase())) throw new Error(`${trackId} references missing item ${id}`);
         }
     }
+    const title = (localized[trackId]?.title || row.seasonTitle || '').trim();
+    if(!title || /^Hunt Pass \d/i.test(title)) throw new Error(`Missing resolved client title for ${trackId}`);
+    // Empty reward rows are placeholders, not a playable free lane.
+    const hasFreeTrack = (path.free_rewards ?? []).some(reward =>
+        ['stacked_items','instanced_items','ordered_instanced_items','entitlements','buffs']
+            .some(key => (reward[key] ?? []).length > 0));
+    const description = (localized[trackId]?.description || row.seasonDescription || '').trim()
+        || `Earn Hunt Pass XP to progress through ${title} and unlock its rewards.`;
     entries.push({ trackId, rowName, sku: `${trackId}_premium`, storeTag: `${trackId}_pass`,
-        entitlement: path.premium_gating_entitlement, title: row.seasonTitle || `Hunt Pass ${trackId.slice(6).replace('_vault', ' (Vault)')}` });
+        entitlement: path.premium_gating_entitlement, title, description, hasFreeTrack });
 }
 writeFileSync(outputFile, JSON.stringify(entries, null, 2) + '\n');
 console.log(`Validated ${entries.length} regular/vault passes; wrote ${outputFile}. Event passes are unchanged.`);

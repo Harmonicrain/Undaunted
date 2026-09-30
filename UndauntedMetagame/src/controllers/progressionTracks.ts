@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { GetDb } from "../db";
 import { entitlements, progression } from "../db/schema";
 import { DeriveRank, GetActiveHuntPassId, GetAllTrackIds, GetPremiumGatingEntitlement, GetPremiumMode, GetTrackConfig } from "./huntpass";
+import { IsLibraryHuntPass, IsUnlockedPremiumOnlyPass } from "./huntpassLibrary";
 import { GetSelectedHuntPassId } from "./huntpassSelection";
 import { HuntPassLibrary } from "./huntpassLibrary";
 
@@ -73,13 +74,14 @@ export function GetAllTrackStates(UserId: string): TrackState[] {
 //
 // A track with no configured gate has no premium tier to unlock.
 export function HasPremiumForTrack(UserId: string, TrackId: string): boolean {
+    if(IsUnlockedPremiumOnlyPass(TrackId)) return true;
     const Gate = GetPremiumGatingEntitlement(TrackId);
 
     if(Gate == undefined){
         return false;
     }
 
-    if(GetPremiumMode() === "free"){
+    if(!IsLibraryHuntPass(TrackId) && GetPremiumMode() === "free"){
         return true;
     }
 
