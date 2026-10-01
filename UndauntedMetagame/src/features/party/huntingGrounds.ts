@@ -12,8 +12,26 @@ type HuntingGroundWorld = { HuntId: string, Public: boolean, Host: string, Port:
 
 const Worlds = new Map<string, HuntingGroundWorld>(); // Key is host:port
 const PlayerWorld = new Map<string, string>(); // Key is player id
+const PublicAllocations = new Map<string, Promise<void>>(); // Pending allocations by island
 
 const WorldKey = (Host: string, Port: number) => `${Host}:${Port}`;
+
+// Select and record a public world's capacity in one allocation turn. Without
+// this, requests arriving while deploy is awaited can each start a world or
+// promise the same last slot. Other islands and private hunts remain independent.
+export async function AllocatePublicHuntingGround<T>(HuntId: string, Allocate: () => Promise<T>): Promise<T> {
+    const Previous = PublicAllocations.get(HuntId) ?? Promise.resolve();
+    let Release!: () => void;
+    const Completed = new Promise<void>(Resolve => { Release = Resolve; });
+    PublicAllocations.set(HuntId, Completed);
+    await Previous;
+    try {
+        return await Allocate();
+    } finally {
+        Release();
+        if(PublicAllocations.get(HuntId) === Completed) PublicAllocations.delete(HuntId);
+    }
+}
 
 function Forget(Key: string){
     const World = Worlds.get(Key);
@@ -40,7 +58,7 @@ export function ReleaseHuntingGroundSlot(PlayerId: string){
 export function FindPublicHuntingGround(HuntId: string, Party: string[]){
     for(const World of Worlds.values()){
         const Others = [...World.Players].filter(PlayerId => !Party.includes(PlayerId)).length;
-        if(World.Public && World.HuntId === HuntId && Others > 0
+        if(World.Public && World.HuntId === HuntId && World.Players.size > 0
             && Others + Party.length <= HUNTING_GROUND_MAX_PLAYERS){
             return { Host: World.Host, Port: World.Port };
         }

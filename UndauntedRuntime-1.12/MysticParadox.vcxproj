@@ -165,6 +165,7 @@
     <ClInclude Include="diagnostics\RuntimeDiagnostics.h" />
     <ClInclude Include="diagnostics\AllocProfile.h" />
     <ClInclude Include="diagnostics\ScriptProfile.h" />
+    <ClInclude Include="diagnostics\ObjectCensus.h" />
     <ClInclude Include="native\Addresses112.h" />
     <ClInclude Include="server\Combat.h" />
     <ClInclude Include="server\ServerHooks.h" />

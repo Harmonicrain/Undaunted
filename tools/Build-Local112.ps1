@@ -156,6 +156,8 @@ Invoke-Checked $msbuild @('MysticParadox.sln','/t:Rebuild','/p:Configuration=Rel
 if ($Test) {
     Invoke-Checked 'powershell.exe' @('-NoProfile','-File',(Join-Path $PSScriptRoot 'Test-TrainingIdle112.ps1'),'-OutputDirectory',(Join-Path $stage 'native-tests')) $repo (Join-Path $stage 'native-tests.log')
     Get-Content -LiteralPath (Join-Path $stage 'native-tests.log') -Tail 2 | Write-Output
+    Invoke-Checked 'powershell.exe' @('-NoProfile','-File',(Join-Path $PSScriptRoot 'Test-WorldMemoryLogs112.ps1')) $repo (Join-Path $stage 'memory-log-tests.log')
+    Get-Content -LiteralPath (Join-Path $stage 'memory-log-tests.log') -Tail 1 | Write-Output
 }
 $dll = Join-Path $runtime 'x64\Release\MysticParadox.dll'
 Copy-Item -LiteralPath $dll -Destination (Join-Path $stage 'UndauntedInternalServer.dll')

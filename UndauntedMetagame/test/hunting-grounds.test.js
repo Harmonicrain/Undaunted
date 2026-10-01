@@ -12,6 +12,7 @@ const Harness = require("./harness");
 let Deploy, Matchmaking, Party, Presence, Context;
 const Live = new Map(); // port -> hunt id the fake deploy server is running
 const Requests = [];
+const FailNext = new Set();
 let NextPort = 8800;
 
 before(async () => {
@@ -21,6 +22,11 @@ before(async () => {
         req.on("end", () => {
             const Request = JSON.parse(Body || "{}");
             Requests.push(Request);
+            if (FailNext.delete(Request.HuntId)) {
+                res.writeHead(503);
+                res.end();
+                return;
+            }
             let Reply;
             if (Request.JoinPort !== undefined && Live.get(Request.JoinPort) === Request.HuntId) {
                 Reply = { host: "127.0.0.1", port: Request.JoinPort, joined: true };
@@ -76,6 +82,40 @@ test("Private Hunt gets its own world and nobody is sent into it", async () => {
     const Next = await Hunt(Id(), "ShatteredIsles_IslandT4");
     assert.equal(Requests.at(-1).JoinPort, undefined);
     assert.notEqual(Next.Port, Alone.Port);
+});
+
+test("concurrent public cold starts share one world", async () => {
+    const Start = Requests.length;
+    const Results = await Promise.all(Array.from({ length: 4 }, () => Hunt(Id(), "ShatteredIsles_IslandT12")));
+    assert.equal(new Set(Results.map(Result => Result.Port)).size, 1);
+    assert.equal(Requests.slice(Start).filter(Request => Request.JoinPort === undefined).length, 1);
+});
+
+test("concurrent joiners cannot both take the last slot", async () => {
+    const HuntId = "ShatteredIsles_IslandT13";
+    const First = await Hunt(Id(), HuntId);
+    for (let N = 0; N < 2; N++) await Hunt(Id(), HuntId);
+    const Results = await Promise.all([Hunt(Id(), HuntId), Hunt(Id(), HuntId)]);
+    assert.equal(Results.filter(Result => Result.Port === First.Port).length, 1);
+    assert.equal(new Set(Results.map(Result => Result.Port)).size, 2);
+});
+
+test("a solo player requesting their current island keeps their world", async () => {
+    const Player = Id();
+    const First = await Hunt(Player, "ShatteredIsles_IslandT14");
+    const Again = await Hunt(Player, "ShatteredIsles_IslandT14");
+    assert.equal(Again.Port, First.Port);
+    assert.equal(Requests.at(-1).JoinPort, First.Port);
+});
+
+test("a failed public allocation does not block the next request", async () => {
+    const HuntId = "ShatteredIsles_IslandT15";
+    const Player = Id();
+    FailNext.add(HuntId);
+    assert.equal(await Matchmaking.HandlePlayerMatchmaking("SHARED", "", HuntId, Player, { GameType: "HUNTING_GROUND" }), true);
+    assert.equal((await Matchmaking.CheckAndUpdateQueueStatus(Player)).Failed, true);
+    const Retry = await Hunt(Player, HuntId);
+    assert.equal((await Hunt(Id(), HuntId)).Port, Retry.Port);
 });
 
 test("a full world is not joined, and a party joins only if all of it fits", async () => {

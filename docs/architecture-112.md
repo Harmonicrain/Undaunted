@@ -269,8 +269,8 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 | `-UndauntedTrimSeconds=<n>` | Also trim every n seconds (default 0, off) |
 | `-UndauntedKeepParkedReplication` | Check pooled actors parked at the origin every time, as before |
 | `-UndauntedKeepQuietReplication` | Check quiet player controllers and behemoth parts every frame, as before |
-| `-UndauntedScriptProfile=<n>` | Diagnostic: time every ProcessEvent by function and every actor replication by class on the game thread, and log the largest every n seconds (`[ScriptProfile]`, `[RepProfile]`). Small overhead; set it through `GAMESERVER_EXTRA_ARGS` while measuring |
-| `-UndauntedAllocProfile=<n>` | Diagnostic: record which call stacks own the engine allocator's live memory and write the largest to `allocprofile-<pid>.tsv` next to the executable every n seconds. Slow and memory-hungry; test worlds only |
+| `-UndauntedScriptProfile=<n>` | Diagnostic: time ProcessEvent by function and actor replication by class; report elapsed engine/network/upkeep/maintenance phases and registered-object counts every n seconds (`[ScriptProfile]`, `[RepProfile]`, `[TickProfile]`, `[ObjectProfile]`). Reports overlap; object counts include defaults and pending GC. Set through `GAMESERVER_EXTRA_ARGS` only while measuring |
+| `-UndauntedAllocProfile=<n>` | Diagnostic: record which call stacks own the engine allocator's live memory and write the largest to `allocprofile-<pid>.tsv` next to the executable every n seconds. Its own tables commit about 320 MiB outside those engine allocations; measure normal commit with profiling off. Slow; test worlds only |
 
 What the ~650 MB left on an empty Ramsgate is, from that profile (2026-09-30):
 the asset registry (~59 MB), PhysX collision (~50 MB), compressed animations
@@ -286,7 +286,8 @@ engine versus runtime time, connections), `[ServerFps]` on each rate change and
 `[WorkingSet]` after each trim (working set before and after, commit),
 `[FrameWait]` with each `[Perf]` (timer waits, how far from the frame's end
 they woke, spin calls), `[ParkedActors]` and `[QuietReplication]` (replication
-checks skipped) and `[AllocProfile]`, `[ScriptProfile]` and `[RepProfile]` when
+checks skipped) and `[AllocProfile]`, `[ScriptProfile]`, `[RepProfile]`,
+`[TickProfile]` and `[ObjectProfile]` when
 profiling.
 Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
 and `ExecuteConsoleCommand` needs a player controller, so the runtime writes

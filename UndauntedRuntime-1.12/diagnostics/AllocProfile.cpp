@@ -30,6 +30,7 @@ constexpr uint64_t kStackSlots = 1ull << 20;
 
 struct FAllocSlot { uint64_t Ptr; uint32_t Size; uint32_t Stack; };
 struct FStackSlot { uint64_t Hash; int64_t Bytes; int64_t Count; uint32_t Frames[kFrames]; };
+constexpr uint64_t kDiagnosticBytes = kAllocSlots * sizeof(FAllocSlot) + kStackSlots * sizeof(FStackSlot);
 
 FAllocSlot* g_Allocs = nullptr;
 FStackSlot* g_Stacks = nullptr;
@@ -170,6 +171,8 @@ void WriteProfile() {
     fprintf(File, "# live %lld bytes in %llu allocations, %llu stacks, %llu dropped\n",
         static_cast<long long>(LiveBytes), static_cast<unsigned long long>(LiveAllocs),
         static_cast<unsigned long long>(UsedStacks), static_cast<unsigned long long>(Dropped));
+    fprintf(File, "# diagnostic tables %llu bytes, outside tracked engine allocations; included in process private commit\n",
+        static_cast<unsigned long long>(kDiagnosticBytes));
     for (const FRow& Row : Rows) {
         fprintf(File, "%lld\t%lld", static_cast<long long>(Row.Bytes), static_cast<long long>(Row.Count));
         for (uint32_t Frame : Row.Frames) fprintf(File, "\t%x", Frame);
@@ -223,5 +226,9 @@ void StartAllocProfile() {
     g_Allocs = static_cast<FAllocSlot*>(VirtualAlloc(nullptr, kAllocSlots * sizeof(FAllocSlot), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
     g_Stacks = static_cast<FStackSlot*>(VirtualAlloc(nullptr, kStackSlots * sizeof(FStackSlot), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
     if (!g_Allocs || !g_Stacks) { MpLog("[AllocProfile] could not reserve its tables"); return; }
+    char Line[192];
+    sprintf_s(Line, "[AllocProfile] diagnostic tables commit %.1f MiB outside tracked engine allocations; compare memory with profiling disabled",
+        kDiagnosticBytes / 1048576.0);
+    MpLog(Line);
     if (HANDLE Thread = CreateThread(nullptr, 0, ProfileThread, nullptr, 0, nullptr)) CloseHandle(Thread);
 }

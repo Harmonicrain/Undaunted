@@ -1,7 +1,7 @@
 import { logger } from "../../logger";
 import crypto from "node:crypto";
 import { GetPartyForPlayer } from "./party";
-import { FindPublicHuntingGround, ForgetHuntingGround, RecordHuntingGround, ReleaseHuntingGroundSlot } from "./huntingGrounds";
+import { AllocatePublicHuntingGround, FindPublicHuntingGround, ForgetHuntingGround, RecordHuntingGround, ReleaseHuntingGroundSlot } from "./huntingGrounds";
 
 const MATCHMAKING_MODE = process.env.MATCHMAKING_MODE;
 const DEPLOYSERVER_URL = process.env.DEPLOYSERVER_URL;
@@ -272,7 +272,8 @@ export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string
         }
         const players = party?.members.slice() ?? [PlayerId];
         if(Options.GameType === "HUNTING_GROUND" && HuntId != undefined && HuntId.trim().length > 0 && HuntIdRequiresMatchmaking(HuntId)){
-            return await MatchHuntingGround(GameMode, HuntId, players, Options.Private === true);
+            const Allocate = () => MatchHuntingGround(GameMode, HuntId, players, Options.Private === true);
+            return Options.Private === true ? await Allocate() : await AllocatePublicHuntingGround(HuntId, Allocate);
         }
         if(HuntId == undefined || HuntId.trim().length == 0 || !HuntIdRequiresMatchmaking(HuntId)){
             const LaunchHuntId = FallbackHuntId(GameMode, GameArgs, HuntId) ?? HuntId;

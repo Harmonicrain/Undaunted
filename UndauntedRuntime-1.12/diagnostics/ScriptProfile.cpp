@@ -8,6 +8,7 @@
  */
 
 #include "diagnostics/ScriptProfile.h"
+#include "diagnostics/ObjectCensus.h"
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
@@ -18,6 +19,8 @@ namespace {
 struct EventStat { uint64_t Calls = 0; int64_t Inclusive = 0; int64_t Exclusive = 0; };
 struct RepStat { uint64_t Calls = 0; uint64_t Sent = 0; int64_t Ticks = 0; };
 struct Frame { void* Function; int64_t Start; int64_t Children; };
+struct TickStat { uint64_t Calls = 0; int64_t Ticks = 0; };
+TickStat TickPhases[static_cast<size_t>(ScriptTickPhase::Count)]{};
 
 // Game thread only: no locks.
 std::unordered_map<void*, EventStat> Events;
@@ -55,8 +58,43 @@ std::string NameOf(void* Object, bool Full) {
     return Full ? reinterpret_cast<UObject*>(Object)->GetFullName() : reinterpret_cast<UObject*>(Object)->GetName();
 }
 
+void ReportObjects() {
+    if (!UObject::GObjects) return;
+    std::unordered_map<void*, uint64_t> Classes;
+    const ObjectSlotCounts Counts = CountObjectSlots(UObject::GObjects->Num(), [&](int32_t Index) {
+        UObject* Object = UObject::GObjects->GetByIndex(Index);
+        if (!Object || !IsRegisteredLiveObject(Object)) return false;
+        ++Classes[Object->Class];
+        return true;
+    });
+    char Line[256];
+    sprintf_s(Line, "[ObjectProfile] %d slots, %d registered objects in %zu classes (includes defaults and pending GC)",
+        Counts.Slots, Counts.Registered, Classes.size());
+    MpLog(Line);
+    std::vector<std::pair<void*, uint64_t>> Sorted(Classes.begin(), Classes.end());
+    std::sort(Sorted.begin(), Sorted.end(), [](const auto& A, const auto& B) { return A.second > B.second; });
+    for (size_t Index = 0; Index < Sorted.size(); ++Index) {
+        const auto& Entry = Sorted[Index];
+        const std::string Name = NameOf(Entry.first, false);
+        const bool LifecycleClass = Name.find("Quest") != std::string::npos
+            || Name.find("PlayerController") != std::string::npos || Name.find("NetConnection") != std::string::npos
+            || Name.find("ReplicationGraph") != std::string::npos || Name == "BP_PlayerCharacter_C";
+        if (Index >= 15 && !LifecycleClass) continue;
+        sprintf_s(Line, "[ObjectProfile] %7llu registered  ", static_cast<unsigned long long>(Entry.second));
+        MpLog(Line + Name);
+    }
+}
+
 void Report(double Seconds) {
     char Line[512];
+    const char* PhaseNames[] = { "engine", "dispatch", "flush", "player upkeep", "world maintenance" };
+    for (size_t Index = 0; Index < static_cast<size_t>(ScriptTickPhase::Count); ++Index) {
+        const TickStat& Stat = TickPhases[Index];
+        sprintf_s(Line, "[TickProfile] %s: %.2f ms/s elapsed, %.3f ms/call, %.0f calls/s",
+            PhaseNames[Index], Stat.Ticks / TicksPerMs / Seconds,
+            Stat.Calls ? Stat.Ticks / TicksPerMs / Stat.Calls : 0.0, Stat.Calls / Seconds);
+        MpLog(Line);
+    }
     std::vector<std::pair<void*, EventStat>> SortedEvents(Events.begin(), Events.end());
     std::sort(SortedEvents.begin(), SortedEvents.end(),
         [](const auto& A, const auto& B) { return A.second.Exclusive > B.second.Exclusive; });
@@ -91,11 +129,30 @@ void Report(double Seconds) {
             Stat.Calls ? Stat.Ticks / TicksPerMs * 1000.0 / Stat.Calls : 0.0);
         MpLog(Line + NameOf(SortedReps[Index].first, false));
     }
+    ReportObjects();
 }
 }
 
 bool ScriptProfileEnabled() {
     return WindowSeconds() > 0;
+}
+
+void ScriptProfileEngineTick(int64_t Ticks) {
+    if (!ScriptProfileEnabled() || !OnGameThread()) return;
+    TickStat& Stat = TickPhases[static_cast<size_t>(ScriptTickPhase::Engine)];
+    ++Stat.Calls;
+    Stat.Ticks += Ticks;
+}
+
+ScriptProfileTickScope::ScriptProfileTickScope(ScriptTickPhase InPhase) : Phase(InPhase) {
+    if (ScriptProfileEnabled() && OnGameThread()) Start = Now();
+}
+
+ScriptProfileTickScope::~ScriptProfileTickScope() {
+    if (!Start) return;
+    TickStat& Stat = TickPhases[static_cast<size_t>(Phase)];
+    ++Stat.Calls;
+    Stat.Ticks += Now() - Start;
 }
 
 ScriptProfileEventScope::ScriptProfileEventScope(void* Function) {
@@ -142,5 +199,6 @@ void ScriptProfileTick() {
     Report(Seconds);
     Events.clear();
     Reps.clear();
+    for (auto& Stat : TickPhases) Stat = {};
     WindowStart = Now();
 }

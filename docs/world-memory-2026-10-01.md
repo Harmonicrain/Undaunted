@@ -23,7 +23,9 @@ The first Training Grounds visit therefore includes a world startup delay.
 ## Checking retained memory
 
 Worlds now log `[Memory]` alongside their minute-level `[Perf]` entries:
-connection count, total working set, private committed memory and object count.
+connection count, total working set, private committed memory and object-array
+slots. Slots include holes left by destroyed objects; they are not a live-object
+count.
 These are observations, not an additional trimming mechanism.
 
 Run from the repository while manually joining and leaving Ramsgate:
@@ -34,7 +36,7 @@ powershell -NoProfile -File tools/Measure-WorldMemory112.ps1 -DurationSeconds 18
 
 The observer uses the configured paths and ports, verifies the port owner's
 executable, and writes only a CSV under ignored `artifacts/`. It never drives
-the game, edits accounts or changes the world's memory. Object and connection
+the game, edits accounts or changes the world's memory. Slot and connection
 counts come from the latest relevant log entries; very brief joins between
 samples can be missed. Resident memory includes shared pages and must not be
 confused with private working set.
@@ -42,9 +44,24 @@ confused with private working set.
 Use at least three join/leave cycles with the same character and loadout. Wait
 two or three minutes after each leave so idle trimming and garbage collection
 have time to settle. Repeat with different cosmetics separately: retained new
-assets can be normal caching. Compare settled private commit and object counts;
+assets can be normal caching. Compare settled private commit and registered-object counts;
 a growing working set alone is not evidence of a leak. No leak is established
 until repeated cycles have actually been observed.
+
+The CSV records `lastLoggedObjectSlots` and `lastLoggedRegisteredObjects`.
+Registered counts require a world started with `-UndauntedScriptProfile=<n>`;
+otherwise the value is -1 (unknown). `[ObjectProfile]` counts occupied, registered
+slots, including class defaults and objects awaiting garbage collection, and
+reports classes useful for checking player lifecycles. Compare these after GC
+has settled rather than interpreting a growing slot array as a leak.
+
+The same optional profile adds `[TickProfile]` elapsed timings for the engine,
+network dispatch, network flush, player upkeep and world maintenance. These
+include native work and overlap the function/replication timings, so do not add
+the reports together. Profiling is disabled by default. The allocation profiler
+commits about 320 MiB for its own tables; compare normal memory usage with that
+profiler disabled. Working-set trimming can evict resident pages without freeing
+private committed memory.
 
 Before this change, the two idle worlds measured approximately 656 MiB
 (Ramsgate) and 591 MiB (Training Grounds) committed. Sleeping Training removes

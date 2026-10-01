@@ -418,7 +418,7 @@ static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
     MpLog(Line);
     PROCESS_MEMORY_COUNTERS_EX Memory{};
     if (GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&Memory), sizeof(Memory))) {
-        sprintf_s(Line, "[Memory] connections %d, working set %.1f MiB, private commit %.1f MiB, objects %d",
+        sprintf_s(Line, "[Memory] connections %d, working set %.1f MiB, private commit %.1f MiB, object slots %d",
             Connections, Memory.WorkingSetSize / 1048576.0, Memory.PrivateUsage / 1048576.0,
             SDK::UObject::GObjects ? SDK::UObject::GObjects->Num() : -1);
         MpLog(Line);
@@ -508,6 +508,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
     reinterpret_cast<void(*)(UGameEngine*, float, char)>(OrigGameEngineTick)(GameEngine, DeltaTime, CanRender);
     LARGE_INTEGER PerfEngineEnd; QueryPerformanceCounter(&PerfEngineEnd);
     PerfEngineTicks = PerfEngineEnd.QuadPart - PerfEngineStart.QuadPart;
+    ScriptProfileEngineTick(PerfEngineTicks);
 
     if (Globals::AmServer) {
         ForceServerMeshPose();
@@ -544,7 +545,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
         *(uint8_t*)(Native112::At(Globals::BaseAddress, Native112::Rva_06B53259)) = 0x0;
     }
 
-    if (GetAsyncKeyState(VK_F7)) {
+    if (!Globals::AmServer && GetAsyncKeyState(VK_F7)) {
         for (int i = 0; i < SDK::UObject::GObjects->Num(); i++)
         {
             SDK::UObject* Obj = SDK::UObject::GObjects->GetByIndex(i);
@@ -666,12 +667,15 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             preConnectionMax = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(Networking::NetDriver) + 0x9C);
         }
 
-        if (preConnectionCount >= 0) {
-            TickServerFrameRate(preConnectionCount, DeltaTime);
+        {
+            ScriptProfileTickScope ProfileMaintenance(ScriptTickPhase::Maintenance);
+            if (preConnectionCount >= 0) {
+                TickServerFrameRate(preConnectionCount, DeltaTime);
+            }
+            TickServerRenderDataRelease();
+            TickServerWorkingSetTrim(preConnectionCount);
+            TickTrainingLifecycle(preConnectionCount);
         }
-        TickServerRenderDataRelease();
-        TickServerWorkingSetTrim(preConnectionCount);
-        TickTrainingLifecycle(preConnectionCount);
         ScriptProfileTick();
 
         {
@@ -759,8 +763,11 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             tickDispatchOk = false;
         }
 
-        else if (!SafeManualTickDispatch(Networking::NetDriver,
-                     ManualTickZeroDeltaTime() ? 0.0f : DeltaTime)) {
+        else if (![&] {
+            ScriptProfileTickScope ProfileDispatch(ScriptTickPhase::Dispatch);
+            return SafeManualTickDispatch(Networking::NetDriver,
+                ManualTickZeroDeltaTime() ? 0.0f : DeltaTime);
+        }()) {
             ReportManualNetTickFailure(false, tickCounter);
             tickDispatchOk = false;
         }
@@ -794,7 +801,10 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
                 + " skipped TickFlush after sanitizing unsafe NetDriver state");
             tickFlushOk = false;
         }
-        else if (!SafeManualTickFlush(Networking::NetDriver, DeltaTime)) {
+        else if (![&] {
+            ScriptProfileTickScope ProfileFlush(ScriptTickPhase::Flush);
+            return SafeManualTickFlush(Networking::NetDriver, DeltaTime);
+        }()) {
             ReportManualNetTickFailure(true, tickCounter);
             tickFlushOk = false;
         }
@@ -872,6 +882,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
                 }
             }
 
+            ScriptProfileTickScope ProfilePlayerUpkeep(ScriptTickPhase::PlayerUpkeep);
             for (int32_t Index = 0; Index < ClientConnectionCount; ++Index) {
                 UNetConnection* Conn = ClientConnectionData[Index];
                 if (!IsReadablePointer(Conn, 0x140)) {

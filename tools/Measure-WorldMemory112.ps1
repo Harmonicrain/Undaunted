@@ -10,6 +10,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Local112Config.ps1')
+. (Join-Path $PSScriptRoot 'WorldMemoryLog112.ps1')
 $config = Resolve-Local112Config -DataRoot $DataRoot -GameDirectory $GameDirectory -RequireGameDirectory
 $ports = Get-Local112Ports $config
 if (-not $WorldPort) { $WorldPort = $ports.WorldLast }
@@ -32,15 +33,11 @@ do {
     $expectedExe = Join-Path $config.GameDirectory 'Dauntless-Win64-Shipping.exe'
     if ($process.Path -ne $expectedExe) { throw 'Port owner is not the configured 1.12 world executable.' }
     if ($process.Id -ne $lastPid) { $lastConnections = -1; $sawPlayer = $false }
-    $connections = -1; $objects = -1
+    $counters = Get-WorldMemoryLogCounters112 -Lines @() -WorldProcessId $process.Id
     if (Test-Path -LiteralPath $log) {
-        foreach ($line in Get-Content -LiteralPath $log -Tail 1500) {
-            if ($line -notmatch ('pid=' + $process.Id + ' ')) { continue }
-            if ($line -match '\[NetConnEdge\].* -> (-?\d+) connMax=') { $connections = [int]$Matches[1] }
-            if ($line -match '\[(Perf|Memory)\].*connections (-?\d+)') { $connections = [int]$Matches[2] }
-            if ($line -match '\[Memory\].*objects (-?\d+)') { $objects = [int]$Matches[1] }
-        }
+        $counters = Get-WorldMemoryLogCounters112 -Lines @(Get-Content -LiteralPath $log -Tail 1500) -WorldProcessId $process.Id
     }
+    $connections = $counters.Connections
     if ($connections -gt 0) { $sawPlayer = $true }
     if ($connections -eq 0 -and $lastConnections -gt 0 -and $sawPlayer) { $cycles++; $sawPlayer = $false }
     $now = [DateTime]::UtcNow
@@ -52,7 +49,8 @@ do {
         utc=$now.ToString('o'); port=$WorldPort; pid=$process.Id; connections=$connections
         completedJoinLeaveCycles=$cycles; workingSetMiB=[math]::Round($process.WorkingSet64/1MB,2)
         privateCommitMiB=[math]::Round($process.PrivateMemorySize64/1MB,2)
-        cpuPercentOfOneCore=$cpu; lastLoggedObjectCount=$objects
+        cpuPercentOfOneCore=$cpu; lastLoggedObjectSlots=$counters.ObjectSlots
+        lastLoggedRegisteredObjects=$counters.RegisteredObjects
     }
     $row | Export-Csv -LiteralPath $OutputCsv -Append -NoTypeInformation
     Write-Output ("world {0}: connections {1}, resident {2} MiB, commit {3} MiB, cycles {4}" -f $WorldPort,$connections,$row.workingSetMiB,$row.privateCommitMiB,$cycles)

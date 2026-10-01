@@ -31,5 +31,19 @@ public:
 // QueryPerformanceCounter ticks and its result (non-zero when it sent data).
 void ScriptProfileReplicated(void* ActorClass, int64_t Ticks, uint64_t Result);
 
+// These elapsed timings include native work inside the runtime-driven calls.
+// They overlap event/replication profiles and must not be added to them.
+enum class ScriptTickPhase { Engine, Dispatch, Flush, PlayerUpkeep, Maintenance, Count };
+void ScriptProfileEngineTick(int64_t Ticks);
+class ScriptProfileTickScope {
+    ScriptTickPhase Phase;
+    int64_t Start = 0;
+public:
+    explicit ScriptProfileTickScope(ScriptTickPhase InPhase);
+    ~ScriptProfileTickScope();
+    ScriptProfileTickScope(const ScriptProfileTickScope&) = delete;
+    ScriptProfileTickScope& operator=(const ScriptProfileTickScope&) = delete;
+};
+
 // Call once per frame on the game thread; logs when a window is complete.
 void ScriptProfileTick();
