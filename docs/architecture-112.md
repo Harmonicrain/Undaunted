@@ -267,6 +267,7 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 | `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
 | `-UndauntedKeepWorkingSet` | Don't trim the working set |
 | `-UndauntedTrimSeconds=<n>` | Also trim every n seconds (default 0, off) |
+| `-UndauntedAfkTimeoutSeconds=<n>` | AFK kick timeout for players in this world, in seconds; 0 never kicks. The client kicks itself using the timeout its world's game state replicates (the game modes default to 600 s), so this needs no client change |
 | `-UndauntedKeepParkedReplication` | Check pooled actors parked at the origin every time, as before |
 | `-UndauntedKeepQuietReplication` | Check quiet player controllers and behemoth parts every frame, as before |
 | `-UndauntedScriptProfile=<n>` | Diagnostic: time ProcessEvent by function and actor replication by class; report elapsed engine/network/upkeep/maintenance phases and registered-object counts every n seconds (`[ScriptProfile]`, `[RepProfile]`, `[TickProfile]`, `[ObjectProfile]`). Reports overlap; object counts include defaults and pending GC. Set through `GAMESERVER_EXTRA_ARGS` only while measuring |

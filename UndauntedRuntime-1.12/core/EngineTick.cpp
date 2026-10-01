@@ -31,6 +31,7 @@
 #include "server/RenderData.h"
 #include "server/WorkingSet.h"
 #include "server/TrainingLifecycle.h"
+#include "server/AfkTimeout.h"
 #include "server/FrameWait.h"
 #include "diagnostics/ScriptProfile.h"
 #include <psapi.h>
@@ -675,6 +676,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
             TickServerRenderDataRelease();
             TickServerWorkingSetTrim(preConnectionCount);
             TickTrainingLifecycle(preConnectionCount);
+            TickServerAfkTimeout();
         }
         ScriptProfileTick();
 

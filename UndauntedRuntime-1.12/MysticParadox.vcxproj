@@ -178,6 +178,7 @@
     <ClInclude Include="server\TrainingLifecycle.h" />
     <ClInclude Include="server\TrainingIdlePolicy.h" />
     <ClInclude Include="server\FrameWait.h" />
+    <ClInclude Include="server\AfkTimeout.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="core\RuntimeConfig.h" />
@@ -340,6 +341,11 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="server\FrameWait.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\AfkTimeout.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
