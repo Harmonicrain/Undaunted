@@ -172,6 +172,21 @@ namespace Native112 {
     // initializer (0x0095B830) stores; [0] is the game thread's value, which
     // UEngine's frame limiter reads.
     inline constexpr uintptr_t CVarMaxFPSData = 0x06CFC2B0;
+    // UEngine::UpdateTimeAndHandleMaxTickRate's frame limiter (0x04052540)
+    // calls FPlatformProcess::SleepNoStats for all but the last 2 ms of a wait
+    // over 5 ms (call at 0x0405293E), then in a loop until
+    // FPlatformTime::Seconds() reaches the end time it keeps in xmm7 (set at
+    // 0x04052912, compared at 0x04052963 and 0x04052999; the loop's call is
+    // at 0x04052974). Seconds() is QueryPerformanceCounter times
+    // GSecondsPerCycle plus 16777216. Found from SleepNoStats's callers and
+    // the 0.002f slack constant.
+    inline constexpr uintptr_t SleepNoStats = 0x024BE960;
+    inline constexpr uintptr_t FrameLimiterEndTime = 0x04052912;
+    inline constexpr uintptr_t FrameLimiterSlackSleepCall = 0x0405293E;
+    inline constexpr uintptr_t FrameLimiterFirstCompare = 0x04052963;
+    inline constexpr uintptr_t FrameLimiterSpinSleepCall = 0x04052974;
+    inline constexpr uintptr_t FrameLimiterLoopCompare = 0x04052999;
+    inline constexpr uintptr_t GSecondsPerCycle = 0x06B1CAF8;
     // CVarFreeSkeletalMeshBuffers ("r.FreeSkeletalMeshBuffers", int, default
     // 0): the TConsoleVariableData<int32>* its static initializer (0x00819010)
     // stores. FSkeletalMeshLODRenderData::ShouldForceKeepCPUResources

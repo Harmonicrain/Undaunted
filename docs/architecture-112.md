@@ -237,6 +237,7 @@ carry client-only costs. The runtime trims them on world servers only
 | --- | --- | --- |
 | Frame rate set by the runtime: the active rate with a player connected, the idle rate after 10 s empty | `core/EngineTick.cpp` | Idle world ~70-86% of a core down to 5-7% |
 | `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
+| The engine's frame limiter waits on a high-resolution timer instead of spinning `SwitchToThread` through the last ~2 ms of every frame (a client build's limiter; a dedicated-server build sleeps) | `server/FrameWait.cpp` | Measured 2026-10-01 at 90 fps: empty Ramsgate 40% of a core down to 24%; Ramsgate with a player 55% down to 36%. A late timer wake occasionally stretches a frame (worst 18.7 ms against 14.5 ms in a minute) |
 | CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
 | Distance fields (105 MB on Ramsgate), render sections' duplicated-vertex buffers (29 MB) and morph target deltas (30 MB) emptied, found with the allocation profile below | `server/RenderData.cpp` | Ramsgate ~855 MB down to ~690 MB committed |
 | The engine's 32 MB backup out-of-memory pool released after load | `server/WorkingSet.cpp` | 32 MB committed per world |
@@ -257,6 +258,8 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 | --- | --- |
 | `-UndauntedServerFPS=<n>` | Frame rate while players are connected (default 90) |
 | `-UndauntedIdleFPS=<n>` | Frame rate once the world has been empty for 10 s (default 10) |
+| `-UndauntedFrameSlackUs=<n>` | How early the frame limiter's timer wakes before a frame is due, in microseconds (default 500); the limiter spins the rest |
+| `-UndauntedKeepFrameSpin` | Leave the engine's frame limiter spinning |
 | `-UndauntedKeepRenderData` | Keep all render data (turns off the release and the skeletal-buffer setting) |
 | `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
 | `-UndauntedKeepWorkingSet` | Don't trim the working set |
@@ -274,8 +277,9 @@ deeper changes than freeing data behind an asset.
 The DLL log shows the effect: `[Perf]` once a minute (frames, frame times,
 engine versus runtime time, connections), `[ServerFps]` on each rate change and
 `[RenderData]` after each release pass (freed, kept for CPU access, faulted),
-`[WorkingSet]` after each trim (working set before and after, commit) and
-`[AllocProfile]` when profiling.
+`[WorkingSet]` after each trim (working set before and after, commit),
+`[FrameWait]` with each `[Perf]` (timer waits, how far from the frame's end
+they woke, spin calls) and `[AllocProfile]` when profiling.
 Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
 and `ExecuteConsoleCommand` needs a player controller, so the runtime writes
 console variables through their data pointers (`native/Addresses112.h`).

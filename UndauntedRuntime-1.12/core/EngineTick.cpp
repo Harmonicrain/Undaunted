@@ -31,6 +31,7 @@
 #include "server/RenderData.h"
 #include "server/WorkingSet.h"
 #include "server/TrainingLifecycle.h"
+#include "server/FrameWait.h"
 #include <psapi.h>
 
 struct ManualNetTickFailureState {
@@ -420,14 +421,15 @@ static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
             SDK::UObject::GObjects ? SDK::UObject::GObjects->Num() : -1);
         MpLog(Line);
     }
+    LogServerFrameWaitStats();
     g_PerfWindowStart = Entry; g_PerfFrames = 0; g_PerfEngineTicks = 0; g_PerfHookTicks = 0; g_PerfMaxFrameTicks = 0;
 }
 
 // The server's frame rate. A world server runs the client executable, so it
 // took t.MaxFPS from the host user's graphics settings (FrameRateLimit in
 // GameUserSettings.ini: 90 on the maintainer's machine, unlimited for a host
-// who turned the limit off), and the engine's frame limiter spins for the last
-// ~2 ms of every frame. Worlds now set their own rate: the active rate while a
+// who turned the limit off), and the engine's frame limiter spun for the last
+// ~2 ms of every frame (see server/FrameWait). Worlds now set their own rate: the active rate while a
 // player is connected, and a low idle rate once the world has been empty for
 // ten seconds, back to the active rate as soon as a connection arrives.
 // Measured 2026-09-30 on an idle Training Grounds: 90 fps cost ~52% of a core.
