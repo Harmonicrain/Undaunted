@@ -7,6 +7,7 @@ import crypto from "node:crypto";
 import { createWriteStream, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { OnDemandWorld } from "./onDemandWorld";
+import { ParseExtraWorldArgs } from "./worldArgs";
 import { CreateTrainingLease, RemoveTrainingLease, ReserveTrainingLease, TrainingLeasePath, TrainingSleepMarked, TRAINING_IDLE_EXIT_CODE, TRAINING_IDLE_SECONDS } from "./trainingLease";
 
 import { MatchmakerHunts, PlayerHunts, TrialsHunts } from "./huntTables";
@@ -46,6 +47,7 @@ const RAMSGATE_PORT = PORT_RANGE_END;
 const TRAINING_DOJO_PORT = PORT_RANGE_END - 1;
 const GAMESERVER_BINARY_PATH = process.env.GAMESERVER_BINARY_PATH!;
 const STANDARD_GAMESERVER_ARGS = ["-EpicPortal", "-server", "-nullrhi"];
+const GAMESERVER_EXTRA_ARGS = ParseExtraWorldArgs(process.env.GAMESERVER_EXTRA_ARGS);
 
 // Gameserver output is otherwise discarded: the child is spawned onto a pipe
 // nothing reads and then unref'd. That matters because the gameserver, not the
@@ -182,6 +184,7 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         MY_IP + ":" + Port.toString(),
         METAGAME_ADDRESS,
         ...STANDARD_GAMESERVER_ARGS,
+        ...GAMESERVER_EXTRA_ARGS,
         ...(IsTrainingDojo ? [`-UndauntedTrainingIdleSeconds=${TRAINING_IDLE_SECONDS}`] : []),
         ...DiagnosticArgs
     ]);

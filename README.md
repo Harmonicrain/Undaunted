@@ -223,6 +223,7 @@ commit a `.env` file: it holds signing keys and API keys.
 | `SECONDS_TO_WAIT_BETWEEN_GAMESERVER_STARTUP` | Delay between world launches. |
 | `HUNT_DATA_DIR` | Hunt and Trials tables for the client being served. |
 | `ENABLE_WATCHDOG`, `GAMESERVER_LOG_DIR`, `GAMESERVER_LOG_CMDS`, `LOG_LEVEL` | Watchdog and logging. |
+| `GAMESERVER_EXTRA_ARGS` | Optional runtime switches for every world server, separated by spaces, such as `-UndauntedServerFPS=60` (the list is in [docs/architecture-112.md](docs/architecture-112.md#world-server-cost)). |
 
 ## Game data
 

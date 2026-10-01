@@ -256,7 +256,7 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 
 | Command-line switch (world servers) | Effect |
 | --- | --- |
-| `-UndauntedServerFPS=<n>` | Frame rate while players are connected (default 90) |
+| `-UndauntedServerFPS=<n>` | Frame rate while players are connected (default 90, the rate worlds used to inherit from the host's graphics settings). Measured 2026-10-01 with a player in Ramsgate: 36% of a core at 90, 23% at 60, 13% at 30; hunts at 60 and 30 played the same as at 90. Set it for every world with `GAMESERVER_EXTRA_ARGS` in the deploy server's `.env` |
 | `-UndauntedIdleFPS=<n>` | Frame rate once the world has been empty for 10 s (default 10) |
 | `-UndauntedFrameSlackUs=<n>` | How early the frame limiter's timer wakes before a frame is due, in microseconds (default 500); the limiter spins the rest |
 | `-UndauntedKeepFrameSpin` | Leave the engine's frame limiter spinning |
