@@ -26,6 +26,7 @@
 #include "client/ClientHooks.h"
 #include "core/EngineTick.h"
 #include "core/Logging.h"
+#include "diagnostics/AllocProfile.h"
 #include "diagnostics/RuntimeDiagnostics.h"
 #include "server/RenderData.h"
 #include "server/ServerHooks.h"
@@ -198,6 +199,7 @@ void Init() {
         LogLoadedBuild();
         StartServerRenderDataOptions();
         InitServerHooks();
+        StartAllocProfile();
 
     }
     else {

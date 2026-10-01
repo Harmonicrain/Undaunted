@@ -40,6 +40,12 @@
 // Memory-mapped payloads and ones with a read in flight are left alone. Cube
 // maps get the same treatment (17 MB on Ramsgate, a 512x512 sky among them).
 //
+// An allocation profile of Ramsgate (diagnostics/AllocProfile, 2026-09-30)
+// found three more rendering-only stores: static meshes' distance fields
+// (105 MB), skeletal render sections' duplicated-vertex buffers for the GPU
+// skin cache (29 MB) and morph targets' vertex deltas (30 MB). They're
+// emptied too.
+//
 // Skeletal meshes flag every buffer as needed on the CPU while
 // r.FreeSkeletalMeshBuffers is 0, its default, which keeps them for mesh
 // merging (~150 MB on an empty Ramsgate, ~12 MB more per player). None of the
@@ -118,15 +124,63 @@ void CollectResourceArrays(uintptr_t Lod, std::unordered_set<uintptr_t>& Arrays)
     }
 }
 
-void ReleaseMesh(SDK::UObject* Mesh, size_t RenderDataOffset, FReleaseStats& Stats) {
-    const uintptr_t RenderData = *reinterpret_cast<const uintptr_t*>(reinterpret_cast<uintptr_t>(Mesh) + RenderDataOffset);
+// Frees a plain TArray (data, num, max) through the engine's allocator and
+// leaves it empty. Returns the bytes it held.
+uint64_t FreeEngineArray(uintptr_t ArrayAddress, size_t ElementSize) {
+    void** Data = reinterpret_cast<void**>(ArrayAddress);
+    int32_t* Num = reinterpret_cast<int32_t*>(ArrayAddress + 8);
+    int32_t* Max = reinterpret_cast<int32_t*>(ArrayAddress + 12);
+    if (!*Data || *Num < 0 || *Max <= 0 || *Max < *Num || !IsHeapPointer(reinterpret_cast<uintptr_t>(*Data), 8)) return 0;
+    const uint64_t Bytes = static_cast<uint64_t>(*Max) * ElementSize;
+    void* Payload = *Data;
+    *Data = nullptr; *Num = 0; *Max = 0;
+    EngineRealloc(Payload, 0);
+    return Bytes;
+}
+
+// A static mesh LOD's distance field (its compressed volume) only feeds
+// distance-field lighting and shadows.
+void ReleaseDistanceField(uintptr_t Lod, FReleaseStats& Stats) {
+    const uintptr_t Field = *reinterpret_cast<const uintptr_t*>(Lod + StaticLodDistanceField);
+    if (!IsHeapPointer(Field, DistanceFieldVolume + 16)
+        || *reinterpret_cast<const uintptr_t*>(Field) != Native112::At(Globals::BaseAddress, Native112::DistanceFieldVolumeDataVTable)) return;
+    if (const uint64_t Bytes = FreeEngineArray(Field + DistanceFieldVolume, 1)) { ++Stats.Arrays; Stats.Bytes += Bytes; }
+}
+
+// Each skeletal render section's duplicated-vertices buffer is only read by the
+// GPU skin cache (recomputed tangents). The engine always flags it as needed
+// on the CPU, so its own Discard() keeps it; clear the flag, then Discard().
+void ReleaseSectionDuplicates(uintptr_t Lod, FReleaseStats& Stats) {
+    const uintptr_t Sections = *reinterpret_cast<const uintptr_t*>(Lod + SkeletalLodSections);
+    const int32_t Count = *reinterpret_cast<const int32_t*>(Lod + SkeletalLodSections + 8);
+    if (Count <= 0 || Count > 256 || !IsHeapPointer(Sections, Count * RenderSectionStride)) return;
+    for (int32_t Index = 0; Index < Count; ++Index) {
+        for (const size_t Offset : { SectionDupVertData, SectionDupVertIndexData }) {
+            const uintptr_t Array = Sections + Index * RenderSectionStride + Offset;
+            if (!IsResourceArrayVTable(*reinterpret_cast<const uintptr_t*>(Array))) continue;
+            const uintptr_t* Slots = *reinterpret_cast<uintptr_t* const*>(Array);
+            void* This = reinterpret_cast<void*>(Array);
+            const uint32_t Size = reinterpret_cast<uint32_t(*)(void*)>(Slots[3])(This);
+            if (Size == 0) continue;
+            *reinterpret_cast<uint8_t*>(Array + 0x18) = 0;   // bNeedsCPUAccess, read by GetAllowCPUAccess
+            reinterpret_cast<void(*)(void*)>(Slots[4])(This);
+            ++Stats.Arrays; Stats.Bytes += Size;
+        }
+    }
+}
+
+void ReleaseMesh(SDK::UObject* Mesh, bool IsStatic, FReleaseStats& Stats) {
+    const uintptr_t RenderData = *reinterpret_cast<const uintptr_t*>(reinterpret_cast<uintptr_t>(Mesh) + (IsStatic ? StaticMeshRenderData : SkeletalMeshRenderData));
     if (!IsHeapPointer(RenderData, 16)) return;
     const uintptr_t* Lods = *reinterpret_cast<uintptr_t* const*>(RenderData);
     const int32_t LodCount = *reinterpret_cast<const int32_t*>(RenderData + 8);
     if (LodCount <= 0 || LodCount > 16 || !IsHeapPointer(reinterpret_cast<uintptr_t>(Lods), LodCount * sizeof(uintptr_t))) return;
     std::unordered_set<uintptr_t> Arrays;
     for (int32_t Index = 0; Index < LodCount; ++Index) {
-        if (IsHeapPointer(Lods[Index], LodScanBytes)) CollectResourceArrays(Lods[Index], Arrays);
+        if (!IsHeapPointer(Lods[Index], LodScanBytes)) continue;
+        if (IsStatic) ReleaseDistanceField(Lods[Index], Stats);
+        else ReleaseSectionDuplicates(Lods[Index], Stats);
+        CollectResourceArrays(Lods[Index], Arrays);
     }
     ++Stats.Meshes;
     for (const uintptr_t Array : Arrays) {
@@ -140,8 +194,27 @@ void ReleaseMesh(SDK::UObject* Mesh, size_t RenderDataOffset, FReleaseStats& Sta
     }
 }
 
-bool ReleaseMeshGuarded(SDK::UObject* Mesh, size_t RenderDataOffset, FReleaseStats& Stats) {
-    __try { ReleaseMesh(Mesh, RenderDataOffset, Stats); return true; }
+bool ReleaseMeshGuarded(SDK::UObject* Mesh, bool IsStatic, FReleaseStats& Stats) {
+    __try { ReleaseMesh(Mesh, IsStatic, Stats); return true; }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+}
+
+// A morph target's vertex deltas only move rendered vertices. Animation
+// activates morph targets by name and weight; with no deltas the engine treats
+// one as holding no data.
+void ReleaseMorphTarget(SDK::UObject* Target, FReleaseStats& Stats) {
+    const uintptr_t Object = reinterpret_cast<uintptr_t>(Target);
+    const uintptr_t Models = *reinterpret_cast<const uintptr_t*>(Object + MorphTargetLodModels);
+    const int32_t Count = *reinterpret_cast<const int32_t*>(Object + MorphTargetLodModels + 8);
+    if (Count <= 0 || Count > 16 || !IsHeapPointer(Models, Count * MorphLodModelStride)) return;
+    ++Stats.Meshes;
+    for (int32_t Index = 0; Index < Count; ++Index) {
+        if (const uint64_t Bytes = FreeEngineArray(Models + Index * MorphLodModelStride, MorphTargetDeltaSize)) { ++Stats.Arrays; Stats.Bytes += Bytes; }
+    }
+}
+
+bool ReleaseMorphTargetGuarded(SDK::UObject* Target, FReleaseStats& Stats) {
+    __try { ReleaseMorphTarget(Target, Stats); return true; }
     __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
 }
 
@@ -237,6 +310,7 @@ void TickServerRenderDataRelease() {
     SDK::UClass* SkeletalMeshClass = SDK::USkeletalMesh::StaticClass();
     SDK::UClass* Texture2DClass = SDK::UTexture2D::StaticClass();
     SDK::UClass* TextureCubeClass = SDK::UTextureCube::StaticClass();
+    SDK::UClass* MorphTargetClass = SDK::UMorphTarget::StaticClass();
     constexpr int32_t NotReady = 0x10 | 0x400 | 0x1000 | 0x2000 | 0x8000 | 0x10000;  // CDO, loading, post-load pending, destroying
     FReleaseStats Stats;
     const int32_t Count = SDK::UObject::GObjects->Num();
@@ -245,8 +319,9 @@ void TickServerRenderDataRelease() {
         if (!Obj || (static_cast<int32_t>(Obj->Flags) & NotReady) != 0) continue;
         const bool IsStatic = Obj->IsA(StaticMeshClass);
         const bool IsSkeletal = !IsStatic && Obj->IsA(SkeletalMeshClass);
+        const bool IsMorph = !IsStatic && !IsSkeletal && Obj->IsA(MorphTargetClass);
         size_t TextureData = 0;
-        if (!IsStatic && !IsSkeletal) {
+        if (!IsStatic && !IsSkeletal && !IsMorph) {
             if (Obj->IsA(Texture2DClass)) TextureData = TexturePlatformData;
             else if (Obj->IsA(TextureCubeClass)) TextureData = TextureCubePlatformData;
             else continue;
@@ -254,12 +329,13 @@ void TickServerRenderDataRelease() {
         const uint64_t Key = reinterpret_cast<uintptr_t>(Obj) ^ (static_cast<uint64_t>(Obj->Index) * 0x9E3779B97F4A7C15ull);
         if (!Done.insert(Key).second) continue;
         const bool Ok = TextureData ? ReleaseTextureGuarded(Obj, TextureData, Stats)
-                                    : ReleaseMeshGuarded(Obj, IsStatic ? StaticMeshRenderData : SkeletalMeshRenderData, Stats);
+                      : IsMorph     ? ReleaseMorphTargetGuarded(Obj, Stats)
+                                    : ReleaseMeshGuarded(Obj, IsStatic, Stats);
         if (!Ok) ++Stats.Faults;
     }
     if (Stats.Meshes == 0 && Stats.Faults == 0) return;
     char Line[200];
-    sprintf_s(Line, "[RenderData] freed %.1f MB in %llu arrays from %llu new meshes and textures; kept %llu CPU-access arrays (%.1f MB); %llu faulted",
+    sprintf_s(Line, "[RenderData] freed %.1f MB in %llu arrays from %llu new assets; kept %llu CPU-access arrays (%.1f MB); %llu faulted",
         Stats.Bytes / 1048576.0, static_cast<unsigned long long>(Stats.Arrays), static_cast<unsigned long long>(Stats.Meshes),
         static_cast<unsigned long long>(Stats.Kept), Stats.KeptBytes / 1048576.0, static_cast<unsigned long long>(Stats.Faults));
     MpLog(Line);

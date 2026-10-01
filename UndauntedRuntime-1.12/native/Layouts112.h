@@ -57,4 +57,15 @@ namespace Native112::RenderDataLayout {
     inline constexpr size_t MipBulkData = 0x18;             // pixel data, or null
     inline constexpr size_t MipBulkSize = 0x20;             // int64 bytes
     inline constexpr size_t MipBulkFlags = 0x30;            // EBulkDataFlags
+    // Found with an allocation profile of a world server (2026-09-30), then read
+    // back from live objects:
+    inline constexpr size_t StaticLodDistanceField = 0x38;  // FStaticMeshLODResources: FDistanceFieldVolumeData*
+    inline constexpr size_t DistanceFieldVolume = 0x10;     // FDistanceFieldVolumeData: TArray<uint8> CompressedDistanceFieldVolume
+    inline constexpr size_t SkeletalLodSections = 0x10;     // FSkeletalMeshLODRenderData: TArray<FSkelMeshRenderSection>
+    inline constexpr size_t RenderSectionStride = 0xE8;
+    inline constexpr size_t SectionDupVertData = 0x90;      // FDuplicatedVerticesBuffer::DupVertData (resource array)
+    inline constexpr size_t SectionDupVertIndexData = 0xB8; // FDuplicatedVerticesBuffer::DupVertIndexData (resource array)
+    inline constexpr size_t MorphTargetLodModels = 0x30;    // UMorphTarget: TArray<FMorphTargetLODModel>
+    inline constexpr size_t MorphLodModelStride = 0x30;     // FMorphTargetLODModel: TArray<FMorphTargetDelta> Vertices at +0
+    inline constexpr size_t MorphTargetDeltaSize = 28;
 }

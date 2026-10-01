@@ -231,12 +231,14 @@ carry client-only costs. The runtime trims them on world servers only
 | Frame rate set by the runtime: the active rate with a player connected, the idle rate after 10 s empty | `core/EngineTick.cpp` | Idle world ~70-86% of a core down to 5-7% |
 | `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
 | CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
+| Distance fields (105 MB on Ramsgate), render sections' duplicated-vertex buffers (29 MB) and morph target deltas (30 MB) emptied, found with the allocation profile below | `server/RenderData.cpp` | Ramsgate ~855 MB down to ~690 MB committed |
+| The engine's 32 MB backup out-of-memory pool released after load | `server/WorkingSet.cpp` | 32 MB committed per world |
 | The WebBrowserWidget plugin's startup skipped, so Chromium and `UnrealCEFSubProcess.exe` never start | `server/RenderData.cpp` | ~130 MB per world |
-| Working set emptied 30 s after load, 60 s after a player joins and whenever the world has been empty for 15 s | `server/WorkingSet.cpp` | Resident memory ~855 MB down to ~15-90 MB idle, ~130-180 MB with a player |
+| Working set emptied 30 s after load, 60 s after a player joins and whenever the world has been empty for 15 s | `server/WorkingSet.cpp` | Resident memory down to ~60-85 MB idle, ~100-160 MB with a player |
 
-Empty Ramsgate commits ~855 MB, the Training Grounds ~730 MB and a hunt island
-with one player ~810 MB; each player adds ~30 MB. Most of that is read only
-while loading. After the trim a world keeps only what it touches resident:
+Empty Ramsgate commits ~660-690 MB, the Training Grounds ~590-600 MB and a
+hunt island with one player fighting ~670 MB; each player adds ~30 MB. Most
+of that is read only while loading. After the trim a world keeps only what it touches resident:
 emptying a world's working set and watching it refill (2026-09-30) gave 85 MB
 for an idle Ramsgate, 125-180 MB with a player running around it (garbage
 collection accounts for ~55 MB) and ~160 MB for a hunt island mid-fight. The
@@ -252,11 +254,21 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 | `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
 | `-UndauntedKeepWorkingSet` | Don't trim the working set |
 | `-UndauntedTrimSeconds=<n>` | Also trim every n seconds (default 0, off) |
+| `-UndauntedAllocProfile=<n>` | Diagnostic: record which call stacks own the engine allocator's live memory and write the largest to `allocprofile-<pid>.tsv` next to the executable every n seconds. Slow and memory-hungry; test worlds only |
+
+What the ~650 MB left on an empty Ramsgate is, from that profile (2026-09-30):
+the asset registry (~59 MB), PhysX collision (~50 MB), compressed animations
+(~45 MB), pak indexes (~20 MB), the PlayFab catalog (~15 MB), reflection data,
+data tables and localisation (~10-15 MB each), UObjects themselves (~40 MB) and
+engine startup allocations. The server uses most of these; the asset registry
+and localisation might not be needed, but dropping them safely would take
+deeper changes than freeing data behind an asset.
 
 The DLL log shows the effect: `[Perf]` once a minute (frames, frame times,
 engine versus runtime time, connections), `[ServerFps]` on each rate change and
-`[RenderData]` after each release pass (freed, kept for CPU access, faulted)
-and `[WorkingSet]` after each trim (working set before and after, commit).
+`[RenderData]` after each release pass (freed, kept for CPU access, faulted),
+`[WorkingSet]` after each trim (working set before and after, commit) and
+`[AllocProfile]` when profiling.
 Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
 and `ExecuteConsoleCommand` needs a player controller, so the runtime writes
 console variables through their data pointers (`native/Addresses112.h`).

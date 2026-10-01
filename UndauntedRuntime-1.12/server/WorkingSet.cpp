@@ -10,6 +10,7 @@
 #include "server/WorkingSet.h"
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
+#include "native/Addresses112.h"
 #include <psapi.h>
 
 // A world server loads the game's startup content and its map (~800-890 MB
@@ -76,6 +77,23 @@ DWORD WINAPI TrimThread(LPVOID Param) {
     return 0;
 }
 
+// The engine commits a 32 MB pool at startup, never touches it and frees it
+// only when an allocation fails, to make room for a crash report. On a world
+// server that is 32 MB of commit per world for a crash we'd see in the log
+// anyway; the out-of-memory handler skips the pool once it's null.
+void ReleaseBackupOomPool() {
+    void** Pool = reinterpret_cast<void**>(Native112::At(Globals::BaseAddress, Native112::BackupOOMMemoryPool));
+    void* Block = *Pool;
+    MEMORY_BASIC_INFORMATION Info{};
+    if (!Block || !VirtualQuery(Block, &Info, sizeof(Info)) || Info.AllocationBase != Block || Info.RegionSize != (32u << 20)) {
+        MpLog("[WorkingSet] backup out-of-memory pool not found as expected; left alone");
+        return;
+    }
+    *Pool = nullptr;
+    VirtualFree(Block, 0, MEM_RELEASE);
+    MpLog("[WorkingSet] released the engine's 32 MB backup out-of-memory pool");
+}
+
 bool RequestTrim(const char* Reason) {
     if (InterlockedCompareExchange(&g_TrimRunning, 1, 0) != 0) return false;
     if (HANDLE Thread = CreateThread(nullptr, 0, TrimThread, const_cast<char*>(Reason), 0, nullptr)) {
@@ -106,6 +124,8 @@ void TickServerWorkingSetTrim(int32_t Connections) {
 
     const char* Reason = nullptr;
     if (!LoadTrimmed) {
+        static bool PoolReleased = false;
+        if (!PoolReleased && NowMs - ListeningSinceMs >= 30000) { PoolReleased = true; ReleaseBackupOomPool(); }
         if (NowMs - ListeningSinceMs >= 30000) Reason = "loaded";
     } else if (Connections == 0 && !EmptyTrimmed && NowMs - EmptySinceMs >= 15000) {
         Reason = "empty";

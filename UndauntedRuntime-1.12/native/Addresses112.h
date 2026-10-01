@@ -184,6 +184,19 @@ namespace Native112 {
     // CefInitialize and starts UnrealCEFSubProcess.exe whatever -nocef says.
     // Found by breaking on GetSingleton in a world server (first caller).
     inline constexpr uintptr_t WebBrowserWidgetStartupModule = 0x00EF8990;
+    // FGenericPlatformMemory::BackupOOMMemoryPool: 32 MB committed at startup
+    // (0x0237CE80) and only freed by the out-of-memory handler (0x02381310),
+    // which skips it when null.
+    inline constexpr uintptr_t BackupOOMMemoryPool = 0x06B1CAD8;
+    // FDistanceFieldVolumeData's vtable, stored by FStaticMeshRenderData's
+    // serializer (0x03FCC540) into each LOD's new distance field.
+    inline constexpr uintptr_t DistanceFieldVolumeDataVTable = 0x05B04A30;
+    // GMalloc (read by FMemory::Realloc, 0x023BB590) and the FMallocBinned2
+    // methods in its vtable (0x0556A328): [2] Malloc, [4] Realloc, [6] Free.
+    inline constexpr uintptr_t GMalloc = 0x06B532D0;
+    inline constexpr uintptr_t MallocBinned2Malloc = 0x02391F60;
+    inline constexpr uintptr_t MallocBinned2Realloc = 0x02392DA0;
+    inline constexpr uintptr_t MallocBinned2Free = 0x023902B0;
     inline constexpr uintptr_t LegendaryWeaponEquipped = 0x01DF77C0;
     inline constexpr uintptr_t ActorPreReplication = 0x0394B400;
     inline constexpr uintptr_t CreateActorChannel = 0x03D47AC0;

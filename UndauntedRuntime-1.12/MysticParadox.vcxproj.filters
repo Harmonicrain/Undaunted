@@ -84,6 +84,9 @@
     <ClCompile Include="diagnostics\RuntimeDiagnostics.cpp">
       <Filter>diagnostics</Filter>
     </ClCompile>
+    <ClCompile Include="diagnostics\AllocProfile.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
     <ClCompile Include="server\Combat.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -219,6 +222,9 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="diagnostics\RuntimeDiagnostics.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\AllocProfile.h">
       <Filter>diagnostics</Filter>
     </ClInclude>
     <ClInclude Include="native\Addresses112.h">
