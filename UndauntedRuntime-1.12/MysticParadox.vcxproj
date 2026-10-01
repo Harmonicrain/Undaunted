@@ -178,6 +178,8 @@
     <ClInclude Include="server\TrainingLifecycle.h" />
     <ClInclude Include="server\TrainingIdlePolicy.h" />
     <ClInclude Include="server\FrameWait.h" />
+    <ClInclude Include="server\TickFilter.h" />
+    <ClInclude Include="server\TickFilterPolicy.h" />
     <ClInclude Include="server\AfkTimeout.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Networking.h" />
@@ -287,6 +289,11 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="diagnostics\ScriptProfile.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\TickFilter.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>

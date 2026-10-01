@@ -33,6 +33,7 @@
 #include "server/PlayerData.h"
 #include "server/RenderData.h"
 #include "server/FrameWait.h"
+#include "server/TickFilter.h"
 #include "server/ServerEvents.h"
 #include "server/Replication.h"
 #include "server/WorldLifecycle.h"
@@ -68,6 +69,7 @@ void InitServerHooks() {
     InstallScheduleHook("InitServerHooks");
     InstallServerWebBrowserSkip();
     InstallServerFrameWait();
+    InstallServerTickFilter();
 
     RUNTIME_CREATE_HOOK((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_01B690F0)), OnPlayerDataLoadCompleteHook, &OrigOnPlayerDataLoadComplete);
     RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_01B690F0)));

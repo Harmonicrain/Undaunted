@@ -93,6 +93,9 @@
     <ClCompile Include="diagnostics\ScriptProfile.cpp">
       <Filter>diagnostics</Filter>
     </ClCompile>
+    <ClCompile Include="server\TickFilter.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
     <ClCompile Include="server\Combat.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -285,6 +288,12 @@
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="server\FrameWait.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\TickFilter.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\TickFilterPolicy.h">
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="server\AfkTimeout.h">

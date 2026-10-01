@@ -32,6 +32,7 @@
 #include "server/WorkingSet.h"
 #include "server/TrainingLifecycle.h"
 #include "server/AfkTimeout.h"
+#include "server/TickFilter.h"
 #include "server/FrameWait.h"
 #include "diagnostics/ScriptProfile.h"
 #include <psapi.h>
@@ -426,6 +427,7 @@ static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
     }
     LogServerFrameWaitStats();
     LogParkedActorStats();
+    LogTickFilterCensus();
     g_PerfWindowStart = Entry; g_PerfFrames = 0; g_PerfEngineTicks = 0; g_PerfHookTicks = 0; g_PerfMaxFrameTicks = 0;
 }
 
@@ -892,7 +894,10 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
                 }
 
                 if (Conn->PlayerController && Conn->PlayerController->Pawn && Conn->PlayerController->Pawn->IsA(ABP_PlayerCharacter_C::StaticClass())) {
-                    ((ABP_PlayerCharacter_C*)Conn->PlayerController->Pawn)->TickStamina(ECityExecFilter::Both, ERemoteExecFilter::All);
+                    // With the server tick filter the character's own ReceiveTick runs TickStamina.
+                    if (!ServerTickFilterEnabled()) {
+                        ((ABP_PlayerCharacter_C*)Conn->PlayerController->Pawn)->TickStamina(ECityExecFilter::Both, ERemoteExecFilter::All);
+                    }
 
                     if (PlayerRepBoost()) {
                         AActor* pawn = Conn->PlayerController->Pawn;

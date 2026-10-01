@@ -196,6 +196,12 @@ namespace Native112 {
     inline constexpr uintptr_t FrameLimiterSpinSleepCall = 0x04052974;
     inline constexpr uintptr_t FrameLimiterLoopCompare = 0x04052999;
     inline constexpr uintptr_t GSecondsPerCycle = 0x06B1CAF8;
+    // UArchonGameplayStatics::TickFilterHelper(Actor, ECityExecFilter Where,
+    // ERemoteExecFilter Whom): the Blueprint exec thunk and the native filter
+    // it calls (its only caller). In this client build ServerOnly never passes
+    // and LocalOrServer passes only for an autonomous proxy (Role at +0xF0 == 2).
+    inline constexpr uintptr_t TickFilterHelperExec = 0x020FECE0;
+    inline constexpr uintptr_t TickFilterHelper = 0x01823000;
     // CVarFreeSkeletalMeshBuffers ("r.FreeSkeletalMeshBuffers", int, default
     // 0): the TConsoleVariableData<int32>* its static initializer (0x00819010)
     // stores. FSkeletalMeshLODRenderData::ShouldForceKeepCPUResources
