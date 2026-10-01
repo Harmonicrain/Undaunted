@@ -8,15 +8,20 @@ $developerCmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
 # VsDevCmd.bat runs vswhere.exe by name. Without the installer folder on PATH it
 # writes an error to stderr, which stops the build under Windows PowerShell 5.1.
 $env:PATH = (Split-Path -Parent $vswhere) + ';' + $env:PATH
-$source = Join-Path $repo 'UndauntedRuntime-1.12\test\training-idle.test.cpp'
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
-$object = Join-Path $OutputDirectory 'training-idle-test.obj'
-$executable = Join-Path $OutputDirectory 'training-idle-test.exe'
 # The compiler needs the VS include/library environment. No file operations run
 # in this command shell; all output paths are explicit and compiler-owned.
-$command = '"' + $developerCmd + '" -arch=x64 -host_arch=x64 >nul && cl.exe /nologo /EHsc /std:c++20 /MT "' + $source + '" /Fo"' + $object + '" /Fe"' + $executable + '"'
-& cmd.exe /d /s /c $command
-if ($LASTEXITCODE -ne 0) { throw 'Native idle-policy compilation failed.' }
-& $executable
-if ($LASTEXITCODE -ne 0) { throw 'Native idle-policy checks failed.' }
-Write-Output 'Native idle-policy grace, connected-player and unknown-count checks passed.'
+# Preserve the existing entry point while covering every isolated native policy.
+$sources = @(Get-ChildItem -LiteralPath (Join-Path $repo 'UndauntedRuntime-1.12\test') -Filter '*.test.cpp' -File)
+if (-not $sources.Count) { throw 'No native policy tests found.' }
+foreach ($source in $sources) {
+    $name = [IO.Path]::GetFileNameWithoutExtension($source.Name)
+    $object = Join-Path $OutputDirectory "$name.obj"
+    $executable = Join-Path $OutputDirectory "$name.exe"
+    $command = '"' + $developerCmd + '" -arch=x64 -host_arch=x64 >nul && cl.exe /nologo /EHsc /std:c++20 /MT "' + $source.FullName + '" /Fo"' + $object + '" /Fe"' + $executable + '"'
+    & cmd.exe /d /s /c $command
+    if ($LASTEXITCODE -ne 0) { throw "Native policy compilation failed: $name" }
+    & $executable
+    if ($LASTEXITCODE -ne 0) { throw "Native policy checks failed: $name" }
+    Write-Output "Native policy checks passed: $name"
+}

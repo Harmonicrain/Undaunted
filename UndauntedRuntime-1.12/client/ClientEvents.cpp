@@ -27,6 +27,7 @@
 #include "client/ClientHooks.h"
 #include "client/HuntPass.h"
 #include "client/Middleman.h"
+#include "client/SlayerLinks.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "core/PlayerRoles.h"
@@ -58,6 +59,7 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
     }
 
     std::string FunctionName = Function ? Function->GetFullName() : "null";
+    SlayerLinksBeforeEvent(Object, FunctionName);
     if (!MiddlemanBeforeEvent(Object, FunctionName)) return;
     if (!HuntPassBeforeEvent(Object, FunctionName)) return;
     const int EscalationFlowClientSeq = TraceEscalationFlowEnter(

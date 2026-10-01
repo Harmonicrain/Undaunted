@@ -29,6 +29,7 @@
 #include "client/LootSummary.h"
 #include "client/Middleman.h"
 #include "client/ClientEvents.h"
+#include "client/SlayerLinks.h"
 #include "core/EngineTick.h"
 #include "core/Features.h"
 #include "core/Logging.h"
@@ -134,6 +135,7 @@ void InitClientHooks() {
     InstallJournalWeekLimitHook();
     InstallMiddlemanAetherdustHook();
     InstallMatchLootSummaryGuardHook();
+    InstallSlayerLinkRecoveryHook();
 
     {
         MH_STATUS EacCreate = RUNTIME_CREATE_HOOK(

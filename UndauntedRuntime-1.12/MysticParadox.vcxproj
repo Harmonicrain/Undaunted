@@ -149,6 +149,8 @@
     <ClInclude Include="client\HuntPass.h" />
     <ClInclude Include="client\LootSummary.h" />
     <ClInclude Include="client\Middleman.h" />
+    <ClInclude Include="client\SlayerLinks.h" />
+    <ClInclude Include="client\SlayerLinkRecoveryPolicy.h" />
     <ClInclude Include="client\ClientEvents.h" />
     <ClInclude Include="core\Bootstrap.h" />
     <ClInclude Include="core\EngineTick.h" />
@@ -217,6 +219,11 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="client\ClientEvents.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\SlayerLinks.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>

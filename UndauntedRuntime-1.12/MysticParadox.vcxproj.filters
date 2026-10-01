@@ -51,6 +51,9 @@
     <ClCompile Include="client\Middleman.cpp">
       <Filter>client</Filter>
     </ClCompile>
+    <ClCompile Include="client\SlayerLinks.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
     <ClCompile Include="client\ClientEvents.cpp">
       <Filter>client</Filter>
     </ClCompile>
@@ -192,6 +195,12 @@
       <Filter>client</Filter>
     </ClInclude>
     <ClInclude Include="client\Middleman.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\SlayerLinks.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\SlayerLinkRecoveryPolicy.h">
       <Filter>client</Filter>
     </ClInclude>
     <ClInclude Include="client\ClientEvents.h">

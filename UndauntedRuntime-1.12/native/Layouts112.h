@@ -24,6 +24,20 @@
 
 // Reflected/native fields verified for the 1.12 CL392819 executable.
 // Keep these separate from executable RVAs and generated SDK definitions.
+// Verified in the 1.12 callback at +0x01B413F0 and John's live client on
+// 2026-10-01: slot 1's pool count was 0, slot 2's was 12.
+namespace Native112::SlayerLinkLayout {
+    inline constexpr size_t ActivationMarker = 0x148;
+    inline constexpr size_t Rows = 0xF8;
+    inline constexpr size_t RowStride = 0x68;
+    inline constexpr size_t RowExpiration = 0x30;
+    inline constexpr size_t RowSlot = 0x48;
+    inline constexpr size_t RowPoolCount = 0x58;
+    // Native weak-reference serial, checked against a live model's owner weak
+    // reference on 2026-10-01. The generated SDK's Get() ignores the serial.
+    inline constexpr size_t ObjectItemSerial = 0x10;
+}
+
 namespace Native112::MiddlemanLayout {
     inline constexpr size_t PriceOfferSize = 0xB0;
     inline constexpr size_t EffectivePrice = 0x98;

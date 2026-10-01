@@ -24,6 +24,7 @@ these folders are not text fragments included into a replacement monolith.
 | `core/EngineTick`, `core/PlayerRoles` | Engine tick and player-role/lifecycle repair |
 | `client/ClientHooks`, `client/ClientEvents` | Client installation and ordered event dispatch |
 | `client/Middleman` | Aetherdust balance/offer conversion and dust-only tiles, popup, tooltip |
+| `client/SlayerLinks`, `client/SlayerLinkRecoveryPolicy` | Recover missing native prize-pool activation; defer an unlock until its pool and UI are ready, then resume native collection once |
 | `client/Challenges` | Weekly journal handling, daily-first list, Daily Activities filtering |
 | `client/HuntPass` | Library selection, coin icons, track layout and unavailable rank skip |
 | `client/GameplayHUD`, `client/LootSummary` | HUD/loot lifecycle fixes |

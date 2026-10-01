@@ -26,6 +26,15 @@
 // Dauntless 1.12.0 CL392819 only. RVAs refer to the shipping executable.
 namespace Native112 {
     inline uintptr_t At(uintptr_t Base, uintptr_t Rva) { return Base + Rva; }
+    // UArchonLinkedSlayers link-row callback: verified by .pdata range,
+    // 0x68-byte rows, activation marker +0x148 and native activation broadcast.
+    inline constexpr uintptr_t SlayerLinkDataReceived = 0x01B413F0;
+    // LinkedSlayerScreen.OnActionButtonClicked -> native status dispatch;
+    // Finished calls grant, FinishedWithoutProgress deletes without a grant.
+    inline constexpr uintptr_t SlayerLinkTryAction = 0x01FBFA20;
+    // FWeakObjectPtr assignment: reads UObject.Index (+0xC), allocates its
+    // FUObjectItem serial, writes {index, serial}. Verified at this RVA.
+    inline constexpr uintptr_t MakeWeakObjectPtr = 0x026B90B0;
     // MpLogHungGameThread
     inline constexpr uintptr_t Rva_00001000 = 0x00001000;
     // InitServerHooks
