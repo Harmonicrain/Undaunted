@@ -444,14 +444,14 @@ std::atomic<void*>    g_gtPeCurFunc{ nullptr };
 
 std::atomic<void*>    g_gtPeCurObj{ nullptr };
 
-void MpReapExit(const char* Reason) {
+void MpReapExit(const char* Reason, UINT ExitCode) {
     MpLog(std::string("[Watchdog/thread] ") + Reason
-        + " -> TerminateProcess(0) (skipping UE static teardown; see MpReapExit comment)");
+        + " -> TerminateProcess(" + std::to_string(ExitCode) + ") (skipping UE static teardown; see MpReapExit comment)");
 
     Sleep(50);
-    TerminateProcess(GetCurrentProcess(), 0);
+    TerminateProcess(GetCurrentProcess(), ExitCode);
 
-    exit(0);
+    exit(static_cast<int>(ExitCode));
 }
 
 static int ScanStackReturns(uint64_t rsp, uint64_t codeLo, uint64_t codeHi, uint64_t* out, int maxOut) {

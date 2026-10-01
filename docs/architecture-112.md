@@ -29,6 +29,7 @@ these folders are not text fragments included into a replacement monolith.
 | `client/GameplayHUD`, `client/LootSummary` | HUD/loot lifecycle fixes |
 | `server/ServerHooks`, `server/ServerEvents` | Server installation and ordered event dispatch |
 | `server/Combat`, `server/PlayerData`, `server/WorldLifecycle` | Combat, player responses and world lifecycle |
+| `server/TrainingLifecycle`, `server/TrainingIdlePolicy` | Training Grounds idle grace and shutdown coordinated with deploy travel reservations |
 | `server/Replication`, `Networking` | Native graph/channel setup and intentionally gated replication fallback |
 | `diagnostics/RuntimeDiagnostics` | Crash/exit, watchdog, progression, accessory and ability diagnostics |
 | `native/Addresses112.h` | Central shipping-executable RVAs, pinned to 1.12 CL392819 |
@@ -221,6 +222,12 @@ through `MpWorkingDirectoryFlagPresent`. This cleanup does not enable any flag.
 | `VERBOSE_DIAG.flag` | `core/RuntimeConfig.cpp` |
 
 ## World server cost
+
+Training Grounds starts on its first travel request and sleeps after five empty
+minutes. Concurrent requests share one launch, and travel reservations prevent
+an idle shutdown while a player is loading. Ramsgate stays ready at boot.
+See [the lifecycle and memory measurement guide](world-memory-2026-10-01.md)
+for the shutdown protocol, regression checks and manual join/leave observations.
 
 World servers run the client executable with `-nullrhi`, so by default they
 carry client-only costs. The runtime trims them on world servers only

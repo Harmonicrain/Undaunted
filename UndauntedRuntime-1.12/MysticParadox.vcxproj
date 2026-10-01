@@ -171,6 +171,8 @@
     <ClInclude Include="server\WorldLifecycle.h" />
     <ClInclude Include="server\RenderData.h" />
     <ClInclude Include="server\WorkingSet.h" />
+    <ClInclude Include="server\TrainingLifecycle.h" />
+    <ClInclude Include="server\TrainingIdlePolicy.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="core\RuntimeConfig.h" />
@@ -316,6 +318,11 @@
     <ClCompile Include="core\RuntimePch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="server\TrainingLifecycle.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />

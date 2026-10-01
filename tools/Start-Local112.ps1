@@ -36,15 +36,15 @@ function Wait-TcpPort([int]$Port, [int]$TimeoutSeconds = 20) {
     throw "Local TCP port $Port did not open. Check $logDir."
 }
 
-# The deploy server starts Ramsgate and the Training Grounds on boot, each on
-# whichever port it takes from its range, so wait for two worlds in that range.
-function Wait-Worlds([int]$Count = 2, [int]$TimeoutSeconds = 90) {
+# Ramsgate is ready at boot. Training Grounds starts on its first travel request.
+# An existing hunt isn't startup readiness, so wait for Ramsgate specifically.
+function Wait-Worlds([int]$TimeoutSeconds = 90) {
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     do {
         $open = @(Get-NetUDPEndpoint -ErrorAction SilentlyContinue |
             Where-Object { $_.LocalPort -ge $ports.WorldFirst -and $_.LocalPort -le $ports.WorldLast } |
             Select-Object -ExpandProperty LocalPort -Unique)
-        if ($open.Count -ge $Count) { return $open }
+        if ($ports.WorldLast -in $open) { return $open }
         Start-Sleep -Milliseconds 500
     } while ((Get-Date) -lt $deadline)
     throw "World servers did not open on UDP $($ports.WorldFirst)-$($ports.WorldLast). Check the deploy server's GAMESERVER_LOG_DIR."

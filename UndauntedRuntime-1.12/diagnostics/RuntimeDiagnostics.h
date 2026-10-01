@@ -102,7 +102,7 @@ extern std::atomic<void*>    g_gtPeCurFunc;
 
 extern std::atomic<void*>    g_gtPeCurObj;
 
-void MpReapExit(const char* Reason);
+void MpReapExit(const char* Reason, UINT ExitCode = 0);
 
 void BleedoutNoteEvent(const std::string& FunctionName, void* Obj);
 

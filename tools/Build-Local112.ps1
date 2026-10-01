@@ -107,7 +107,7 @@ if (-not $msbuild) { throw 'Install Visual Studio Build Tools with the v143 C++ 
 # Include authored code, data, project configuration and tests in the identity.
 $runtime = Join-Path $repo 'UndauntedRuntime-1.12'
 $files = @(Get-ChildItem -LiteralPath $runtime -File | Where-Object { $_.Extension -in @('.cpp','.h','.hpp','.vcxproj','.sln','.bat') })
-foreach ($folder in @('core','client','server','native','diagnostics','MinHook')) {
+foreach ($folder in @('core','client','server','native','diagnostics','MinHook','test')) {
     $files += Get-ChildItem -LiteralPath (Join-Path $runtime $folder) -File -Recurse |
         Where-Object { $_.Extension -in @('.cpp','.c','.h','.hpp') -and $_.Name -ne 'BuildIdentity.generated.h' }
 }
@@ -153,6 +153,10 @@ foreach ($package in @('UndauntedMetagame','UndauntedDeployServer')) {
     Write-Output "$package compiled$(if ($Test) { ' and tested' })."
 }
 Invoke-Checked $msbuild @('MysticParadox.sln','/t:Rebuild','/p:Configuration=Release','/p:Platform=x64','/nologo','/verbosity:minimal') $runtime (Join-Path $stage 'runtime-build.log')
+if ($Test) {
+    Invoke-Checked 'powershell.exe' @('-NoProfile','-File',(Join-Path $PSScriptRoot 'Test-TrainingIdle112.ps1'),'-OutputDirectory',(Join-Path $stage 'native-tests')) $repo (Join-Path $stage 'native-tests.log')
+    Get-Content -LiteralPath (Join-Path $stage 'native-tests.log') -Tail 2 | Write-Output
+}
 $dll = Join-Path $runtime 'x64\Release\MysticParadox.dll'
 Copy-Item -LiteralPath $dll -Destination (Join-Path $stage 'UndauntedInternalServer.dll')
 $dllHash = (Get-FileHash -LiteralPath $dll -Algorithm SHA256).Hash

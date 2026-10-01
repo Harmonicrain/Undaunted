@@ -6,6 +6,8 @@ import { promisify } from "node:util";
 import crypto from "node:crypto";
 import { createWriteStream, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { OnDemandWorld } from "./onDemandWorld";
+import { CreateTrainingLease, RemoveTrainingLease, ReserveTrainingLease, TrainingLeasePath, TrainingSleepMarked, TRAINING_IDLE_EXIT_CODE, TRAINING_IDLE_SECONDS } from "./trainingLease";
 
 import { MatchmakerHunts, PlayerHunts, TrialsHunts } from "./huntTables";
 import { kill } from "node:process";
@@ -37,7 +39,6 @@ export let Gameservers: Gameserver[] = [];
 let FreePorts: number[] = [];
 
 let RamsgateServer : Gameserver | undefined;
-let TrainingDojoServer : Gameserver | undefined;
 
 const PORT_RANGE_BEGIN = Number(process.env.PORT_RANGE_BEGIN!);
 const PORT_RANGE_END = Number(process.env.PORT_RANGE_END!);
@@ -62,6 +63,13 @@ const MY_IP = process.env.MY_IP!;
 const METAGAME_ADDRESS = process.env.METAGAME_ADDRESS!;
 const SECONDS_TO_WAIT_BETWEEN_GAMESERVER_STARTUP = Number(process.env.SECONDS_TO_WAIT_BETWEEN_GAMESERVER_STARTUP!);
 const execFileAsync = promisify(execFile);
+const TrainingDojo = new OnDemandWorld<Gameserver>({
+    start: () => StartServer(TRAINING_DOJO_MAP_PATH, undefined, undefined, undefined, false, true),
+    alive: World => IsProcessAlive(World.processId),
+    reserve: World => ReserveTrainingLease(TrainingLeasePath(GAMESERVER_BINARY_PATH, World.processId)),
+    wait: () => setTimeout(50),
+    now: () => Date.now()
+});
 
 async function WaitForGamePort(pid: number, port: number) {
     const deadline = Date.now() + 60_000;
@@ -100,7 +108,7 @@ function TransformExpectedPlayerArgs(ExpectedPlayers: ExpectedPlayer[]){
     return ToReturn;
 }
 
-export async function CleanupServer(ServerToShutdown: Gameserver){
+export async function CleanupServer(ServerToShutdown: Gameserver, IntentionalSleep = false){
     // Called from both the exit handler and the watchdog: clean up once.
     if(!Gameservers.includes(ServerToShutdown)){
         return;
@@ -114,9 +122,19 @@ export async function CleanupServer(ServerToShutdown: Gameserver){
         RamsgateServer = await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
     }
     else if(ServerToShutdown.isTrainingDojo){
-        logger.warn("Training Dojo Crashed! Restarting!");
-
-        TrainingDojoServer = await StartServer(TRAINING_DOJO_MAP_PATH, undefined, undefined, undefined, false, true);
+        TrainingDojo.forget(ServerToShutdown);
+        const Lease = TrainingLeasePath(GAMESERVER_BINARY_PATH, ServerToShutdown.processId);
+        // The watchdog can observe a dead process before Node delivers its exit
+        // event; the native marker preserves intentional sleep in either order.
+        IntentionalSleep ||= TrainingSleepMarked(Lease);
+        try { RemoveTrainingLease(Lease); }
+        catch (error) { logger.warn({ err: error }, "Could not remove an exited Training Grounds lease"); }
+        if (IntentionalSleep) {
+            logger.info("Training Grounds sleeping; the next travel request will start it");
+        } else {
+            logger.warn("Training Grounds exited unexpectedly; restarting");
+            await TrainingDojo.get();
+        }
     }
     else{
         FreePorts.push(ServerToShutdown.port);
@@ -164,6 +182,7 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         MY_IP + ":" + Port.toString(),
         METAGAME_ADDRESS,
         ...STANDARD_GAMESERVER_ARGS,
+        ...(IsTrainingDojo ? [`-UndauntedTrainingIdleSeconds=${TRAINING_IDLE_SECONDS}`] : []),
         ...DiagnosticArgs
     ]);
 
@@ -193,7 +212,8 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         logger.warn({ pid: Child.pid, port: Port, code, signal }, "Gameserver exited");
         const Exited = Gameservers.find(Server => Server.processId === Child.pid);
         if(Exited != undefined){
-            CleanupServer(Exited).catch(error => logger.error({ err: error }, "Could not clean up an exited gameserver"));
+            CleanupServer(Exited, Exited.isTrainingDojo && code === TRAINING_IDLE_EXIT_CODE)
+                .catch(error => logger.error({ err: error }, "Could not clean up an exited gameserver"));
         }
     });
 
@@ -215,11 +235,13 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
     Gameservers.push(NewGameserver);
 
     try {
+        if (IsTrainingDojo) CreateTrainingLease(TrainingLeasePath(GAMESERVER_BINARY_PATH, Child.pid!));
         await WaitForGamePort(Child.pid!, Port);
     } catch (error) {
         Gameservers = Gameservers.filter(server => server !== NewGameserver);
         if (!IsRamsgate && !IsTrainingDojo) FreePorts.push(Port);
         if (Child.exitCode === null) Child.kill();
+        if (IsTrainingDojo) RemoveTrainingLease(TrainingLeasePath(GAMESERVER_BINARY_PATH, Child.pid!));
         throw error;
     }
 
@@ -265,7 +287,7 @@ export async function GetRamsgateConnectionDetails(){
 }
 
 export async function GetTrainingDojoConnectionDetails(){
-    TrainingDojoServer = await EnsurePersistentWorldAlive(TrainingDojoServer, TRAINING_DOJO_MAP_PATH, false, true, "Training dojo");
+    const TrainingDojoServer = await TrainingDojo.get();
 
     return {
         host: MY_IP,
@@ -424,5 +446,5 @@ export async function Startup(){
 
     RamsgateServer = await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
 
-    TrainingDojoServer = await StartServer(TRAINING_DOJO_MAP_PATH, undefined, undefined, undefined, false, true);
+    // Training Grounds starts only when matchmaking asks for a connection.
 }

@@ -30,6 +30,8 @@
 #include "server/WorldLifecycle.h"
 #include "server/RenderData.h"
 #include "server/WorkingSet.h"
+#include "server/TrainingLifecycle.h"
+#include <psapi.h>
 
 struct ManualNetTickFailureState {
     bool Active = false;
@@ -411,6 +413,13 @@ static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
         WindowSec * 1000.0 / g_PerfFrames, g_PerfMaxFrameTicks * 1000.0 / Freq,
         g_PerfEngineTicks * 1000.0 / Freq / g_PerfFrames, g_PerfHookTicks * 1000.0 / Freq / g_PerfFrames, Connections);
     MpLog(Line);
+    PROCESS_MEMORY_COUNTERS_EX Memory{};
+    if (GetProcessMemoryInfo(GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&Memory), sizeof(Memory))) {
+        sprintf_s(Line, "[Memory] connections %d, working set %.1f MiB, private commit %.1f MiB, objects %d",
+            Connections, Memory.WorkingSetSize / 1048576.0, Memory.PrivateUsage / 1048576.0,
+            SDK::UObject::GObjects ? SDK::UObject::GObjects->Num() : -1);
+        MpLog(Line);
+    }
     g_PerfWindowStart = Entry; g_PerfFrames = 0; g_PerfEngineTicks = 0; g_PerfHookTicks = 0; g_PerfMaxFrameTicks = 0;
 }
 
@@ -657,6 +666,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
         }
         TickServerRenderDataRelease();
         TickServerWorkingSetTrim(preConnectionCount);
+        TickTrainingLifecycle(preConnectionCount);
 
         {
             static int32_t s_lastConnCount = -2;

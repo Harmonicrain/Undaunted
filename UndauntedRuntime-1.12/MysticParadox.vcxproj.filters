@@ -111,6 +111,9 @@
     <ClCompile Include="server\WorkingSet.cpp">
       <Filter>server</Filter>
     </ClCompile>
+    <ClCompile Include="server\TrainingLifecycle.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
     <ClCompile Include="core\RuntimePch.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -252,6 +255,12 @@
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="server\WorkingSet.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\TrainingLifecycle.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\TrainingIdlePolicy.h">
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
