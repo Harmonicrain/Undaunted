@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node --env-file=.env dist/server.js",
     "db:generate": "drizzle-kit generate",
-    "test": "node --test test/*.test.js"
+    "test": "node --test --test-timeout=120000 test/*.test.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

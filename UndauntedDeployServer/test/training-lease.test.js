@@ -41,7 +41,8 @@ test("missing, malformed and sleeping leases cannot advertise a world for travel
     assert.equal(lease.TrainingSleepMarked(file), false);
 });
 
-test("an exclusive native-style Windows handle blocks renewal until release", { skip: process.platform !== "win32", timeout: 10000 }, async t => {
+// PowerShell takes 3-8 s to start on GitHub's Windows runners (10.1 s once).
+test("an exclusive native-style Windows handle blocks renewal until release", { skip: process.platform !== "win32", timeout: 60000 }, async t => {
     const file = Fixture(t);
     lease.CreateTrainingLease(file);
     const quoted = file.replaceAll("'", "''");

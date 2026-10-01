@@ -14,6 +14,9 @@ jobs:
   test:
     name: ${{ matrix.package }}
     runs-on: windows-latest
+    # A hung test once held a job for GitHub's 6-hour default. A full run takes
+    # about 3 minutes.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:

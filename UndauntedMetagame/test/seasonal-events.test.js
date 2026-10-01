@@ -28,6 +28,9 @@ before(async () => {
 });
 after(async () => {
     delete process.env.SEASONAL_EVENTS_FILE;
+    // close() waits for every open connection; on CI this file twice never
+    // finished (2026-10-01) after both tests passed.
+    Server.closeAllConnections();
     await new Promise((resolve) => Server.close(resolve));
     fs.rmSync(Dir, { recursive: true, force: true });
 });
