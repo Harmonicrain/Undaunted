@@ -5,6 +5,9 @@ $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer
 $installation = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 if (-not $installation) { throw 'C++ Build Tools are required for the native idle-policy test.' }
 $developerCmd = Join-Path $installation 'Common7\Tools\VsDevCmd.bat'
+# VsDevCmd.bat runs vswhere.exe by name. Without the installer folder on PATH it
+# writes an error to stderr, which stops the build under Windows PowerShell 5.1.
+$env:PATH = (Split-Path -Parent $vswhere) + ';' + $env:PATH
 $source = Join-Path $repo 'UndauntedRuntime-1.12\test\training-idle.test.cpp'
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $object = Join-Path $OutputDirectory 'training-idle-test.obj'
