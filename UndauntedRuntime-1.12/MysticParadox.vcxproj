@@ -153,7 +153,6 @@
     <ClInclude Include="client\SlayerLinkRecoveryPolicy.h" />
     <ClInclude Include="client\ClientEvents.h" />
     <ClInclude Include="core\Bootstrap.h" />
-    <ClInclude Include="core\EngineTick.h" />
     <ClInclude Include="core\Features.h" />
     <ClInclude Include="core\RuntimeHooks.h" />
     <ClInclude Include="core\Logging.h" />
@@ -162,10 +161,26 @@
     <ClInclude Include="core\Runtime.h" />
     <ClInclude Include="core\RuntimeState.h" />
     <ClInclude Include="core\Transport.h" />
-    <ClInclude Include="diagnostics\RuntimeDiagnostics.h" />
     <ClInclude Include="diagnostics\AllocProfile.h" />
     <ClInclude Include="diagnostics\ScriptProfile.h" />
     <ClInclude Include="diagnostics\ObjectCensus.h" />
+    <ClInclude Include="core\Settings.h" />
+    <ClInclude Include="core\LoadingGate.h" />
+    <ClInclude Include="native\CodePatch.h" />
+    <ClInclude Include="diagnostics\ExitTrace.h" />
+    <ClInclude Include="diagnostics\HangTrace.h" />
+    <ClInclude Include="diagnostics\PlayerRoleDiagnostics.h" />
+    <ClInclude Include="diagnostics\EscalationTrace.h" />
+    <ClInclude Include="server\Bleedout.h" />
+    <ClInclude Include="server\WorldWatchdog.h" />
+    <ClInclude Include="server\WorldState.h" />
+    <ClInclude Include="server\ServerTick.h" />
+    <ClInclude Include="server\WidgetGuards.h" />
+    <ClInclude Include="server\WeeklyChallenges.h" />
+    <ClInclude Include="server\Networking.h" />
+    <ClInclude Include="core\SettingsParse.h" />
+    <ClInclude Include="client\PlayerRoleActivation.h" />
+    <ClInclude Include="server\PlayerRoleRouting.h" />
     <ClInclude Include="native\Addresses112.h" />
     <ClInclude Include="server\Combat.h" />
     <ClInclude Include="server\ServerHooks.h" />
@@ -182,8 +197,6 @@
     <ClInclude Include="server\TickFilterPolicy.h" />
     <ClInclude Include="server\AfkTimeout.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="Networking.h" />
-    <ClInclude Include="core\RuntimeConfig.h" />
     <ClInclude Include="core\BuildInfo.h" />
     <ClInclude Include="native\Layouts112.h" />
   </ItemGroup>
@@ -238,11 +251,6 @@
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="core\EngineTick.cpp">
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
-    </ClCompile>
     <ClCompile Include="core\Features.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
@@ -274,11 +282,6 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="core\Transport.cpp">
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
-    </ClCompile>
-    <ClCompile Include="diagnostics\RuntimeDiagnostics.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
@@ -338,6 +341,86 @@
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="core\Settings.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="core\LoadingGate.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="native\CodePatch.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="diagnostics\ExitTrace.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="diagnostics\HangTrace.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="diagnostics\PlayerRoleDiagnostics.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="diagnostics\EscalationTrace.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\Bleedout.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\WorldWatchdog.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\WorldState.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\ServerTick.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\WidgetGuards.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\WeeklyChallenges.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\Networking.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\PlayerRoleActivation.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="server\PlayerRoleRouting.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="core\RuntimePch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
@@ -362,7 +445,6 @@
     <ClCompile Include="MinHook\hde\hde64.c" />
     <ClCompile Include="MinHook\hook.c" />
     <ClCompile Include="MinHook\trampoline.c" />
-    <ClCompile Include="Networking.cpp" />
     <ClCompile Include="SDK\Archon_functions.cpp" />
     <ClCompile Include="SDK\Basic.cpp" />
     <ClCompile Include="SDK\BPGM_Archon_Prototype_functions.cpp" />
@@ -373,11 +455,6 @@
     <ClCompile Include="SDK\GameplayAbilities_functions.cpp" />
     <ClCompile Include="SDK\island_arrival_cinematic_trigger_bp_functions.cpp" />
     <ClCompile Include="SDK\UMG_functions.cpp" />
-    <ClCompile Include="core\RuntimeConfig.cpp">
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
-    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

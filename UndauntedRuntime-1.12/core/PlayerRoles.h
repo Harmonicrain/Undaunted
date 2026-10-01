@@ -9,7 +9,8 @@
  * weapon is equipped; the seasonal event feature flags the metagame lists are
  * forced on; world servers answer event schedule checks from the metagame's
  * seasonal event schedule; validated archive passes can be shown by the native
- * Hunt Pass selector. Not an official release of
+ * Hunt Pass selector. In October 2026 its client and world server parts moved to
+ * client/PlayerRoleActivation.h and server/PlayerRoleRouting.h. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -22,35 +23,21 @@
 #pragma once
 #include "core/Runtime.h"
 
-extern UObject* s_LastPossessedPC;
-
-extern UObject* s_LastRestartPawn;
-
-extern uint64_t s_LastPossessedAtMs;
-
-extern bool s_ArchonInputActivated;
-
-void TriggerArchonInputActivation(UObject* PC, const char* TriggerLabel);
-
-bool RunClientRolePumpGuarded(UObject* PC);
-
-void Move10_PatchMovByteImm(uintptr_t Rva, uintptr_t TargetOff, uint8_t ExpectImm, uint8_t NewImm,
-                                   const char* Tag, std::string& Status);
-
-void Move10_PatchMovRegToImm0(uintptr_t Rva, uintptr_t TargetOff, const char* Tag, std::string& Status);
-
-void Move10_NopMovByteAlStore(uintptr_t Rva, uintptr_t TargetOff, const char* Tag, std::string& Status);
-
-void Move10_PatchCallToMovAl1(uintptr_t Rva, uintptr_t ExpectTargetOff, const char* Tag, std::string& Status);
-
 extern void* OrigApplyPlayerRole;
 
-void TickPlayerRolePostActivationRefresh();
+// UArchonLoadout's ApplyPlayerRole, hooked on clients and world servers.
+void ApplyPlayerRoleHook(void* a1);
 
-void TickTempestModifierEnsure();
-
-void TickTempestChargeDiag();
-
+// Retries applying player roles that didn't reach their pawn, each up to this
+// many times (the client's role notifications use the same limit).
+inline constexpr int kMaxPlayerRoleRetryAttempts = 20;
 void TickPlayerRoleRetries();
 
-void ApplyPlayerRoleHook(void* a1);
+bool TryApplyPlayerRoleRetryGuarded(
+    void* LoadoutPtr, void** OutRole, void** OutSlot, void** OutPawn, void** OutPawnRole,
+    bool* OutAppliedBefore, bool* OutAppliedAfter);
+
+// Called with the pawn's player role once ApplyPlayerRole has put it on the
+// pawn; world servers set it (server/PlayerRoleRouting).
+using PlayerRoleAppliedFn = void(*)(void* PawnRole);
+void SetPlayerRoleAppliedHandler(PlayerRoleAppliedFn Handler);

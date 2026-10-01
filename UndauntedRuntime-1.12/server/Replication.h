@@ -22,27 +22,16 @@
 #pragma once
 #include "core/Runtime.h"
 
-extern void* OrigHasFinishedLoading;
-
-bool DiagNaturalMode();
-
-bool HasFinishedLoadingHook(UObject* a1);
-
 bool IsNetReadyHook();
 
 int NetModeHook(void* a1);
-
-bool IsLevelInitForActorHook(void* a1, char a2);
 
 extern void* OrigSetReplicationDriver;
 
 extern void* OrigServerReplicateActors;
 
+// -UndauntedDiag=repgraph: replication graph state and per-class counts.
 bool RepGraphDiag();
-
-bool PlayerRepBoost();
-
-bool OwnerPawnRelevancyFix();
 
 extern void* OrigRepGraphReplicateSingleActor;
 

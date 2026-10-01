@@ -9,7 +9,8 @@
  * weapon is equipped; the seasonal event feature flags the metagame lists are
  * forced on; world servers answer event schedule checks from the metagame's
  * seasonal event schedule; validated archive passes can be shown by the native
- * Hunt Pass selector. Not an official release of
+ * Hunt Pass selector. In October 2026 this file was split out of
+ * diagnostics/RuntimeDiagnostics.cpp. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -22,22 +23,23 @@
 #pragma once
 #include "core/Runtime.h"
 
-extern bool EnableWatchdog;
+// Gives an island game mode without a bleed-out duration 30 s. Once per world.
+void EnsureBleedoutDuration(SDK::UObject* GameMode);
 
-extern void* OrigGameEngineTick;
+// The bleed-out function a ProcessEvent call is, or null: the names logged as
+// [Bleedout] events.
+const char* BleedoutEventName(const std::string& FunctionName);
 
-extern void* OrigInteractionCalloutHideHoldText;
+// Logs a bleed-out event with the component's state and tracks how long the
+// player stays downed.
+void NoteBleedoutEvent(const char* EventName, void* Object);
 
-extern void* OrigArchonLoadingScreenFadeIn;
+// Warns ([BleedoutStuck]) about a player downed for over 2 minutes.
+void TickBleedoutWatch();
+
+// -UndauntedDiag=bleedout: every player state's bleed-out state and remaining
+// time a few times a second, and knockouts.
+void TickBleedoutDiagnostic();
 
 extern void* OrigKnockout;
-
 void KnockoutHook(void* self);
-
-extern void* OrigApplyPlayerRole;
-
-void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender);
-
-void InteractionCalloutHideHoldTextHook(void* Widget);
-
-void ArchonLoadingScreenFadeInHook(void* LoadingScreen, uint8_t FadeMode);

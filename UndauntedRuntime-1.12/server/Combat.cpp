@@ -24,7 +24,7 @@
 #include "native/Addresses112.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
-#include "diagnostics/RuntimeDiagnostics.h"
+#include "diagnostics/PlayerRoleDiagnostics.h"
 
 bool ServerTryActivateAbilityInternal(UAbilitySystemComponent* Component, FGameplayAbilitySpecHandle& AbilityHandle, bool InputPressed, FPredictionKey& PredictionKey, FGameplayEventData* TriggerEventData) {
     const AbilitySpecDiagnostic Spec = FindAbilitySpecDiagnostic(Component, AbilityHandle.Handle);
@@ -41,7 +41,7 @@ bool ServerTryActivateAbilityInternal(UAbilitySystemComponent* Component, FGamep
 
     void* InstancedAbility = nullptr;
 
-    bool Activated = reinterpret_cast<bool(*)(UAbilitySystemComponent*, uint32_t, FPredictionKey*, void**, void*, FGameplayEventData*)>(Native112::At(Globals::BaseAddress, Native112::Rva_015B9E20))(Component, AbilityHandle.Handle, &PredictionKey, &InstancedAbility, nullptr, TriggerEventData);
+    bool Activated = reinterpret_cast<bool(*)(UAbilitySystemComponent*, uint32_t, FPredictionKey*, void**, void*, FGameplayEventData*)>(Native112::At(Globals::BaseAddress, Native112::InternalTryActivateAbility))(Component, AbilityHandle.Handle, &PredictionKey, &InstancedAbility, nullptr, TriggerEventData);
 
     if (!Activated && InputPressed)
         Component->ServerSetInputReleased(AbilityHandle);

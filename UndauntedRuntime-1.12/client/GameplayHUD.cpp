@@ -26,7 +26,7 @@
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "core/PlayerRoles.h"
-#include "server/Replication.h"
+#include "client/PlayerRoleActivation.h"
 
 enum class HudFnCallResult { Ok, NotFound, Faulted };
 
@@ -171,14 +171,13 @@ static void TickProgressionHudRefreshInner() {
 
     static uint64_t s_lastGuardLogMs = 0;
     const uint64_t NowGuard = GetTickCount64();
-    const bool GuardBlocked = Globals::AmServer || DiagNaturalMode() || !OrigProcessEventClient
+    const bool GuardBlocked = Globals::AmServer || !OrigProcessEventClient
         || !s_ArchonInputActivated || !s_LastPossessedPC;
     if (GuardBlocked) {
         if (s_lastGuardLogMs == 0 || NowGuard - s_lastGuardLogMs >= 2000) {
             s_lastGuardLogMs = NowGuard;
             MpLog("[WeaponXP][HudInit] blocked at top guard: AmServer="
                 + std::to_string(Globals::AmServer ? 1 : 0)
-                + " DiagNaturalMode=" + std::to_string(DiagNaturalMode() ? 1 : 0)
                 + " OrigProcessEventClient=" + MpPtr(OrigProcessEventClient)
                 + " ArchonInputActivated=" + std::to_string(s_ArchonInputActivated ? 1 : 0)
                 + " LastPossessedPC=" + MpPtr(s_LastPossessedPC));
@@ -358,23 +357,6 @@ void TickProgressionHudRefresh() {
         MpLog("[WeaponXP][HudInit] FAULTED (stale pointer, likely a level travel repurposed the"
             " cached player controller) - caught, giving up for this session instead of crashing");
         s_ProgressionHudRefreshPending = false;
-    }
-}
-
-void* OrigGetViewportSize = nullptr;
-
-void ExecGetViewportSizeHook(void* ctx, void* stack, void* result) {
-    reinterpret_cast<void(*)(void*, void*, void*)>(OrigGetViewportSize)(ctx, stack, result);
-    static int s_vpFallback = (MpWorkingDirectoryFlagPresent(L".\\debug\\VIEWPORT_FALLBACK.flag")) ? 1 : 0;
-    if (s_vpFallback && result && IsReadablePointer(result, 8)) {
-        float* v = reinterpret_cast<float*>(result);
-        float w = v[0], h = v[1];
-        if (!(w > 0.0f) || !(h > 0.0f)) {
-            v[0] = 1920.0f; v[1] = 1080.0f;
-            static std::atomic<int> s_vpOnce{ 0 };
-            if (s_vpOnce.fetch_add(1, std::memory_order_relaxed) < 3)
-                MpLog("[ViewportFallback] " + std::to_string(w) + "x" + std::to_string(h) + " -> 1920x1080");
-        }
     }
 }
 

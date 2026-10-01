@@ -12,6 +12,7 @@
 #include "core/RuntimeHooks.h"
 #include "core/Logging.h"
 #include "native/Addresses112.h"
+#include "core/Settings.h"
 
 // UEngine::UpdateTimeAndHandleMaxTickRate holds each frame to t.MaxFPS. A
 // dedicated-server build sleeps for the whole wait. This client build sleeps
@@ -122,16 +123,12 @@ bool CallsSleepNoStats(uintptr_t CallRva) {
 }
 
 int SlackMicroseconds() {
-    const wchar_t* Key = L"-UndauntedFrameSlackUs=";
-    const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
-    if (!Found) return 500;
-    const int Value = _wtoi(Found + wcslen(Key));
-    return Value >= 0 && Value <= 2000 ? Value : 500;
+    return Settings::Int(L"FrameSlackUs", 500, 0, 2000, 500);
 }
 }
 
 void InstallServerFrameWait() {
-    if (!Globals::AmServer || wcsstr(GetCommandLineW(), L"-UndauntedKeepFrameSpin") != nullptr) return;
+    if (!Globals::AmServer || Settings::Has(L"KeepFrameSpin")) return;
     // SleepNoStats: mulss xmm0, [1000.0]; cvttss2si rax, xmm0; test eax, eax; jne
     static const unsigned char SleepBytes[] = { 0xF3, 0x0F, 0x59, 0x05, 0x70, 0x79, 0x93, 0x02, 0xF3, 0x48, 0x0F, 0x2C, 0xC0, 0x85, 0xC0, 0x75, 0x07 };
     // cvtss2sd xmm7, xmm9; mulsd xmm11, [GSecondsPerCycle]; addsd xmm7, xmm6:

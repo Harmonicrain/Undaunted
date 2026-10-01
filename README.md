@@ -186,7 +186,7 @@ node tools/New-Account112.mjs <Name>
 The build refuses a client executable other than the pinned 1.12.0 build (see
 [`tools/client112.json`](tools/client112.json)). The
 [1.12 architecture guide](docs/architecture-112.md) describes the workflow, the
-runtime's layout and the diagnostic flags.
+runtime's layout and its settings, including diagnostics.
 
 ## Configuration
 

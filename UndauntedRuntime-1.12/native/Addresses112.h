@@ -35,142 +35,124 @@ namespace Native112 {
     // FWeakObjectPtr assignment: reads UObject.Index (+0xC), allocates its
     // FUObjectItem serial, writes {index, serial}. Verified at this RVA.
     inline constexpr uintptr_t MakeWeakObjectPtr = 0x026B90B0;
-    // MpLogHungGameThread
-    inline constexpr uintptr_t Rva_00001000 = 0x00001000;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_00A59270 = 0x00A59270;
-    // GameEngineTickHook, SafeManualTickDispatch
-    inline constexpr uintptr_t Rva_00A6F220 = 0x00A6F220;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_00ECEC50 = 0x00ECEC50;
-    // InitClientHooks
-    inline constexpr uintptr_t Rva_0136FE40 = 0x0136FE40;
-    // ServerTryActivateAbilityInternal
-    inline constexpr uintptr_t Rva_015B9E20 = 0x015B9E20;
-    // GetPlayerRoleAndSlot
-    inline constexpr uintptr_t Rva_0173F670 = 0x0173F670;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_017BD9BC = 0x017BD9BC;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01811B40 = 0x01811B40;
-    // InstallJournalWeekLimitHook
-    inline constexpr uintptr_t Rva_01889100 = 0x01889100;
     // ClientGetCurrentSpeedUpTokensHook
     inline constexpr uintptr_t InventoryGetItemQuantity = 0x01A03B60;
     // InitClientHooks, InitServerHooks
     inline constexpr uintptr_t ApplyPlayerRole = 0x01A4B790;
-    // GetPlayerRoleAndSlot
-    inline constexpr uintptr_t Rva_01A52080 = 0x01A52080;
     // InitClientHooks, InitServerHooks
     inline constexpr uintptr_t HasFinishedLoading = 0x01A60BC0;
-    // RoutePlayerRoleToOwningConnectionRaw
-    inline constexpr uintptr_t Rva_01A8F4C0 = 0x01A8F4C0;
-    // GetPlayerRoleAndSlot
-    inline constexpr uintptr_t Rva_01A95C60 = 0x01A95C60;
-    // SafeCallGraphServerReplicate
-    inline constexpr uintptr_t Rva_01AB43D0 = 0x01AB43D0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01B65EB0 = 0x01B65EB0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01B690F0 = 0x01B690F0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01B8ACD0 = 0x01B8ACD0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01C412E0 = 0x01C412E0;
     // InitServerHooks
     inline constexpr uintptr_t LoadingScreenFadeIn = 0x01CADE20;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_01CDF5E0 = 0x01CDF5E0;
-    // InstallMiddlemanAetherdustHook
-    inline constexpr uintptr_t Rva_01D56130 = 0x01D56130;
-    // InstallHuntPassCoinIconsHook
-    inline constexpr uintptr_t Rva_01DF5E80 = 0x01DF5E80;
-    // InstallHuntPassMainTrackLayoutHook
-    inline constexpr uintptr_t Rva_01DFD180 = 0x01DFD180;
-    // InstallHuntPassMainTrackLayoutHook
-    inline constexpr uintptr_t Rva_01DFDC10 = 0x01DFDC10;
-    // InstallHuntPassLibraryHook
-    inline constexpr uintptr_t Rva_01E1EB50 = 0x01E1EB50;
-    // InstallHuntPassLibraryHook
-    inline constexpr uintptr_t Rva_01E2F410 = 0x01E2F410;
-    // InitClientHooks
-    inline constexpr uintptr_t Rva_020DC460 = 0x020DC460;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_0243A310 = 0x0243A310;
-    // InstallXmppConfigRedirectHook
-    inline constexpr uintptr_t Rva_0243CAD0 = 0x0243CAD0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_024A69F0 = 0x024A69F0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_024A8120 = 0x024A8120;
-    // VectoredExceptionTrace
-    inline constexpr uintptr_t Rva_024AE5B0 = 0x024AE5B0;
-    // CreateRepDriverHook
-    inline constexpr uintptr_t Rva_02659120 = 0x02659120;
     // InitClientHooks, InitServerHooks
     inline constexpr uintptr_t ProcessEvent = 0x026A9890;
-    // CreateRepDriverHook
-    inline constexpr uintptr_t Rva_026CEC20 = 0x026CEC20;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_02D2BD50 = 0x02D2BD50;
-    // InstallSetUrlRedirectHook
-    inline constexpr uintptr_t Rva_03102740 = 0x03102740;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03102BD0 = 0x03102BD0;
-    // InstallWarpForceHooks
-    inline constexpr uintptr_t Rva_032DAA1B = 0x032DAA1B;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03795740 = 0x03795740;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03B7B470 = 0x03B7B470;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03BFDB50 = 0x03BFDB50;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D56360 = 0x03D56360;
-    // SafeSetClientWorldPackageName
-    inline constexpr uintptr_t Rva_03D64090 = 0x03D64090;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D72A80 = 0x03D72A80;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D75EF0 = 0x03D75EF0;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D77000 = 0x03D77000;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D7C820 = 0x03D7C820;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D90740 = 0x03D90740;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_03D91AC0 = 0x03D91AC0;
-    // GameEngineTickHook, SafeManualTickFlush
-    inline constexpr uintptr_t Rva_03D91DC0 = 0x03D91DC0;
-    // RegisterNetDriverInLevelCollections
-    inline constexpr uintptr_t Rva_0403A830 = 0x0403A830;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_0409EC10 = 0x0409EC10;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_0409EF00 = 0x0409EF00;
-    // VectoredExceptionTrace
-    inline constexpr uintptr_t Rva_04DF2E8C = 0x04DF2E8C;
-    // MpLogHungGameThread
-    inline constexpr uintptr_t Rva_04E00000 = 0x04E00000;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_06729DA8 = 0x06729DA8;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_069F6290 = 0x069F6290;
-    // GameEngineTickHook, Init
-    inline constexpr uintptr_t Rva_06B53259 = 0x06B53259;
-    // GameEngineTickHook, Init
-    inline constexpr uintptr_t Rva_06B5325A = 0x06B5325A;
-    // ServerBootCrash
-    inline constexpr uintptr_t Rva_06B53C44 = 0x06B53C44;
-    // FindArchonReplicationGraphClass
-    inline constexpr uintptr_t Rva_06B8BC00 = 0x06B8BC00;
-    // InitServerHooks
-    inline constexpr uintptr_t Rva_06CE9588 = 0x06CE9588;
-    // RegisterNetDriverInLevelCollections
-    inline constexpr uintptr_t Rva_06CFBF60 = 0x06CFBF60;
-    // MainThread, SampleBleedoutGrace
-    inline constexpr uintptr_t Rva_06D001B8 = 0x06D001B8;
+
+    // Engine globals (data). World servers pin GIsClient/GIsServer to server
+    // values; GErrorHist holds the fatal error text.
+    inline constexpr uintptr_t GIsClient = 0x06B53259;
+    inline constexpr uintptr_t GIsServer = 0x06B5325A;
+    inline constexpr uintptr_t GErrorHist = 0x06B53C44;
+    inline constexpr uintptr_t GEngine = 0x06CFBF60;
+    inline constexpr uintptr_t GWorld = 0x06D001B8;
+    // The range LogHungGameThread treats as the executable's code when it scans
+    // a stack for return addresses.
+    inline constexpr uintptr_t CodeStart = 0x00001000;
+    inline constexpr uintptr_t CodeEnd = 0x04E00000;
+
+    // Engine startup code that sets GIsClient and GIsServer for a client,
+    // rewritten on world servers after checking each instruction (see
+    // InstallServerRolePatches): mov byte [GIsClient], 1 and mov byte
+    // [GIsServer], 0, then mov [GIsClient], r12b, and two mov [..], al stores
+    // in another function; plus the call that decides whether a world may listen.
+    inline constexpr uintptr_t GIsClientStoreOne = 0x009E934A;
+    inline constexpr uintptr_t GIsServerStoreZero = 0x009E94FB;
+    inline constexpr uintptr_t GIsClientStoreR12 = 0x009E9507;
+    inline constexpr uintptr_t GIsClientStoreAl = 0x009E4FD4;
+    inline constexpr uintptr_t GIsServerStoreAl = 0x009E4FE1;
+    inline constexpr uintptr_t InitListenGateCall = 0x04046888;
+    inline constexpr uintptr_t InitListenGate = 0x009D81A0;
+    // In the function that sorts the loadout's player role slot entries
+    // (UArchonLoadoutSlotData::PlayerRoleItemSlot, 0x28-byte entries from
+    // +0x150) into ten lists at +0x9C0: "mov rsi, [rax]; movsxd rax, [rax+8]"
+    // loads the array's data and count. World servers zero both, so the sort is
+    // skipped (inherited from Mystic Paradox; the reason wasn't recorded).
+    inline constexpr uintptr_t PlayerRoleSlotSortArray = 0x017BD9BC;
+
+    // Networking and replication.
+    inline constexpr uintptr_t GameEngineTick = 0x03BFDB50;               // UGameEngine::Tick
+    inline constexpr uintptr_t NetDriverTickDispatch = 0x00A6F220;        // UNetDriver::TickDispatch
+    inline constexpr uintptr_t NetDriverTickDispatchInner = 0x03D91AC0;
+    inline constexpr uintptr_t NetDriverTickFlush = 0x03D91DC0;           // UNetDriver::TickFlush
+    inline constexpr uintptr_t EngineFindNamedNetDriver = 0x0403A830;     // UEngine::FindNamedNetDriver(World, Name)
+    inline constexpr uintptr_t NotifyClientDisconnected = 0x00A59270;
+    inline constexpr uintptr_t IsNetReady = 0x03D7C820;
+    // The three net-mode queries world servers answer as a dedicated server.
+    inline constexpr uintptr_t GetNetMode = 0x0409EC10;
+    inline constexpr uintptr_t InternalGetNetMode = 0x03D77000;
+    inline constexpr uintptr_t WorldGetNetMode = 0x0409EF00;
+    inline constexpr uintptr_t SetClientWorldPackageName = 0x03D64090;    // UNetConnection
+    inline constexpr uintptr_t ServerReplicateActors = 0x03D75EF0;        // UNetDriver
+    inline constexpr uintptr_t SetReplicationDriver = 0x03D90740;         // UNetDriver
+    inline constexpr uintptr_t CreateReplicationDriver = 0x03D72A80;
+    inline constexpr uintptr_t ActorChannelReplicateActor = 0x03B7B470;   // UActorChannel::ReplicateActor
+    inline constexpr uintptr_t RepGraphReplicateSingleActor = 0x00ECEC50; // UReplicationGraph
+    inline constexpr uintptr_t RepGraphServerReplicateActors = 0x01AB43D0;
+    // (Graph, Connection): the graph's per-connection manager, from its list at +0x4A8.
+    inline constexpr uintptr_t RepGraphFindConnectionManager = 0x01A8F4C0;
+    // The replication driver enable flag CreateReplicationDriver checks, and the
+    // registered replication graph feature array (data, then count at +8).
+    inline constexpr uintptr_t RepDriverEnableFlag = 0x06729DA8;
+    inline constexpr uintptr_t RepGraphFeatureArray = 0x06CE9588;
+    inline constexpr uintptr_t GetTransientPackage = 0x02659120;
+    inline constexpr uintptr_t StaticConstructObjectInternal = 0x026CEC20;
+
+    // World lifecycle.
+    inline constexpr uintptr_t GetGameDefaultMap = 0x02D2BD50;
+    inline constexpr uintptr_t GetStartSpot = 0x01811B40;
+    inline constexpr uintptr_t FCommandLineGet = 0x0243A310;
+    inline constexpr uintptr_t OnPlayerDataLoadComplete = 0x01B690F0;
+    inline constexpr uintptr_t ArchonLoadManagerLoadFailed = 0x01B65EB0;
+    inline constexpr uintptr_t GameplaySchedulerInitialize = 0x01C412E0;  // FGameplayScheduler::Initialize
+    // The engine's fatal error path (reads GErrorHist); world servers log and return.
+    inline constexpr uintptr_t FatalErrorHandler = 0x024A8120;
+    inline constexpr uintptr_t UnhandledExceptionFilter = 0x024A69F0;
+    // An FName text read that faults on a bad entry; the exception handler
+    // points it at an empty name string instead.
+    inline constexpr uintptr_t FNameEntryTextRead = 0x024AE5B0;
+    inline constexpr uintptr_t EmptyNameText = 0x04DF2E8C;
+    inline constexpr uintptr_t Knockout = 0x01B8ACD0;
+    inline constexpr uintptr_t InteractionCalloutHideHoldText = 0x01CDF5E0;
+
+    // Gameplay abilities and player roles.
+    // UAbilitySystemComponent::InternalTryActivateAbility(Handle, PredictionKey,
+    // OutInstancedAbility, OnEnded, TriggerEventData).
+    inline constexpr uintptr_t InternalTryActivateAbility = 0x015B9E20;
+    // A loadout's active UArchonLoadoutSlotData (index +0x680 into +0x670), its
+    // player role, and its PlayerRoleItemSlot (+0x348).
+    inline constexpr uintptr_t LoadoutActiveSlotData = 0x01A52080;
+    inline constexpr uintptr_t SlotDataPlayerRole = 0x01A95C60;
+    inline constexpr uintptr_t SlotDataPlayerRoleItemSlot = 0x0173F670;
+    // Player role ability charge queries (each takes the role).
+    inline constexpr uintptr_t PlayerRoleCurrentCharge = 0x01B983E0;
+    inline constexpr uintptr_t PlayerRoleChargePercent = 0x01B98410;
+    inline constexpr uintptr_t PlayerRoleCurrentChargeRate = 0x01B98470;
+    inline constexpr uintptr_t PlayerRoleMaxCharge = 0x01B99F30;
+    inline constexpr uintptr_t PlayerRoleCanActivate = 0x01B8D8A0;
+
+    // Backend traffic (client and world servers).
+    inline constexpr uintptr_t HttpRequestSetURL = 0x03102740;
+    inline constexpr uintptr_t HttpRequestProcessRequest = 0x03102BD0;
+    inline constexpr uintptr_t ConfigGetString = 0x0243CAD0;              // GConfig string lookup (XMPP settings)
+
+    // Client.
+    inline constexpr uintptr_t EasyAntiCheatStartup = 0x0136FE40;
+    inline constexpr uintptr_t EasyAntiCheatErrorProc = 0x020DC460;
+    inline constexpr uintptr_t ChallengeSeasonWeeks = 0x01889100;         // UBountyComponent_Weekly
+    inline constexpr uintptr_t MiddlemanCellOfferConvert = 0x01D56130;
+    inline constexpr uintptr_t HuntPassSeasonalCoinIcons = 0x01DF5E80;
+    inline constexpr uintptr_t HuntingPassLevelItemInitialize = 0x01DFD180;
+    inline constexpr uintptr_t HuntingPassViewModelInitialize = 0x01DFDC10;
+    inline constexpr uintptr_t HuntPassQueryOffers = 0x01E1EB50;
+    inline constexpr uintptr_t HuntPassSelectionUpdateView = 0x01E2F410;
     inline constexpr uintptr_t EngineRealloc = 0x023BB590;
     inline constexpr uintptr_t MiddlemanSpeedUpBalance = 0x019F4B70;
     inline constexpr uintptr_t LootDisplaySummary = 0x01DA9AD0;
@@ -228,9 +210,7 @@ namespace Native112 {
     inline constexpr uintptr_t MallocBinned2Realloc = 0x02392DA0;
     inline constexpr uintptr_t MallocBinned2Free = 0x023902B0;
     inline constexpr uintptr_t LegendaryWeaponEquipped = 0x01DF77C0;
-    inline constexpr uintptr_t ActorPreReplication = 0x0394B400;
     inline constexpr uintptr_t CreateActorChannel = 0x03D47AC0;
     inline constexpr uintptr_t SetChannelActor = 0x03B80890;
     inline constexpr uintptr_t CreateNamedNetDriver = 0x04033D20;
-    inline constexpr uintptr_t SendClientAdjustment = 0x03E9ABF0;
 }

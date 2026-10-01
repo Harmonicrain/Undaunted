@@ -24,6 +24,7 @@
 #include "native/Addresses112.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
+#include "core/Settings.h"
 
 struct RawPointerArray { void** Data; int32_t Num; int32_t Max; };
 
@@ -37,7 +38,6 @@ void* OrigInternalNetModeHook = nullptr;
 
 void* OrigWorldNetModeHook = nullptr;
 
-void* OrigIsLevelInitForActor = nullptr;
 
 void* OrigIsNetReady = nullptr;
 
@@ -64,9 +64,10 @@ static int HubMaxPlayers() {
 
 FString* GetGameDefaultMap(FString* a1) {
 
-    if (VerboseDiag()) MpLog("[GetGameDefaultMap] entry out=" + MpPtr(a1));
+    static const bool Verbose = Settings::Diag(L"verbose");
+    if (Verbose) MpLog("[GetGameDefaultMap] entry out=" + MpPtr(a1));
     FString* Ret = reinterpret_cast<FString*(*)(FString*)>(OrigGetDefaultMap)(a1);
-    if (VerboseDiag()) MpLog("[GetGameDefaultMap] original returned " + MpPtr(Ret));
+    if (Verbose) MpLog("[GetGameDefaultMap] original returned " + MpPtr(Ret));
 
     std::wstring FinalURL(Globals::MapPath);
 
@@ -142,7 +143,7 @@ const wchar_t* GetCommandLineHook() {
 void* OrigServerBootCrash = nullptr;
 
 void ServerBootCrash(void* param_1) {
-    const wchar_t* ErrorHist = *reinterpret_cast<const wchar_t**>(Native112::At(Globals::BaseAddress, Native112::Rva_06B53C44));
+    const wchar_t* ErrorHist = *reinterpret_cast<const wchar_t**>(Native112::At(Globals::BaseAddress, Native112::GErrorHist));
 
     std::string Category = "ServerBootCrash";
     std::string MsgNarrow = ErrorHist ? MpNarrow(std::wstring(ErrorHist)) : std::string("(null error history buffer)");
@@ -220,9 +221,7 @@ void ArchonLoadManagerLoadFailedHook(void* This) {
     return;
 }
 
-std::atomic<uint64_t> g_postLoginTimeMs{ 0 };
 
-std::atomic<int> g_pawnDiagCount{ 0 };
 
 bool SanitizeNetDriverClientConnections(void* NetDriver, const char* Tag) {
     if (!NetDriver || !IsReadablePointer(NetDriver, 0xA0)) {

@@ -7,7 +7,8 @@
 #include "server/TrainingIdlePolicy.h"
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
-#include "diagnostics/RuntimeDiagnostics.h"
+#include "server/WorldWatchdog.h"
+#include "core/Settings.h"
 
 namespace {
 // Protocol with UndauntedDeployServer/src/controllers/trainingLease.ts.
@@ -15,11 +16,8 @@ constexpr UINT TrainingIdleExitCode = 75;
 
 int IdleSeconds() {
     static const int Seconds = [] {
-        const wchar_t* Key = L"-UndauntedTrainingIdleSeconds=";
-        const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
-        if (!Found) return 0; // Ramsgate, hunts, and clients never opt in.
-        const int Value = _wtoi(Found + wcslen(Key));
-        return Value >= 60 && Value <= 86400 ? Value : 300;
+        // Ramsgate, hunts, and clients never opt in.
+        return Settings::Int(L"TrainingIdleSeconds", 0, 60, 86400, 300);
     }();
     return Seconds;
 }

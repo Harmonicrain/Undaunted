@@ -31,8 +31,9 @@
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "core/PlayerRoles.h"
-#include "diagnostics/RuntimeDiagnostics.h"
-#include "server/Replication.h"
+#include "client/PlayerRoleActivation.h"
+#include "diagnostics/EscalationTrace.h"
+#include "diagnostics/PlayerRoleDiagnostics.h"
 
 #include <fstream>
 void* OrigProcessEventClient = nullptr;
@@ -182,7 +183,7 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
             }
 
             if (s_LastPossessedPC && s_LastPossessedAtMs != 0
-                && !s_ArchonInputActivated && !DiagNaturalMode())
+                && !s_ArchonInputActivated)
             {
                 constexpr uint64_t kInputActivateTimeoutMs = 8000;
                 uint64_t Elapsed = GetTickCount64() - s_LastPossessedAtMs;
@@ -290,7 +291,7 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
         MpLog(std::string("[InputModeVal] pawn=") + Object->GetFullName()
             + " bGameInputEnabled=" + (bGameInputEnabled ? "true" : "false"));
 
-        if (!s_ArchonInputActivated && s_LastPossessedPC && !DiagNaturalMode()) {
+        if (!s_ArchonInputActivated && s_LastPossessedPC) {
             TriggerArchonInputActivation(s_LastPossessedPC, "event");
         }
     }

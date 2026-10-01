@@ -43,3 +43,6 @@ int SafeReadU8At(uintptr_t base, uintptr_t offset);
 int32_t SafeReadI32At(uintptr_t base, uintptr_t offset);
 
 std::string CoreCapFString(void* fstr);
+
+// An object's name for a log line: "null", "unreadable" or its name.
+std::string SafeObjectNameForDiagnostic(void* Object);

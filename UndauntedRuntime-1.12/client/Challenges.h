@@ -22,8 +22,6 @@
 #pragma once
 #include "core/Runtime.h"
 
-void PatchWeeklyChallengeTable(UBountyComponent_Weekly* Component);
-
 void InstallJournalWeekLimitHook();
 
 void ChallengesAfterEvent(UObject* Object, const std::string& FunctionName);

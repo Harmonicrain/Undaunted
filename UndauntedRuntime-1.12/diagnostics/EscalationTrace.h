@@ -9,7 +9,8 @@
  * weapon is equipped; the seasonal event feature flags the metagame lists are
  * forced on; world servers answer event schedule checks from the metagame's
  * seasonal event schedule; validated archive passes can be shown by the native
- * Hunt Pass selector. Not an official release of
+ * Hunt Pass selector. In October 2026 this file was split out of
+ * diagnostics/RuntimeDiagnostics.cpp. Not an official release of
  * Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
@@ -22,7 +23,16 @@
 #pragma once
 #include "core/Runtime.h"
 
-// File flags keep their original locations and caching at each call site.
-bool MpExeRelativeFlagPresent(const wchar_t* FileName);
-bool MpWorkingDirectoryFlagPresent(const wchar_t* FileName);
-bool VerboseDiag();
+// -UndauntedDiag=escalation: logs the Escalation relic and buff flow
+// ([EscalationFlow]), the first 512 calls per process.
+
+// Whether a ProcessEvent function is one the trace follows.
+bool IsEscalationFlowFunction(const std::string& FunctionName);
+
+// Logs a traced call before it runs; returns its sequence number, or -1 when
+// it isn't traced. Pass the number to TraceEscalationFlowExit after the call.
+int TraceEscalationFlowEnter(const char* Side, UObject* Object,
+                             const std::string& FunctionName, void* Parms);
+
+void TraceEscalationFlowExit(const char* Side, int Seq, UObject* Object,
+                             const std::string& FunctionName, void* Parms);

@@ -12,7 +12,7 @@
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
-#include "diagnostics/RuntimeDiagnostics.h"
+#include "core/Settings.h"
 #include <unordered_map>
 
 namespace {
@@ -33,11 +33,7 @@ double TicksPerMs = 0.0;
 int WindowSeconds() {
     static const int Seconds = [] {
         if (!Globals::AmServer) return 0;
-        const wchar_t* Key = L"-UndauntedScriptProfile=";
-        const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
-        if (!Found) return 0;
-        const int Value = _wtoi(Found + wcslen(Key));
-        return Value >= 5 && Value <= 3600 ? Value : 0;
+        return Settings::Int(L"ScriptProfile", 0, 5, 3600, 0);
     }();
     return Seconds;
 }

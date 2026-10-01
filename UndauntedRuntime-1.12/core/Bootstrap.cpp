@@ -24,10 +24,10 @@
 #include "core/RuntimeState.h"
 #include "native/Addresses112.h"
 #include "client/ClientHooks.h"
-#include "core/EngineTick.h"
+#include "core/Settings.h"
 #include "core/Logging.h"
 #include "diagnostics/AllocProfile.h"
-#include "diagnostics/RuntimeDiagnostics.h"
+#include "server/WorldWatchdog.h"
 #include "server/RenderData.h"
 #include "server/ServerHooks.h"
 
@@ -64,17 +64,13 @@ void MainThread() {
 
     MpLog(logMsg);
 
-    if (Globals::AmServer && !Globals::Move10Status.empty()) {
-        MpLog(std::string("[move10] boot patch status:") + Globals::Move10Status);
-    }
-
     int waitCount = 0;
     while (true) {
 
         UWorld* world = UWorld::GetWorld();
         UWorld* directGWorld = nullptr;
         if (Globals::BaseAddress) {
-            directGWorld = *reinterpret_cast<UWorld**>(Native112::At(Globals::BaseAddress, Native112::Rva_06D001B8));
+            directGWorld = *reinterpret_cast<UWorld**>(Native112::At(Globals::BaseAddress, Native112::GWorld));
         }
         if (Globals::AmServer) {
             MpLog("[MainThread] wait=" + std::to_string(waitCount)
@@ -126,8 +122,8 @@ void Init() {
     Globals::BaseAddress = (uintptr_t)GetModuleHandleA(nullptr);
 
     if (Globals::AmServer) {
-        *(uint8_t*)(Native112::At(Globals::BaseAddress, Native112::Rva_06B5325A)) = 0x1;
-        *(uint8_t*)(Native112::At(Globals::BaseAddress, Native112::Rva_06B53259)) = 0x0;
+        *(uint8_t*)(Native112::At(Globals::BaseAddress, Native112::GIsServer)) = 0x1;
+        *(uint8_t*)(Native112::At(Globals::BaseAddress, Native112::GIsClient)) = 0x0;
     }
 
     if (Globals::AmServer) {
@@ -197,6 +193,7 @@ void Init() {
         }
 
         LogLoadedBuild();
+        Settings::LogActive();
         StartServerRenderDataOptions();
         InitServerHooks();
         StartAllocProfile();
@@ -221,12 +218,10 @@ void Init() {
                 break;
             }
         }
-        const std::wstring Prefix = L"-UndauntedMetagame=";
-        for (int i = 1; Args && i < NumArgs; ++i) {
-            if (_wcsnicmp(Args[i], Prefix.c_str(), Prefix.size()) == 0) Globals::MetagameAddress = Args[i] + Prefix.size();
-        }
+        if (Settings::Has(L"Metagame")) Globals::MetagameAddress = Settings::Text(L"Metagame");
 
         LogLoadedBuild();
+        Settings::LogActive();
         InitClientHooks();
     }
 

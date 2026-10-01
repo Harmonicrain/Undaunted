@@ -234,7 +234,7 @@ void InstallMiddlemanAetherdustHook() {
     const MH_STATUS Enable = Create == MH_OK ? RuntimeHooks::Enable(Target) : Create;
     MpLog(std::string("[InitClientHooks] MiddlemanAetherdust create=") + MH_StatusToString(Create)
         + " enable=" + MH_StatusToString(Enable));
-    auto* Converter = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::Rva_01D56130));
+    auto* Converter = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::MiddlemanCellOfferConvert));
     const unsigned char ConverterExpected[] = {0x48, 0x89, 0x5C, 0x24, 0x18, 0x55, 0x56, 0x57};
     if (memcmp(Converter, ConverterExpected, sizeof(ConverterExpected)) != 0) {
         MpLog("[InitClientHooks] MiddlemanOfferPrices skipped: executable signature mismatch");

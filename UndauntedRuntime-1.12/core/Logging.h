@@ -21,7 +21,6 @@
 
 #pragma once
 #include "core/Runtime.h"
-#include "core/RuntimeConfig.h"
 
 void MpLog(const std::string& Msg);
 

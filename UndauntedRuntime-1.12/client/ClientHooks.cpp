@@ -30,13 +30,12 @@
 #include "client/Middleman.h"
 #include "client/ClientEvents.h"
 #include "client/SlayerLinks.h"
-#include "core/EngineTick.h"
 #include "core/Features.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "core/PlayerRoles.h"
 #include "core/Transport.h"
-#include "server/Replication.h"
+#include "core/LoadingGate.h"
 
 void EasyAntiCheatErrorProcHook(void* Context, void* Stack, void* Result);
 void EasyAntiCheatStartupHook(void* Module);
@@ -139,10 +138,10 @@ void InitClientHooks() {
 
     {
         MH_STATUS EacCreate = RUNTIME_CREATE_HOOK(
-            (void*)(Native112::At(Globals::BaseAddress, Native112::Rva_020DC460)),
+            (void*)(Native112::At(Globals::BaseAddress, Native112::EasyAntiCheatErrorProc)),
             EasyAntiCheatErrorProcHook,
             &OrigEasyAntiCheatErrorProc);
-        MH_STATUS EacEnable = RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_020DC460)));
+        MH_STATUS EacEnable = RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::EasyAntiCheatErrorProc)));
         MpLog(std::string("[InitClientHooks] EasyAntiCheatErrorProc create=")
             + MH_StatusToString(EacCreate)
             + " enable=" + MH_StatusToString(EacEnable)
@@ -151,10 +150,10 @@ void InitClientHooks() {
 
     {
         MH_STATUS EacStartupCreate = RUNTIME_CREATE_HOOK(
-            (void*)(Native112::At(Globals::BaseAddress, Native112::Rva_0136FE40)),
+            (void*)(Native112::At(Globals::BaseAddress, Native112::EasyAntiCheatStartup)),
             EasyAntiCheatStartupHook,
             &OrigEasyAntiCheatStartup);
-        MH_STATUS EacStartupEnable = RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_0136FE40)));
+        MH_STATUS EacStartupEnable = RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::EasyAntiCheatStartup)));
         MpLog(std::string("[InitClientHooks] EasyAntiCheatStartup create=")
             + MH_StatusToString(EacStartupCreate)
             + " enable=" + MH_StatusToString(EacStartupEnable)

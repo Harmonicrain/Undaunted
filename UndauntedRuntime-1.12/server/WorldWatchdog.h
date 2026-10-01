@@ -9,8 +9,9 @@
  * weapon is equipped; the seasonal event feature flags the metagame lists are
  * forced on; world servers answer event schedule checks from the metagame's
  * seasonal event schedule; validated archive passes can be shown by the native
- * Hunt Pass selector. Not an official release of
- * Mystic Paradox or Undaunted.
+ * Hunt Pass selector. In October 2026 the world watchdog was split out of
+ * diagnostics/RuntimeDiagnostics.cpp and its two empty-world shutdowns became
+ * one. Not an official release of Mystic Paradox or Undaunted.
  *
  * Licensed under the GNU Affero General Public License v3.0.
  * You may obtain a copy of the License at the root of this repository.
@@ -19,28 +20,22 @@
  * Additional terms under AGPLv3 Section 7 apply. See ADDITIONAL_TERMS.md.
  */
 
-#include "core/RuntimeConfig.h"
+#pragma once
+#include "core/Runtime.h"
 
-bool MpExeRelativeFlagPresent(const wchar_t* FileName) {
-    if (!FileName) return false;
-    wchar_t ExePath[MAX_PATH];
-    DWORD n = GetModuleFileNameW(nullptr, ExePath, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) return false;
-    for (int i = static_cast<int>(n) - 1; i >= 0; --i) {
-        if (ExePath[i] == L'\\' || ExePath[i] == L'/') {
-            ExePath[i + 1] = L'\0';
-            break;
-        }
-    }
-    const std::wstring FlagPath = std::wstring(ExePath) + FileName;
-    return GetFileAttributesW(FlagPath.c_str()) != INVALID_FILE_ATTRIBUTES;
-}
+// Off for a world started by hand (without the deploy server's arguments).
+extern bool EnableWatchdog;
 
-bool MpWorkingDirectoryFlagPresent(const wchar_t* FileName) {
-    return FileName && GetFileAttributesW(FileName) != INVALID_FILE_ATTRIBUTES;
-}
+// Ends this world server at once (TerminateProcess, skipping the engine's
+// teardown), logging why.
+void MpReapExit(const char* Reason, UINT ExitCode = 0);
 
-bool VerboseDiag() {
-    static const bool Enabled = MpExeRelativeFlagPresent(L"VERBOSE_DIAG.flag");
-    return Enabled;
-}
+// Once a frame on the game thread: a hunt island (not Ramsgate or the Training
+// Grounds) with no players for 50 s shuts down. HasConnection is the fallback
+// when there is no game mode to count players.
+void TickWorldWatchdog(float DeltaTime, bool HasConnection);
+
+// Starts the thread that watches for a hung game thread on a hunt island that
+// has had a player: it logs where the thread is after 20 s without a tick and
+// shuts the world down after 180 s.
+void StartWorldWatchdogThread();

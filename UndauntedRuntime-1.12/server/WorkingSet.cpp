@@ -11,6 +11,7 @@
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
 #include "native/Addresses112.h"
+#include "core/Settings.h"
 #include <psapi.h>
 
 // A world server loads the game's startup content and its map (~800-890 MB
@@ -40,17 +41,13 @@
 
 namespace {
 bool KeepWorkingSet() {
-    static const bool Keep = wcsstr(GetCommandLineW(), L"-UndauntedKeepWorkingSet") != nullptr;
+    static const bool Keep = Settings::Has(L"KeepWorkingSet");
     return Keep;
 }
 
 int TrimIntervalSeconds() {
     static const int Seconds = [] {
-        const wchar_t* Key = L"-UndauntedTrimSeconds=";
-        const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
-        if (!Found) return 0;
-        const int Value = _wtoi(Found + wcslen(Key));
-        return (Value >= 0 && Value <= 86400) ? Value : 0;
+        return Settings::Int(L"TrimSeconds", 0, 0, 86400, 0);
     }();
     return Seconds;
 }

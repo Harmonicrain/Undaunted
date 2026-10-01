@@ -15,25 +15,33 @@ these folders are not text fragments included into a replacement monolith.
 | Folder/file | Responsibility |
 | --- | --- |
 | `core/Bootstrap` | Command-line setup, loaded build identity, startup/thread ownership |
-| `core/RuntimeState` | One definition of process state shared by client/server hooks |
-| `core/RuntimeHooks` | Hook creation/enabling diagnostics and Windows/WARP API hooks |
-| `core/RuntimeConfig` | Flag lookup; callers preserve their original defaults and caching |
+| `core/RuntimeState` | One definition of process state shared by client/server hooks, and the game thread's id |
+| `core/RuntimeHooks` | Hook installation (`RUNTIME_INSTALL_HOOK`: one log line per hook) and Windows API hooks |
+| `core/Settings`, `core/SettingsParse.h` | The `-Undaunted` switches, read once (see [runtime settings](#runtime-settings)) |
 | `core/Memory`, `core/Logging` | Pointer/raw-memory checks, engine allocation, shared log writer |
 | `core/Transport` | HTTP and XMPP redirection; backend address comes from command line |
 | `core/Features` | Feature flags, event schedules and trials scheduling |
-| `core/EngineTick`, `core/PlayerRoles` | Engine tick and player-role/lifecycle repair |
+| `core/PlayerRoles`, `core/LoadingGate` | Applying player roles and retrying them; the loading check both sides hook |
 | `client/ClientHooks`, `client/ClientEvents` | Client installation and ordered event dispatch |
+| `client/PlayerRoleActivation` | Activating the possessed pawn's input and gameplay once its role is applied |
 | `client/Middleman` | Aetherdust balance/offer conversion and dust-only tiles, popup, tooltip |
 | `client/SlayerLinks`, `client/SlayerLinkRecoveryPolicy` | Recover missing native prize-pool activation; defer an unlock until its pool and UI are ready, then resume native collection once |
 | `client/Challenges` | Weekly journal handling, daily-first list, Daily Activities filtering |
 | `client/HuntPass` | Library selection, coin icons, track layout and unavailable rank skip |
 | `client/GameplayHUD`, `client/LootSummary` | HUD/loot lifecycle fixes |
-| `server/ServerHooks`, `server/ServerEvents` | Server installation and ordered event dispatch |
+| `server/ServerHooks`, `server/ServerEvents` | Server installation; ProcessEvent handlers, chosen once per function |
+| `server/ServerTick`, `server/WidgetGuards` | The world's frame around the engine tick, in named steps; widget calls skipped on servers |
+| `server/WorldState`, `server/WorldWatchdog` | The current game mode and game state; empty hunt island shutdown and the hung game thread watch |
+| `server/Bleedout` | The island bleed-out duration fix, downed-player watch and bleed-out diagnostic |
 | `server/Combat`, `server/PlayerData`, `server/WorldLifecycle` | Combat, player responses and world lifecycle |
+| `server/PlayerRoleRouting` | Routing player role actors to their owner's connection; Tempest modifier repair |
+| `server/WeeklyChallenges` | Weekly challenge tables limited to the metagame's selection |
 | `server/TrainingLifecycle`, `server/TrainingIdlePolicy` | Training Grounds idle grace and shutdown coordinated with deploy travel reservations |
-| `server/Replication`, `Networking` | Native graph/channel setup and intentionally gated replication fallback |
-| `diagnostics/RuntimeDiagnostics` | Crash/exit, watchdog, progression, accessory and ability diagnostics |
-| `native/Addresses112.h` | Central shipping-executable RVAs, pinned to 1.12 CL392819 |
+| `server/Replication`, `server/Networking` | Net driver creation, the native replication graph and its guards |
+| `diagnostics/ExitTrace`, `diagnostics/HangTrace` | How a process ends; where a hung game thread is |
+| `diagnostics/PlayerRoleDiagnostics`, `diagnostics/EscalationTrace` | Log summaries of player roles and abilities; the Escalation flow trace |
+| `native/Addresses112.h` | Central shipping-executable RVAs, pinned to 1.12 CL392819, every one named |
+| `native/CodePatch` | Instruction patches that check the original bytes first |
 | `native/Layouts112.h` | Verified Middleman reflected/native field offsets |
 
 The generated SDK and MinHook remain third-party/generated code. Their broad
@@ -175,7 +183,49 @@ role-repair flag branch were removed. The active role repair and gated native
 replication fallback remain.
 
 Networking's duplicate pointer checks, executable path construction and log
-writer now use the core helpers. Its flags keep their original defaults.
+writer now use the core helpers.
+
+The October 2026 cleanup (no change to what players see unless noted):
+
+- **Flag files.** The 26 flag files next to the executable or in a `debug`
+  folder are gone; none were in use. Diagnostics became `-UndauntedDiag`
+  channels. The kill switches for always-on fixes (expected player count,
+  owner pawn relevancy, hunt id backfill, player replication rate, player role
+  routing) were removed with the fixes kept. The experiments were removed with
+  their code: the manual actor-replication loop and its five switches
+  (`Networking`), the replication rate cap, always-relevant players, half-rate
+  or zero-delta manual net ticks, the native-net-tick mode, the forced server
+  mesh pose, the WARP software renderer hooks, "natural mode" and the viewport
+  size fallback (with its hook). Two environment variables for Trials became
+  switches; `MYSTICPARADOX_BLEEDOUT_SECONDS` (never set) became the fixed 30 s.
+- **Dead code.** Toggles that always returned the same value, a hook that only
+  called the original (`IsLevelInitForActor`), a write of LogBeacon's log level
+  that the game's own static initializer overwrote, the launch-ready marker for
+  Mystic Paradox's launcher, console output, a client debug key handler (F7)
+  in the server-only engine tick, and startup probe dumps.
+- **Structure.** `diagnostics/RuntimeDiagnostics` (1,157 lines) became
+  `ExitTrace`, `HangTrace`, `PlayerRoleDiagnostics` and `EscalationTrace`, with
+  the behaviour it held moved to `server/Bleedout` (the bleed-out duration fix
+  used to run only as a side effect of the empty-world check) and
+  `server/WorldWatchdog`. The two empty-world shutdowns (game thread and
+  watchdog thread) are one; the thread now only watches for a hung game thread.
+  `core/EngineTick` (server-only) became `server/ServerTick` in named steps.
+  `ProcessEventHook` (625 lines) decides what to do once per function instead
+  of searching every call's name 15 times; one-off investigation logging
+  (weapon XP, perfect dodge, possession, MustSpectate, connection dumps) was
+  removed. The PlayerCanRestart view-target write ran only for a world's first
+  five calls because it sat inside a log budget; it now always runs, as every
+  hunt island already had it. Four walks over every object to find the game
+  mode use `server/WorldState` instead. `core/PlayerRoles` was split into its
+  shared, client (`client/PlayerRoleActivation`) and server
+  (`server/PlayerRoleRouting`) parts, the weekly challenge table patch moved
+  from `client/` to `server/WeeklyChallenges`, and the instruction patches to
+  `native/CodePatch`.
+- **Addresses.** All 63 `Rva_<number>` constants have names. The player role
+  slot patch now checks the original bytes before writing.
+- **Checks.** `test/settings.test.cpp` covers the switch parser, and
+  `tools/Test-WorldStartup112.ps1` runs after `Build-Local112 -Restart`: every
+  world must run the new build, listen, and report no failed hook or patch.
 
 Unused backend authThrottle module and unreferenced IsUserIdAdmin,
 UpdatePlayerLocation, GrantEntitlement, RevokeEntitlement, EarnedRank and
@@ -187,40 +237,21 @@ Earlier investigation notes are historical evidence, not current deployment
 instructions. Production compatibility adapters and operator-controlled
 fallbacks are intentionally documented instead of being deleted as leftovers.
 
-## Active runtime flags
+## Runtime settings
 
-Executable-relative flags are looked up through `MpExeRelativeFlagPresent`.
-The four `debug` paths retain their original working-directory-relative lookup
-through `MpWorkingDirectoryFlagPresent`. This cleanup does not enable any flag.
+The runtime reads `-Undaunted` switches from its command line once
+(`core/Settings`); there are no flag files. World servers get them from
+`GAMESERVER_EXTRA_ARGS` in the deploy server's `.env`, a client from its launch
+arguments, and each process logs the ones it was given (`[Settings]`). The
+world server switches are listed under [world server cost](#world-server-cost);
+the others:
 
-| Flag | Owner(s) relative to the runtime directory |
+| Switch | Effect |
 | --- | --- |
-| `.\debug\DIAG_NATURAL.flag` | `server/Replication.cpp` |
-| `.\debug\URL_LOG.flag` | `core/Transport.cpp` |
-| `.\debug\VIEWPORT_FALLBACK.flag` | `client/GameplayHUD.cpp` |
-| `.\debug\XMPP_TRACE.flag` | `core/Transport.cpp` |
-| `CORE_CAPTURE.flag` | `diagnostics/RuntimeDiagnostics.cpp` |
-| `DISABLE_EXPECTED_PLAYER_ZERO.flag` | `core/EngineTick.cpp` |
-| `DISABLE_OWNER_PAWN_RELEVANCY.flag` | `server/Replication.cpp` |
-| `DISABLE_PLAYER_HUNTID_BACKFILL.flag` | `server/PlayerData.cpp` |
-| `DISABLE_PLAYER_REP_BOOST.flag` | `server/Replication.cpp` |
-| `DISABLE_PLAYER_ROLE_OWNER_ROUTE.flag` | `core/PlayerRoles.cpp` |
-| `EMERGENCY_LEGACY_REPLICATION.flag` | `Networking.cpp`, `server/Replication.cpp` |
-| `FORCE_SERVER_MESH_POSE.flag` | `core/EngineTick.cpp` |
-| `HYBRID_REPLICATION.flag` | `Networking.cpp` |
-| `LEVEL_VISIBILITY_GATE.flag` | `Networking.cpp` |
-| `MANUAL_TICK_HALF_RATE.flag` | `core/EngineTick.cpp` |
-| `MANUAL_TICK_ZERO_DT.flag` | `core/EngineTick.cpp` |
-| `MP_FORCE_WARP.flag` | `core/RuntimeHooks.cpp` |
-| `NATIVE_NET_TICK.flag` | `core/EngineTick.cpp` |
-| `NATIVE_REPLICATION_ONLY.flag` | `Networking.cpp` |
-| `PLAYER_ALWAYS_RELEVANT.flag` | `server/Replication.cpp` |
-| `REPGRAPH_DIAG.flag` | `Networking.cpp`, `server/Replication.cpp` |
-| `REVERSE_CONNECTION_ORDER.flag` | `Networking.cpp` |
-| `SRA_RATE_CAP.flag` | `server/Replication.cpp` |
-| `TEMPEST_CHARGE_DIAG.flag` | `core/PlayerRoles.cpp` |
-| `TRIALS_GRACE_DIAG.flag` | `core/EngineTick.cpp` |
-| `VERBOSE_DIAG.flag` | `core/RuntimeConfig.cpp` |
+| `-UndauntedMetagame=<host:port>` | Client: the metagame to send backend requests to |
+| `-UndauntedTrialsRotationMinutes=<n>` | How long each Trials week lasts (default a week) |
+| `-UndauntedTrialsWeek=<1-181>` | The Trials week to start from |
+| `-UndauntedDiag=<channels>` | Diagnostics, comma-separated (all off by default): `repgraph` replication graph state and per-class replication counts; `verbose` the game thread's recent calls for hang reports, the first 180 net ticks and default map lookups; `bleedout` every player's bleed-out state a few times a second and knockouts; `tempest` Tempest player role charge; `items` item grants and consumption; `escalation` the Escalation relic flow; `urls` backend request URLs; `xmpp` XMPP traffic |
 
 ## World server cost
 
@@ -236,10 +267,10 @@ carry client-only costs. The runtime trims them on world servers only
 
 | Change | Where | Effect |
 | --- | --- | --- |
-| Frame rate set by the runtime: the active rate with a player connected, the idle rate after 10 s empty | `core/EngineTick.cpp` | Idle world ~70-86% of a core down to 5-7% |
-| `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
+| Frame rate set by the runtime: the active rate with a player connected, the idle rate after 10 s empty | `server/ServerTick.cpp` | Idle world ~70-86% of a core down to 5-7% |
+| `ExpectedPlayerCount` holders read from the world's game mode and game state instead of walking every object each frame | `server/ServerTick.cpp` | About a third of an idle world's CPU |
 | The engine's frame limiter waits on a high-resolution timer instead of spinning `SwitchToThread` through the last ~2 ms of every frame (a client build's limiter; a dedicated-server build sleeps) | `server/FrameWait.cpp` | Measured 2026-10-01 at 90 fps: empty Ramsgate 40% of a core down to 24%; Ramsgate with a player 55% down to 36%. A late timer wake occasionally stretches a frame (worst 18.7 ms against 14.5 ms in a minute) |
-| Per-call overhead cut from the runtime's hottest hooks: the replication guards identify player controllers with guarded reads instead of a VirtualQuery per actor per connection, ProcessEvent caches each function's full name per thread, feature flags are decided once per class, escalation tracing rules functions out with one search, and a debug flag file is looked for every 4 s instead of every frame | `server/Replication.cpp`, `server/ServerEvents.cpp`, `core/Features.cpp`, `diagnostics/RuntimeDiagnostics.cpp`, `core/EngineTick.cpp` | Emberthorne Cove with two players at 30 fps: 30% of a core down to 20%, 9.3 ms of work per frame down to 5.6 ms (profiled 2026-10-01) |
+| Per-call overhead cut from the runtime's hottest hooks: the replication guards identify player controllers with guarded reads instead of a VirtualQuery per actor per connection, ProcessEvent caches each function's full name per thread, feature flags are decided once per class, escalation tracing rules functions out with one search, and a debug flag file is looked for every 4 s instead of every frame | `server/Replication.cpp`, `server/ServerEvents.cpp`, `core/Features.cpp`, `diagnostics/EscalationTrace.cpp`, `server/ServerTick.cpp` | Emberthorne Cove with two players at 30 fps: 30% of a core down to 20%, 9.3 ms of work per frame down to 5.6 ms (profiled 2026-10-01) |
 | Behemoths' pooled projectiles and loot drops (hidden at the origin, always relevant) skip replication checks once a check has found nothing to send, until they leave the pool; quiet player controllers (which carry every progression component) and behemoth parts are checked at 10 Hz instead of every frame until something changes | `server/Replication.cpp` | Emberthorne Cove with two players: replication 47 ms/s down to 22 ms/s (8,447 checks/s down to 2,741). A first change after a quiet spell can reach clients up to 66 ms later |
 | CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
 | Distance fields (105 MB on Ramsgate), render sections' duplicated-vertex buffers (29 MB) and morph target deltas (30 MB) emptied, found with the allocation profile below | `server/RenderData.cpp` | Ramsgate ~855 MB down to ~690 MB committed |

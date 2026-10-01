@@ -46,7 +46,6 @@ void OnPlayerDataLoadCompleteHook(UObject* PC, bool bWasSuccessful) {
 
     if (!bWasSuccessful) return;
 
-    if (MpExeRelativeFlagPresent(L"DISABLE_PLAYER_HUNTID_BACKFILL.flag")) return;
     if (!PC || !IsReadablePointer(PC, 0x770)) return;
 
     UObject* HuntSystem = *reinterpret_cast<UObject**>(reinterpret_cast<uintptr_t>(PC) + 0x768);

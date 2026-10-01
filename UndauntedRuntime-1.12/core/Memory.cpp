@@ -151,3 +151,8 @@ std::string CoreCapFString(void* fstr) {
     for (int i = 0; i < Num && Data[i] != L'\0'; ++i) Out += static_cast<char>(Data[i] & 0xFF);
     return Out;
 }
+
+std::string SafeObjectNameForDiagnostic(void* Object) {
+    if (!Object || !IsReadablePointer(Object, 0x40)) return Object ? "unreadable" : "null";
+    return reinterpret_cast<UObject*>(Object)->GetName();
+}

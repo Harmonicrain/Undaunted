@@ -37,9 +37,7 @@ void ReconcileAirshipGameplayHUD(const char* TriggerLabel);
 
 void TickProgressionHudRefresh();
 
-extern void* OrigGetViewportSize;
 
-void ExecGetViewportSizeHook(void* ctx, void* stack, void* result);
 
 inline constexpr uintptr_t kHudLegendaryHandleWeaponEquippedRva = Native112::LegendaryWeaponEquipped;
 

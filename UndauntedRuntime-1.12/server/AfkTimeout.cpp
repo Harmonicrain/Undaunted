@@ -11,6 +11,7 @@
 #include "core/RuntimeState.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
+#include "core/Settings.h"
 
 // The AFK kick happens on the client: its local player controller counts idle
 // time and, past the timeout, returns the player to the main menu ("You have
@@ -27,11 +28,8 @@ namespace {
 float ConfiguredSeconds(bool& Present) {
     static bool Found = false;
     static const float Seconds = [] {
-        const wchar_t* Key = L"-UndauntedAfkTimeoutSeconds=";
-        const wchar_t* Arg = wcsstr(GetCommandLineW(), Key);
-        if (!Arg) return 0.0f;
-        const int Value = _wtoi(Arg + wcslen(Key));
-        if (Value < 0 || Value > 7 * 24 * 3600) return 0.0f;
+        const int Value = Settings::Int(L"AfkTimeoutSeconds", -1, 0, 7 * 24 * 3600, -1);
+        if (Value < 0) return 0.0f;
         Found = true;
         return static_cast<float>(Value);
     }();

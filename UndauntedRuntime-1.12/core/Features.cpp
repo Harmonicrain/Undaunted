@@ -27,6 +27,7 @@
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "core/Transport.h"
+#include "core/Settings.h"
 
 using FeatureFlagIsEnabledFn = bool(__fastcall*)(void* This);
 
@@ -318,31 +319,16 @@ static constexpr int kTrialsRotationRowCount = 181;
 
 static constexpr int kDefaultTrialsRotationMinutes = 7 * 24 * 60;
 
+// -UndauntedTrialsRotationMinutes=<n>: how long each Trials week lasts
+// (default a week). -UndauntedTrialsWeek=<1-181>: the week to start from.
 static int TrialsRotationMinutes() {
-    static int Cached = 0;
-    if (Cached != 0) return Cached;
-
-    Cached = kDefaultTrialsRotationMinutes;
-    char Value[32] = {};
-    DWORD n = GetEnvironmentVariableA("TRIALS_ROTATION_MINUTES", Value, static_cast<DWORD>(sizeof(Value)));
-    if (n > 0 && n < sizeof(Value)) {
-        char* End = nullptr;
-        long Parsed = std::strtol(Value, &End, 10);
-        if (End != Value && *End == '\0' && Parsed >= 1 && Parsed <= 525600) {
-            Cached = static_cast<int>(Parsed);
-        }
-    }
-    return Cached;
+    static const int Minutes = Settings::Int(L"TrialsRotationMinutes", kDefaultTrialsRotationMinutes, 1, 525600,
+        kDefaultTrialsRotationMinutes);
+    return Minutes;
 }
 
 static int TrialsLaunchWeekOverride() {
-    char Value[16] = {};
-    DWORD n = GetEnvironmentVariableA("MYSTICPARADOX_TRIALS_WEEK", Value, static_cast<DWORD>(sizeof(Value)));
-    if (n == 0 || n >= sizeof(Value)) return 0;
-    char* End = nullptr;
-    long Parsed = std::strtol(Value, &End, 10);
-    return (End != Value && *End == '\0' && Parsed >= 1 && Parsed <= kTrialsRotationRowCount)
-        ? static_cast<int>(Parsed) : 0;
+    return Settings::Int(L"TrialsWeek", 0, 1, kTrialsRotationRowCount, 0);
 }
 
 static bool TryParseTrialsScheduleWeek(const std::string& RowName, int& WeekOut) {

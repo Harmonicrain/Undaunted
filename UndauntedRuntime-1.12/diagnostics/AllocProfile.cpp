@@ -12,6 +12,7 @@
 #include "core/RuntimeHooks.h"
 #include "core/Logging.h"
 #include "native/Addresses112.h"
+#include "core/Settings.h"
 #include <algorithm>
 #include <cstdio>
 #include <vector>
@@ -187,11 +188,7 @@ void WriteProfile() {
 }
 
 int ProfileSeconds() {
-    const wchar_t* Key = L"-UndauntedAllocProfile=";
-    const wchar_t* Found = wcsstr(GetCommandLineW(), Key);
-    if (!Found) return 0;
-    const int Value = _wtoi(Found + wcslen(Key));
-    return (Value >= 5 && Value <= 3600) ? Value : 60;
+    return Settings::Int(L"AllocProfile", 0, 5, 3600, 60);
 }
 
 DWORD WINAPI ProfileThread(LPVOID) {

@@ -24,17 +24,20 @@
 
 void InstallApiHook(LPCWSTR Module, LPCSTR ProcName, LPVOID Detour, LPVOID* Original, const char* Tag);
 
-bool MpForceWarpEnabled();
-
-void InstallWarpForceHooks();
-
 namespace RuntimeHooks {
     MH_STATUS Create(void* Target, void* Detour, void** Original, const char* Name);
     MH_STATUS Enable(void* Target);
+    // Creates and enables a hook on an executable-relative address and logs
+    // one line: "[Hooks] <name> +<rva> installed", or FAILED with the statuses.
+    MH_STATUS Install(uintptr_t Rva, void* Detour, void** Original, const char* Name);
 }
 
 // Preserve each installer's original create/enable order and status checks.
 // Names and executable-relative addresses are recorded without command lines.
 #define RUNTIME_CREATE_HOOK(Target, Detour, Original) \
     RuntimeHooks::Create(Target, reinterpret_cast<void*>(Detour), \
+        reinterpret_cast<void**>(Original), #Detour)
+
+#define RUNTIME_INSTALL_HOOK(Rva, Detour, Original) \
+    RuntimeHooks::Install(Rva, reinterpret_cast<void*>(Detour), \
         reinterpret_cast<void**>(Original), #Detour)

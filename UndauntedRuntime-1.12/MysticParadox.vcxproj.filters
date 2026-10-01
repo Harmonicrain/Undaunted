@@ -60,9 +60,6 @@
     <ClCompile Include="core\Bootstrap.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="core\EngineTick.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
     <ClCompile Include="core\Features.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -83,9 +80,6 @@
     </ClCompile>
     <ClCompile Include="core\Transport.cpp">
       <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="diagnostics\RuntimeDiagnostics.cpp">
-      <Filter>diagnostics</Filter>
     </ClCompile>
     <ClCompile Include="diagnostics\AllocProfile.cpp">
       <Filter>diagnostics</Filter>
@@ -129,6 +123,54 @@
     <ClCompile Include="server\AfkTimeout.cpp">
       <Filter>server</Filter>
     </ClCompile>
+    <ClCompile Include="core\Settings.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\LoadingGate.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="native\CodePatch.cpp">
+      <Filter>native</Filter>
+    </ClCompile>
+    <ClCompile Include="diagnostics\ExitTrace.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="diagnostics\HangTrace.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="diagnostics\PlayerRoleDiagnostics.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="diagnostics\EscalationTrace.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="server\Bleedout.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\WorldWatchdog.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\WorldState.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\ServerTick.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\WidgetGuards.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\WeeklyChallenges.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="server\Networking.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="client\PlayerRoleActivation.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="server\PlayerRoleRouting.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
     <ClCompile Include="core\RuntimePch.cpp">
       <Filter>core</Filter>
     </ClCompile>
@@ -146,9 +188,6 @@
     </ClCompile>
     <ClCompile Include="MinHook\trampoline.c">
       <Filter>MinHook</Filter>
-    </ClCompile>
-    <ClCompile Include="Networking.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SDK\Archon_functions.cpp">
       <Filter>SDK</Filter>
@@ -179,9 +218,6 @@
     </ClCompile>
     <ClCompile Include="SDK\UMG_functions.cpp">
       <Filter>SDK</Filter>
-    </ClCompile>
-    <ClCompile Include="core\RuntimeConfig.cpp">
-      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,9 +254,6 @@
     <ClInclude Include="core\Bootstrap.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="core\EngineTick.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="core\Features.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -245,14 +278,62 @@
     <ClInclude Include="core\Transport.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="diagnostics\RuntimeDiagnostics.h">
-      <Filter>diagnostics</Filter>
-    </ClInclude>
     <ClInclude Include="diagnostics\AllocProfile.h">
       <Filter>diagnostics</Filter>
     </ClInclude>
     <ClInclude Include="diagnostics\ScriptProfile.h">
       <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="core\Settings.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\LoadingGate.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="native\CodePatch.h">
+      <Filter>native</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\ExitTrace.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\HangTrace.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\PlayerRoleDiagnostics.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\EscalationTrace.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="server\Bleedout.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\WorldWatchdog.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\WorldState.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\ServerTick.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\WidgetGuards.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\WeeklyChallenges.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="server\Networking.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="core\SettingsParse.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="client\PlayerRoleActivation.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="server\PlayerRoleRouting.h">
+      <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="native\Addresses112.h">
       <Filter>native</Filter>
@@ -301,12 +382,6 @@
     </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Networking.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\RuntimeConfig.h">
-      <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="core\BuildInfo.h">
       <Filter>core</Filter>

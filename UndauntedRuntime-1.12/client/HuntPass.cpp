@@ -209,7 +209,7 @@ static void __fastcall HuntPassQueryOffersHook(UHuntPassSelectionViewModel* This
 }
 
 void InstallHuntPassLibraryHook() {
-    void* Target = reinterpret_cast<void*>(Native112::At(Globals::BaseAddress, Native112::Rva_01E1EB50));
+    void* Target = reinterpret_cast<void*>(Native112::At(Globals::BaseAddress, Native112::HuntPassQueryOffers));
     const MH_STATUS Create = RUNTIME_CREATE_HOOK(Target, HuntPassQueryOffersHook,
         reinterpret_cast<LPVOID*>(&OrigHuntPassQueryOffers));
     const MH_STATUS Enable = Create == MH_OK ? RuntimeHooks::Enable(Target) : Create;
@@ -218,7 +218,7 @@ void InstallHuntPassLibraryHook() {
     // UHuntPassSelectionScreen::UpdateView is also called directly by native
     // focus/store callbacks, bypassing ProcessEvent. Its main-pass check at
     // +0x1E2F719 selects Activate rather than the premium-offer purchase action.
-    auto* UpdateTarget = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::Rva_01E2F410));
+    auto* UpdateTarget = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::HuntPassSelectionUpdateView));
     const unsigned char Expected[] = { 0x40, 0x55, 0x53, 0x41, 0x57, 0x48, 0x8D, 0xAC,
         0x24, 0x10, 0xFF, 0xFF, 0xFF, 0x48, 0x81, 0xEC, 0xF0, 0x01 };
     if (memcmp(UpdateTarget, Expected, sizeof(Expected)) != 0) {
@@ -296,7 +296,7 @@ static void __fastcall GetSeasonalCoinIconsHook(UHuntingPassViewModel* This,
 }
 
 void InstallHuntPassCoinIconsHook() {
-    auto* Target = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::Rva_01DF5E80));
+    auto* Target = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::HuntPassSeasonalCoinIcons));
     const unsigned char Expected[] = { 0x48, 0x89, 0x5C, 0x24, 0x10,
         0x48, 0x89, 0x74, 0x24, 0x18, 0x48, 0x89, 0x7C, 0x24, 0x20 };
     if (memcmp(Target, Expected, sizeof(Expected)) != 0) {
@@ -351,7 +351,7 @@ static void __fastcall InitializeHuntingPassLevelItemHook(UHuntingPassLevelItemW
 }
 
 void InstallHuntPassMainTrackLayoutHook() {
-    auto* Target = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::Rva_01DFDC10));
+    auto* Target = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::HuntingPassViewModelInitialize));
     const unsigned char Expected[] = { 0x48, 0x89, 0x5C, 0x24, 0x18, 0x55, 0x56, 0x57,
         0x41, 0x54, 0x41, 0x55, 0x41, 0x56, 0x41, 0x57 };
     if (memcmp(Target, Expected, sizeof(Expected)) != 0) {
@@ -364,7 +364,7 @@ void InstallHuntPassMainTrackLayoutHook() {
     MpLog(std::string("[InitClientHooks] HuntPassMainTrackLayout create=") + MH_StatusToString(Create)
         + " enable=" + MH_StatusToString(Enable));
 
-    auto* LevelTarget = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::Rva_01DFD180));
+    auto* LevelTarget = reinterpret_cast<unsigned char*>(Native112::At(Globals::BaseAddress, Native112::HuntingPassLevelItemInitialize));
     const unsigned char LevelExpected[] = { 0x48, 0x89, 0x5C, 0x24, 0x10, 0x48, 0x89, 0x6C,
         0x24, 0x18, 0x48, 0x89, 0x74, 0x24, 0x20, 0x57 };
     if (memcmp(LevelTarget, LevelExpected, sizeof(LevelExpected)) != 0) {

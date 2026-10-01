@@ -14,6 +14,7 @@
 #include "core/RuntimeHooks.h"
 #include "native/Addresses112.h"
 #include "native/Layouts112.h"
+#include "core/Settings.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -249,7 +250,7 @@ bool ReleaseTextureGuarded(SDK::UObject* Texture, size_t PlatformDataOffset, FRe
 }
 
 bool KeepRenderData() {
-    static const bool Keep = wcsstr(GetCommandLineW(), L"-UndauntedKeepRenderData") != nullptr;
+    static const bool Keep = Settings::Has(L"KeepRenderData");
     return Keep;
 }
 
@@ -284,7 +285,7 @@ static void WebBrowserWidgetStartupSkip(void*) {
 }
 
 void InstallServerWebBrowserSkip() {
-    if (!Globals::AmServer || wcsstr(GetCommandLineW(), L"-UndauntedKeepWebBrowser") != nullptr) return;
+    if (!Globals::AmServer || Settings::Has(L"KeepWebBrowser")) return;
     void* Target = reinterpret_cast<void*>(Native112::At(Globals::BaseAddress, Native112::WebBrowserWidgetStartupModule));
     // mov rax,rsp; push rsi; sub rsp,70h; cmp qword ptr [rcx+8],0 (WebBrowserAssetMgr)
     static const unsigned char Expected[] = { 0x48, 0x8B, 0xC4, 0x56, 0x48, 0x83, 0xEC, 0x70, 0x48, 0x83, 0x79, 0x08, 0x00 };

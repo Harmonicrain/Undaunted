@@ -30,8 +30,6 @@ extern void* OrigInternalNetModeHook;
 
 extern void* OrigWorldNetModeHook;
 
-extern void* OrigIsLevelInitForActor;
-
 extern void* OrigIsNetReady;
 
 FString* GetGameDefaultMap(FString* a1);
@@ -47,10 +45,6 @@ void ServerBootCrash(void* param_1);
 extern void* OrigArchonLoadManagerLoadFailed;
 
 void ArchonLoadManagerLoadFailedHook(void* This);
-
-extern std::atomic<uint64_t> g_postLoginTimeMs;
-
-extern std::atomic<int> g_pawnDiagCount;
 
 bool SanitizeNetDriverClientConnections(void* NetDriver, const char* Tag);
 

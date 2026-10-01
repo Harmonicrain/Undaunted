@@ -229,6 +229,10 @@ if ($Deploy) {
         $manifest.restarted = $true
         $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $manifestPath -Encoding utf8
         Get-Content -LiteralPath (Join-Path $stage 'restart.log') -Tail 6 | Write-Output
+        # Every world loaded this build, listens and installed its hooks and patches.
+        Invoke-Checked 'powershell.exe' @('-NoProfile','-File',(Join-Path $PSScriptRoot 'Test-WorldStartup112.ps1'),
+            '-GameDirectory',$config.GameDirectory,'-BuildId',$buildId) $repo (Join-Path $stage 'startup-check.log')
+        Get-Content -LiteralPath (Join-Path $stage 'startup-check.log') | Write-Output
     }
 }
 Write-Output "Build manifest: $manifestPath"

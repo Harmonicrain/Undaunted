@@ -36,7 +36,6 @@ namespace Globals {
     extern const wchar_t* MyIpAndPort;
     extern std::wstring MetagameAddress;
     extern bool EnableLogging;
-    extern std::string Move10Status;
     extern std::wstring ServerAPIKeyStorage;
     extern std::wstring MapPathStorage;
     extern std::wstring BehemothPathStorage;
@@ -44,3 +43,6 @@ namespace Globals {
     extern std::wstring ExpectedPlayerStringStorage;
     extern std::wstring MyIpAndPortStorage;
 }
+
+// The thread that runs the engine tick (the game thread), 0 until its first tick.
+extern volatile DWORD GameTickThreadId;

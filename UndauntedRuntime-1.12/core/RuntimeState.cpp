@@ -20,7 +20,6 @@
  */
 
 #include "core/RuntimeState.h"
-#include "core/RuntimeState.h"
 #include "native/Addresses112.h"
 
 namespace Globals {
@@ -41,8 +40,6 @@ namespace Globals {
 
     bool EnableLogging = true;
 
-    std::string Move10Status;
-
     std::wstring ServerAPIKeyStorage;
     std::wstring MapPathStorage;
     std::wstring BehemothPathStorage;
@@ -50,3 +47,5 @@ namespace Globals {
     std::wstring ExpectedPlayerStringStorage;
     std::wstring MyIpAndPortStorage;
 }
+
+volatile DWORD GameTickThreadId = 0;

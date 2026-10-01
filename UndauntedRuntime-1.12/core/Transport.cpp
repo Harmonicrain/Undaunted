@@ -25,6 +25,7 @@
 #include "native/Addresses112.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
+#include "core/Settings.h"
 
 enum EFunctionCallspace : uint32_t
 {
@@ -134,7 +135,7 @@ static bool MpUrlRewriteEnabled() {
 static bool MpUrlLogEnabled() {
     static int Cached = -1;
     if (Cached < 0) {
-        Cached = (MpWorkingDirectoryFlagPresent(L".\\debug\\URL_LOG.flag")) ? 1 : 0;
+        Cached = Settings::Diag(L"urls") ? 1 : 0;
     }
     return Cached == 1;
 }
@@ -214,8 +215,8 @@ void SetURLHook(void* Request, FString* Url) {
 }
 
 void InstallSetUrlRedirectHook(const char* Mode) {
-    MH_STATUS Create = RUNTIME_CREATE_HOOK((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_03102740)), SetURLHook, &OrigSetURL);
-    MH_STATUS Enable = (Create == MH_OK) ? RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_03102740))) : Create;
+    MH_STATUS Create = RUNTIME_CREATE_HOOK((void*)(Native112::At(Globals::BaseAddress, Native112::HttpRequestSetURL)), SetURLHook, &OrigSetURL);
+    MH_STATUS Enable = (Create == MH_OK) ? RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::HttpRequestSetURL))) : Create;
     MpLog(std::string("[UrlRedirect] (") + Mode + ") SetURL hook create=" + MH_StatusToString(Create)
         + " enable=" + MH_StatusToString(Enable) + " target=+" + MpHex(0x03102740));
 }
@@ -223,7 +224,7 @@ void InstallSetUrlRedirectHook(const char* Mode) {
 static bool MpXmppTraceEnabled() {
     static int Cached = -1;
     if (Cached < 0) {
-        Cached = (MpWorkingDirectoryFlagPresent(L".\\debug\\XMPP_TRACE.flag")) ? 1 : 0;
+        Cached = Settings::Diag(L"xmpp") ? 1 : 0;
     }
     return Cached == 1;
 }
@@ -337,8 +338,8 @@ bool GetConfigStringHook(void* This, const wchar_t* Section, const wchar_t* Key,
 }
 
 void InstallXmppConfigRedirectHook(const char* Mode) {
-    MH_STATUS Create = RUNTIME_CREATE_HOOK((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_0243CAD0)), GetConfigStringHook, &OrigGetConfigString);
-    MH_STATUS Enable = (Create == MH_OK) ? RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::Rva_0243CAD0))) : Create;
+    MH_STATUS Create = RUNTIME_CREATE_HOOK((void*)(Native112::At(Globals::BaseAddress, Native112::ConfigGetString)), GetConfigStringHook, &OrigGetConfigString);
+    MH_STATUS Enable = (Create == MH_OK) ? RuntimeHooks::Enable((void*)(Native112::At(Globals::BaseAddress, Native112::ConfigGetString))) : Create;
     MpLog(std::string("[XmppConfig] (") + Mode + ") GetString hook create=" + MH_StatusToString(Create)
         + " enable=" + MH_StatusToString(Enable) + " target=+" + MpHex(0x0243CAD0)
         + " trace=" + (MpXmppTraceEnabled() ? "on" : "off") + " redirect=" + (MpXmppRedirectEnabled() ? "on" : "off"));

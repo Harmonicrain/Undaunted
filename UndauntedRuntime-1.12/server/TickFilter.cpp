@@ -14,7 +14,7 @@
 #include "core/Logging.h"
 #include "core/Memory.h"
 #include "native/Addresses112.h"
-#include "diagnostics/RuntimeDiagnostics.h"
+#include "core/Settings.h"
 #include <map>
 #include <tuple>
 
@@ -55,12 +55,12 @@ std::map<Key, Stat> Stats;
 uint64_t OtherThreadCalls = 0;
 
 bool CensusOn() {
-    static const bool On = Globals::AmServer && wcsstr(GetCommandLineW(), L"-UndauntedTickFilterCensus") != nullptr;
+    static const bool On = Globals::AmServer && Settings::Has(L"TickFilterCensus");
     return On;
 }
 
 bool FixOn() {
-    static const bool On = Globals::AmServer && wcsstr(GetCommandLineW(), L"-UndauntedServerTickFilter") != nullptr;
+    static const bool On = Globals::AmServer && Settings::Has(L"ServerTickFilter");
     return On;
 }
 
