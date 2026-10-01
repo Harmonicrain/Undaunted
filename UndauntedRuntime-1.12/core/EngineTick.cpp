@@ -32,6 +32,7 @@
 #include "server/WorkingSet.h"
 #include "server/TrainingLifecycle.h"
 #include "server/FrameWait.h"
+#include "diagnostics/ScriptProfile.h"
 #include <psapi.h>
 
 struct ManualNetTickFailureState {
@@ -670,6 +671,7 @@ void GameEngineTickHook(UGameEngine* GameEngine, float DeltaTime, char CanRender
         TickServerRenderDataRelease();
         TickServerWorkingSetTrim(preConnectionCount);
         TickTrainingLifecycle(preConnectionCount);
+        ScriptProfileTick();
 
         {
             static int32_t s_lastConnCount = -2;

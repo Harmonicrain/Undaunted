@@ -164,6 +164,7 @@
     <ClInclude Include="core\Transport.h" />
     <ClInclude Include="diagnostics\RuntimeDiagnostics.h" />
     <ClInclude Include="diagnostics\AllocProfile.h" />
+    <ClInclude Include="diagnostics\ScriptProfile.h" />
     <ClInclude Include="native\Addresses112.h" />
     <ClInclude Include="server\Combat.h" />
     <ClInclude Include="server\ServerHooks.h" />
@@ -279,6 +280,11 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="diagnostics\AllocProfile.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="diagnostics\ScriptProfile.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>

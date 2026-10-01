@@ -28,6 +28,7 @@
 #include "diagnostics/RuntimeDiagnostics.h"
 #include "server/Combat.h"
 #include "server/Replication.h"
+#include "diagnostics/ScriptProfile.h"
 #include "server/WorldLifecycle.h"
 #include <unordered_map>
 
@@ -75,6 +76,7 @@ void ProcessEventHook(UObject* Object, UFunction* Function, void* Parms) {
         DepthGuard(UFunction* f)  { if (s_processEventDepth >= 0 && s_processEventDepth < 64) s_peStack[s_processEventDepth] = f; ++s_processEventDepth; }
         ~DepthGuard() { --s_processEventDepth; }
     } g_depthGuard(Function);
+    ScriptProfileEventScope ProfileScope(Function);
 
     if (s_processEventDepth > 32) {
         static thread_local bool s_reportedRecursion = false;

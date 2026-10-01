@@ -90,6 +90,9 @@
     <ClCompile Include="diagnostics\AllocProfile.cpp">
       <Filter>diagnostics</Filter>
     </ClCompile>
+    <ClCompile Include="diagnostics\ScriptProfile.cpp">
+      <Filter>diagnostics</Filter>
+    </ClCompile>
     <ClCompile Include="server\Combat.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -240,6 +243,9 @@
       <Filter>diagnostics</Filter>
     </ClInclude>
     <ClInclude Include="diagnostics\AllocProfile.h">
+      <Filter>diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostics\ScriptProfile.h">
       <Filter>diagnostics</Filter>
     </ClInclude>
     <ClInclude Include="native\Addresses112.h">
