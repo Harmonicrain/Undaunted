@@ -157,6 +157,30 @@ static int SafeCallGraphServerReplicate(void* graph, float dt) {
 
 void* OrigRepGraphReplicateSingleActor = nullptr;
 
+// Both guards below run for every actor sent to every connection. Checking
+// each actor with IsReadablePointer (a VirtualQuery system call) took ~19% of
+// a two-player hunting ground's game thread (profile 2026-10-01), yet only
+// player controllers are guarded. So the actor is first identified with
+// guarded reads, and only player controllers get the full checks.
+static bool IsLivePlayerController(void* Actor, SDK::UClass* PlayerControllerClass) {
+    __try {
+        return Actor && PlayerControllerClass && IsRegisteredLiveObject(Actor)
+            && reinterpret_cast<UObject*>(Actor)->IsA(PlayerControllerClass);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+static void* ChannelActor(UActorChannel* Channel) {
+    __try {
+        return *reinterpret_cast<void**>(reinterpret_cast<uintptr_t>(Channel) + 0x70);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return nullptr;
+    }
+}
+
 // Undaunted: the connection map comes fifth and the connection manager sixth
 // (UReplicationGraph::ReplicateSingleActor, RVA 0x00ECEC50 in 1.12.0: it loads
 // its sixth argument at +0x00ECEC81 and reads NetConnection at +0x28 of it at
@@ -166,11 +190,11 @@ void* OrigRepGraphReplicateSingleActor = nullptr;
 uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
     void* Graph, void* Actor, void* ConnActorInfo, void* GlobalInfo,
     void* ActorInfoMap, void* ConnManager, uint32_t Frame) {
+    SDK::UClass* const PlayerControllerClass = SDK::APlayerController::StaticClass();
     if (Actor && ConnManager
+        && IsLivePlayerController(Actor, PlayerControllerClass)
         && IsReadablePointer(Actor, 0x420)
-        && IsReadablePointer(ConnManager, 0x30)
-        && IsRegisteredLiveObject(Actor)
-        && reinterpret_cast<UObject*>(Actor)->IsA(SDK::APlayerController::StaticClass())) {
+        && IsReadablePointer(ConnManager, 0x30)) {
         void* Connection = *reinterpret_cast<void**>(
             reinterpret_cast<uintptr_t>(ConnManager) + 0x28);
         void* ConnectionPC = (Connection && IsReadablePointer(Connection, 0xA0))
@@ -231,11 +255,17 @@ uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
 void* OrigReplicateActorFreq = nullptr;
 
 uint64_t __fastcall ReplicateActorFreqHook(UActorChannel* channel) {
+    SDK::UClass* const PlayerControllerClass = SDK::APlayerController::StaticClass();
+    void* const ChannelActorPtr = channel ? ChannelActor(channel) : nullptr;
+    const bool IsPlayerController = IsLivePlayerController(ChannelActorPtr, PlayerControllerClass);
+    if (!IsPlayerController && !RepGraphDiag()) {
+        return reinterpret_cast<uint64_t(__fastcall*)(UActorChannel*)>(
+            OrigReplicateActorFreq)(channel);
+    }
     if (channel && IsReadablePointer(reinterpret_cast<void*>(channel), 0x78)) {
         void* Actor = *reinterpret_cast<void**>(reinterpret_cast<uintptr_t>(channel) + 0x70);
         if (Actor && IsReadablePointer(Actor, 0x20)) {
-            if (IsRegisteredLiveObject(Actor)
-                && reinterpret_cast<UObject*>(Actor)->IsA(SDK::APlayerController::StaticClass())) {
+            if (IsPlayerController && Actor == ChannelActorPtr) {
                 void* Connection = *reinterpret_cast<void**>(
                     reinterpret_cast<uintptr_t>(channel) + 0x28);
                 void* ConnectionPC = (Connection && IsReadablePointer(Connection, 0xA0))

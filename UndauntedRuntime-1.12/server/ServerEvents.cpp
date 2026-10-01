@@ -29,6 +29,7 @@
 #include "server/Combat.h"
 #include "server/Replication.h"
 #include "server/WorldLifecycle.h"
+#include <unordered_map>
 
 static bool SafeSetClientWorldPackageName(void* NetConn, uint64_t FNameValue);
 
@@ -44,6 +45,26 @@ static bool SafeSetClientWorldPackageName(void* NetConn, uint64_t FNameValue) {
     __except (EXCEPTION_EXECUTE_HANDLER) {
         return false;
     }
+}
+
+// GetFullName rebuilds the path from FName strings on every call: ~9% of a
+// two-player hunting ground's game thread (profile 2026-10-01). A function's
+// path doesn't change, so each thread keeps the names it has built, checked
+// against the function's FName and outer in case freed memory is reused.
+static const std::string& CachedFunctionName(UFunction* Function) {
+    static const std::string Null = "null";
+    if (!Function) return Null;
+    struct Entry { int32_t NameIndex = 0; uint32_t NameNumber = 0; void* Outer = nullptr; std::string Name; };
+    thread_local std::unordered_map<UFunction*, Entry> Cache;
+    Entry& Cached = Cache[Function];
+    if (Cached.Name.empty() || Cached.NameIndex != Function->Name.ComparisonIndex
+        || Cached.NameNumber != Function->Name.Number || Cached.Outer != Function->Outer) {
+        Cached.NameIndex = Function->Name.ComparisonIndex;
+        Cached.NameNumber = Function->Name.Number;
+        Cached.Outer = Function->Outer;
+        Cached.Name = Function->GetFullName();
+    }
+    return Cached.Name;
 }
 
 void ProcessEventHook(UObject* Object, UFunction* Function, void* Parms) {
@@ -73,7 +94,7 @@ void ProcessEventHook(UObject* Object, UFunction* Function, void* Parms) {
     static UFunction* OnAirshipUpdated = nullptr;
     static UFunction* OnPostMitDealtAnyDamage = nullptr;
 
-    std::string FunctionName = Function ? Function->GetFullName() : "null";
+    const std::string& FunctionName = CachedFunctionName(Function);
     if (Globals::AmServer && Object && Object->IsA(UBountyComponent_Weekly::StaticClass()))
         PatchWeeklyChallengeTable(static_cast<UBountyComponent_Weekly*>(Object));
     const int EscalationFlowServerSeq = TraceEscalationFlowEnter(

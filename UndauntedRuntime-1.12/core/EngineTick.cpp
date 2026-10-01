@@ -284,13 +284,14 @@ static bool NativeNetTick() {
 }
 
 static void ForceServerMeshPose() {
-    if (!MpExeRelativeFlagPresent(L"FORCE_SERVER_MESH_POSE.flag")) return;
-    if (!SDK::UObject::GObjects) return;
-
+    // The flag file is looked for every 4 s rather than every frame: a file
+    // system call per frame showed in a world's profile (2026-10-01).
     static uint64_t s_lastMs = 0;
     uint64_t now = GetTickCount64();
     if (s_lastMs != 0 && now - s_lastMs < 4000) return;
     s_lastMs = now;
+    if (!MpExeRelativeFlagPresent(L"FORCE_SERVER_MESH_POSE.flag")) return;
+    if (!SDK::UObject::GObjects) return;
 
     SDK::UClass* MeshClass = SDK::USkeletalMeshComponent::StaticClass();
     if (!MeshClass) {

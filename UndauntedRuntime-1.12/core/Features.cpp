@@ -21,6 +21,7 @@
 
 #include "core/RuntimeHooks.h"
 #include "core/Features.h"
+#include <unordered_map>
 #include "core/RuntimeState.h"
 #include "native/Addresses112.h"
 #include "core/Logging.h"
@@ -112,24 +113,63 @@ static BOOL CALLBACK LoadForcedFeatureFlagsOnce(PINIT_ONCE, PVOID, PVOID*) {
     return TRUE;
 }
 
+// Each flag class's name is worked out once. Building it, checking pointers
+// with VirtualQuery and taking the log lock on every flag check showed in a
+// hunting ground's profile (2026-10-01). Keyed by class, checked against its
+// FName in case freed memory is reused.
+struct FeatureFlagDecision { int32_t NameIndex; uint32_t NameNumber; bool ForcedOff; bool InForcedSet; };
+static SRWLOCK g_FeatureFlagDecisionLock = SRWLOCK_INIT;
+static std::unordered_map<void*, FeatureFlagDecision> g_FeatureFlagDecisions;
+
+static bool ReadFeatureFlagClass(void* This, SDK::UClass** Class, int32_t* NameIndex, uint32_t* NameNumber) {
+    __try {
+        *Class = reinterpret_cast<SDK::UObject*>(This)->Class;
+        if (!*Class) return false;
+        *NameIndex = (*Class)->Name.ComparisonIndex;
+        *NameNumber = (*Class)->Name.Number;
+        return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
 static bool __fastcall FeatureFlagIsEnabledHook(void* This) {
     const bool Baked = OrigFeatureFlagIsEnabled(This);
     InitOnceExecuteOnce(&g_ForcedFeatureFlagsOnce, LoadForcedFeatureFlagsOnce, nullptr, nullptr);
-    if (!This || !IsReadablePointer(This, 0x20)) return Baked;
-    SDK::UClass* Class = reinterpret_cast<SDK::UObject*>(This)->Class;
-    if (!Class || !IsReadablePointer(Class, 0x20)) return Baked;
-    std::string Name = Class->GetName();
-    if (Name.size() > 2 && Name.compare(Name.size() - 2, 2, "_C") == 0) Name.resize(Name.size() - 2);
-    // Use the pre-Hunt-Pass journal on clients. Worlds keep the component
-    // active so the selected weekly rows still replicate and track progress.
-    const bool ForcedOff = !Globals::AmServer && Name == "HuntPassWeeklyChallengesFeature";
-    const bool Forced = !Baked && g_ForcedFeatureFlags.count(Name) > 0;
-    AcquireSRWLockExclusive(&g_FeatureFlagLogLock);
-    const bool First = g_LoggedFeatureFlags.insert(Name).second;
-    ReleaseSRWLockExclusive(&g_FeatureFlagLogLock);
-    if (First) MpLog("[FeatureFlags] " + Name + " baked=" + (Baked ? "1" : "0")
-        + (ForcedOff ? " -> forced off" : (Forced ? " -> forced on" : "")));
-    return ForcedOff ? false : (Baked || Forced);
+    SDK::UClass* Class = nullptr;
+    int32_t NameIndex = 0;
+    uint32_t NameNumber = 0;
+    if (!This || !ReadFeatureFlagClass(This, &Class, &NameIndex, &NameNumber)) return Baked;
+    FeatureFlagDecision Decision{};
+    bool Known = false;
+    AcquireSRWLockShared(&g_FeatureFlagDecisionLock);
+    const auto Found = g_FeatureFlagDecisions.find(Class);
+    if (Found != g_FeatureFlagDecisions.end() && Found->second.NameIndex == NameIndex
+        && Found->second.NameNumber == NameNumber) {
+        Decision = Found->second;
+        Known = true;
+    }
+    ReleaseSRWLockShared(&g_FeatureFlagDecisionLock);
+    if (!Known) {
+        std::string Name = Class->GetName();
+        if (Name.size() > 2 && Name.compare(Name.size() - 2, 2, "_C") == 0) Name.resize(Name.size() - 2);
+        // Use the pre-Hunt-Pass journal on clients. Worlds keep the component
+        // active so the selected weekly rows still replicate and track progress.
+        Decision = { NameIndex, NameNumber,
+            !Globals::AmServer && Name == "HuntPassWeeklyChallengesFeature",
+            g_ForcedFeatureFlags.count(Name) > 0 };
+        AcquireSRWLockExclusive(&g_FeatureFlagLogLock);
+        const bool First = g_LoggedFeatureFlags.insert(Name).second;
+        ReleaseSRWLockExclusive(&g_FeatureFlagLogLock);
+        if (First) MpLog("[FeatureFlags] " + Name + " baked=" + (Baked ? "1" : "0")
+            + (Decision.ForcedOff ? " -> forced off" : (!Baked && Decision.InForcedSet ? " -> forced on" : "")));
+        AcquireSRWLockExclusive(&g_FeatureFlagDecisionLock);
+        g_FeatureFlagDecisions[Class] = Decision;
+        ReleaseSRWLockExclusive(&g_FeatureFlagDecisionLock);
+    }
+    const bool Forced = !Baked && Decision.InForcedSet;
+    return Decision.ForcedOff ? false : (Baked || Forced);
 }
 
 void InstallFeatureFlagHook(const char* Side) {

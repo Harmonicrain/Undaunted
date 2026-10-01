@@ -987,6 +987,8 @@ bool IsClientExperienceGrantConsumer(const std::string& FunctionName) {
 }
 
 static bool IsEscalationFlowFunction(const std::string& FunctionName) {
+    // Every marker below contains "scalation"; this runs on every ProcessEvent.
+    if (FunctionName.find("scalation") == std::string::npos) return false;
     const char* Markers[] = {
         "EscalationGameModeComponent.SpawnPlayerBuffChoicesForFinishedRound",
         "EscalationGameModeComponent.OnPlayerActivatedCrystal",
