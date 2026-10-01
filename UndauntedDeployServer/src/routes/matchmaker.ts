@@ -10,8 +10,9 @@ matchmakingRouter.post("/handle-matchmaking-for-player", express.json(), async (
     const GameArgs = req.body.GameArgs;
     const HuntId = req.body.HuntId;
     const ExpectedPlayers = req.body.ExpectedPlayers;
+    const JoinPort = req.body.JoinPort;
 
-    const MatchmakingResult = await HandleMatchmakingRequest(GameMode, GameArgs, HuntId, ExpectedPlayers);
+    const MatchmakingResult = await HandleMatchmakingRequest(GameMode, GameArgs, HuntId, ExpectedPlayers, JoinPort);
 
     res.status(200);
     res.json(MatchmakingResult);

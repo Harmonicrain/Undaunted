@@ -111,9 +111,10 @@ This is the `1.12` branch, the project's main line. The server for the older
 
 ### Worlds and matchmaking
 
-- The deploy server starts Ramsgate and the Training Grounds at boot and hunt islands on demand, each on a port from a configured UDP range.
-- If Ramsgate or the Training Grounds exits, the deploy server starts it again. An island's port is freed for reuse when its world exits. An optional watchdog also catches worlds that exit without being noticed.
-- World servers drop to a low frame rate while empty and shed client-only memory (render data, the embedded browser): about 855 MB for Ramsgate and 730 MB for the Training Grounds. See [docs/architecture-112.md](docs/architecture-112.md#world-server-cost).
+- The deploy server starts Ramsgate at boot, and the Training Grounds and hunt islands on demand, each on a port from a configured UDP range. The Training Grounds sleeps after five empty minutes.
+- If Ramsgate exits, or the Training Grounds crashes, the deploy server starts it again. An island's port is freed for reuse when its world exits. An optional watchdog also catches worlds that exit without being noticed.
+- Public hunting grounds are shared as in the live game: starting one where a public world of that island has room (up to four slayers) joins it. Private Hunt always gets its own world. A slot is freed when its player travels elsewhere or goes offline.
+- World servers drop to a low frame rate while empty, sleep out the end of each frame and shed client-only memory (render data, the embedded browser): Ramsgate commits about 690 MB and keeps about 100-250 MB resident. See [docs/architecture-112.md](docs/architecture-112.md#world-server-cost).
 - Hunt and Trials tables are selected per client build.
 - Matchmaking follows the client's candidate flow, including regions and QoS checks.
 - The runtime DLL redirects the client and world servers to this backend and carries fixes for replication, the HUD, loot summaries, the Hunt Pass and Middleman screens, and crash diagnostics.

@@ -20,6 +20,7 @@ import { GetDb } from "../db";
 import { friends } from "../db/schema";
 import { logger } from "../logger";
 import { sessionRegistry } from "./SessionRegistry";
+import { ReleaseHuntingGroundSlot } from "../features/party/huntingGrounds";
 import { escapeXml } from "./xml";
 
 const DOMAIN = "prod.ol.epicgames.com";
@@ -84,6 +85,8 @@ export async function onResourceUnavailable(accountId: string, resource?: string
             }
         }
         logger.info(`[XMPP] ${accountId} offline; told ${sent} friend connection(s)`);
+        // A closed client no longer holds a place in a shared hunting ground.
+        ReleaseHuntingGroundSlot(accountId);
     };
     if(graceMs <= 0){ announce(); return; }
     const timer = setTimeout(announce, graceMs);

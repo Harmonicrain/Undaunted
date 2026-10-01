@@ -1,6 +1,7 @@
 import { logger } from "../../logger";
 import crypto from "node:crypto";
 import { GetPartyForPlayer } from "./party";
+import { FindPublicHuntingGround, ForgetHuntingGround, RecordHuntingGround, ReleaseHuntingGroundSlot } from "./huntingGrounds";
 
 const MATCHMAKING_MODE = process.env.MATCHMAKING_MODE;
 const DEPLOYSERVER_URL = process.env.DEPLOYSERVER_URL;
@@ -50,15 +51,17 @@ function HuntIdRequiresMatchmaking(HuntId: string){
     //return HuntId.includes("CR19") || HuntId.includes("11A") || HuntId.includes("Story");
 }
 
-async function LaunchGameOnDeployserver(GameMode: string, GameArgs: string, HuntId: string, ExpectedPlayers: string[] | undefined){
-    logger.info(`Querying DeployServer for GameMode: ${GameMode} HuntId ${HuntId} with ${ExpectedPlayers?.length} Expected Players!`);
+// JoinPort: a running public hunting ground to send the players into, if the
+// deploy server finds it still running that hunt (it answers joined: true).
+async function LaunchGameOnDeployserver(GameMode: string, GameArgs: string, HuntId: string, ExpectedPlayers: string[] | undefined, JoinPort?: number){
+    logger.info(`Querying DeployServer for GameMode: ${GameMode} HuntId ${HuntId} with ${ExpectedPlayers?.length} Expected Players${JoinPort != undefined ? ` (joining port ${JoinPort})` : ""}!`);
 
     const URL = "http://" + DEPLOYSERVER_URL + DEPLOYSERVER_MATCHMAKING_PATH;
 
     const Failure = (Reason: string) => {
         logger.error(`World allocation for HuntId ${HuntId} failed: ${Reason}`);
 
-        return { succeeded: false, readyNow: false, host: "", port: 0, reason: Reason };
+        return { succeeded: false, readyNow: false, host: "", port: 0, joined: false, reason: Reason };
     };
 
     // An unreachable deployserver used to reject out of the queue pop and
@@ -74,7 +77,8 @@ async function LaunchGameOnDeployserver(GameMode: string, GameArgs: string, Hunt
                 GameMode: GameMode,
                 GameArgs: GameArgs,
                 HuntId: HuntId,
-                ExpectedPlayers: ExpectedPlayers!
+                ExpectedPlayers: ExpectedPlayers!,
+                ...(JoinPort != undefined ? { JoinPort } : {})
             })
         });
     } catch(error: any){
@@ -105,6 +109,7 @@ async function LaunchGameOnDeployserver(GameMode: string, GameArgs: string, Hunt
         readyNow: true,
         host: MatchmakingData.host as string,
         port: MatchmakingData.port as number,
+        joined: MatchmakingData.joined === true,
         reason: null
     };
 }
@@ -139,6 +144,7 @@ async function PopQueue(HuntId: string){
     MatchmakingQueue!.Resolved = true;
     
     const GameOnDeployServer = await LaunchGameOnDeployserver("ISLAND", "", HuntId, MatchmakingQueue!.Players);
+    if(GameOnDeployServer.succeeded) MatchmakingQueue!.Players.forEach(ReleaseHuntingGroundSlot);
 
     for(const Player of MatchmakingQueue!.Players){
         const PlayerMatchmakingResultToUpdate = MatchmakingResultMap.get(Player);
@@ -206,7 +212,54 @@ export function CancelPendingCandidateForPlayer(PlayerId: string){
     }
 }
 
-export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string, HuntId: string, PlayerId: string){
+// A world for players who need no queue: the result is Ready (or Failed) at once.
+async function LaunchNow(GameMode: string, LaunchMode: string, GameArgs: string, HuntId: string, Players: string[]){
+    const GameOnDeployServer = await LaunchGameOnDeployserver(LaunchMode, GameArgs, HuntId, Players);
+
+    const Result: MatchmakingResult = {
+        Ready: false, Failed: false, FailureReason: null,
+        GameMode,
+        CandidateId: crypto.randomUUID(),
+        HuntId,
+        Host: "",
+        Port: 0
+    };
+    ApplyLaunch(Result, GameOnDeployServer);
+    for(const player of Players) MatchmakingResultMap.set(player, { ...Result });
+    // Going anywhere else frees the players' hunting ground slots.
+    if(GameOnDeployServer.succeeded) Players.forEach(ReleaseHuntingGroundSlot);
+
+    return true;
+}
+
+async function MatchHuntingGround(GameMode: string, HuntId: string, Players: string[], Private: boolean){
+    // Players keep their current slot until the new world is confirmed.
+    const Candidate = Private ? undefined : FindPublicHuntingGround(HuntId, Players);
+    const GameOnDeployServer = await LaunchGameOnDeployserver("ISLAND", "", HuntId, Players, Candidate?.Port);
+
+    const Result: MatchmakingResult = {
+        Ready: false, Failed: false, FailureReason: null,
+        GameMode,
+        CandidateId: crypto.randomUUID(),
+        HuntId,
+        Host: "",
+        Port: 0
+    };
+    ApplyLaunch(Result, GameOnDeployServer);
+    for(const player of Players) MatchmakingResultMap.set(player, { ...Result });
+
+    if(GameOnDeployServer.succeeded){
+        if(Candidate != undefined && !GameOnDeployServer.joined) ForgetHuntingGround(Candidate.Host, Candidate.Port);
+        RecordHuntingGround(HuntId, !Private, GameOnDeployServer.host, GameOnDeployServer.port, Players, !GameOnDeployServer.joined);
+        logger.info(`${Players.length} player(s) ${GameOnDeployServer.joined ? "joined the running" : "started a new"} ${Private ? "private" : "public"} ${HuntId} world on port ${GameOnDeployServer.port}`);
+    }
+
+    return true;
+}
+
+// Options from the client's join request: Private (isPrivate/privateMatch,
+// the Private Hunt button) and GameType (HUNTING_GROUND for the open islands).
+export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string, HuntId: string, PlayerId: string, Options: { Private?: boolean, GameType?: string } = {}){
     if(MATCHMAKING_MODE === "DISABLED"){
         logger.warn("Matchmaking is disabled, refusing MM!");
 
@@ -218,22 +271,16 @@ export async function HandlePlayerMatchmaking(GameMode: string, GameArgs: string
             return MatchmakingResultMap.has(PlayerId);
         }
         const players = party?.members.slice() ?? [PlayerId];
+        if(Options.GameType === "HUNTING_GROUND" && HuntId != undefined && HuntId.trim().length > 0 && HuntIdRequiresMatchmaking(HuntId)){
+            return await MatchHuntingGround(GameMode, HuntId, players, Options.Private === true);
+        }
         if(HuntId == undefined || HuntId.trim().length == 0 || !HuntIdRequiresMatchmaking(HuntId)){
             const LaunchHuntId = FallbackHuntId(GameMode, GameArgs, HuntId) ?? HuntId;
-            const GameOnDeployServer = await LaunchGameOnDeployserver(GameMode, GameArgs, LaunchHuntId, players);
-
-            const Result: MatchmakingResult = {
-                Ready: false, Failed: false, FailureReason: null,
-                GameMode,
-                CandidateId: crypto.randomUUID(),
-                HuntId: LaunchHuntId,
-                Host: "",
-                Port: 0
-            };
-            ApplyLaunch(Result, GameOnDeployServer);
-            for(const player of players) MatchmakingResultMap.set(player, { ...Result });
-
-            return true;
+            return await LaunchNow(GameMode, GameMode, GameArgs, LaunchHuntId, players);
+        }
+        else if(Options.Private === true){
+            // A private hunt never waits in the queue for strangers.
+            return await LaunchNow(GameMode, "ISLAND", "", HuntId, players);
         }
         else{
             return await QueuePlayers(GameMode, HuntId, players);

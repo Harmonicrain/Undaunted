@@ -8,6 +8,7 @@ import { createWriteStream, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { OnDemandWorld } from "./onDemandWorld";
 import { ParseExtraWorldArgs } from "./worldArgs";
+import { FindJoinableWorld } from "./joinWorld";
 import { CreateTrainingLease, RemoveTrainingLease, ReserveTrainingLease, TrainingLeasePath, TrainingSleepMarked, TRAINING_IDLE_EXIT_CODE, TRAINING_IDLE_SECONDS } from "./trainingLease";
 
 import { MatchmakerHunts, PlayerHunts, TrialsHunts } from "./huntTables";
@@ -424,6 +425,14 @@ export function ResolveHuntLaunch(HuntId: string){
     }
 
     return { MatchmakerHuntId, BehemothPath, MapPath };
+}
+
+// More players for a running public hunting ground, when it is still that hunt.
+export function JoinRunningHunt(HuntId: string, Port: unknown){
+    const World = FindJoinableWorld(Gameservers, Port, HuntId, IsProcessAlive);
+    if(World == undefined) return undefined;
+    logger.info(`Sending more players to the running ${HuntId} world on port ${World.port}`);
+    return { host: MY_IP, port: World.port, joined: true };
 }
 
 export async function StartupGameserverWithHuntIdAndPlayers(HuntId: string, ExpectedPlayers: string[]){
