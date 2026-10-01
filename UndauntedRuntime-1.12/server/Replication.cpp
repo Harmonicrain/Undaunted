@@ -24,6 +24,8 @@
 #include "native/Addresses112.h"
 #include "core/Logging.h"
 #include "core/Memory.h"
+#include "diagnostics/ScriptProfile.h"
+#include <unordered_map>
 #include "server/WorldLifecycle.h"
 
 static bool UseArchonRepGraph();
@@ -254,13 +256,160 @@ uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
 // not bool; preserving the ABI matters because its caller adds this result to its running total.
 void* OrigReplicateActorFreq = nullptr;
 
+static void* ActorClassOf(void* Actor) {
+    __try {
+        return Actor ? *reinterpret_cast<void**>(reinterpret_cast<uintptr_t>(Actor) + 0x10) : nullptr;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return nullptr;
+    }
+}
+
+// The native call, timed per actor class when -UndauntedScriptProfile is on.
+static uint64_t CallReplicateActor(UActorChannel* Channel, void* Actor) {
+    using ReplicateActorFn = uint64_t(__fastcall*)(UActorChannel*);
+    if (!ScriptProfileEnabled()) return reinterpret_cast<ReplicateActorFn>(OrigReplicateActorFreq)(Channel);
+    LARGE_INTEGER Start, End;
+    QueryPerformanceCounter(&Start);
+    const uint64_t Result = reinterpret_cast<ReplicateActorFn>(OrigReplicateActorFreq)(Channel);
+    QueryPerformanceCounter(&End);
+    ScriptProfileReplicated(ActorClassOf(Actor), End.QuadPart - Start.QuadPart, Result);
+    return Result;
+}
+
+// Behemoths keep pools of projectiles and loot drops (a Lerawr: 60 rage fire
+// projectiles, 30 fire projectiles, 20 shiny and 20 cosmetic drops) hidden
+// at the world origin and always relevant, so the replication graph checked
+// each of them about 10 times a second for every connection and found
+// nothing to send: 4,800 checks a second costing 13.5 ms/s in Emberthorne
+// Cove with two Lerawrs and two players (profile 2026-10-01). Once a parked
+// actor's check for a channel sends nothing, later checks are skipped until
+// it leaves the pool (shown, moved or attached), with one check every 2 s
+// regardless. Leaving the pool replicates at once, as before.
+//   -UndauntedKeepParkedReplication  checks parked actors as before
+namespace {
+constexpr uint64_t ParkedRecheckMs = 2000;
+struct ParkedChannel { void* Actor; uint64_t LastCheckMs; bool Quiet; };
+// Replication runs on the game thread only.
+std::unordered_map<void*, ParkedChannel> g_ParkedChannels;
+uint64_t g_ParkedSkipped = 0;
+uint64_t g_ParkedChecked = 0;
+
+bool KeepParkedReplication() {
+    static const bool Keep = wcsstr(GetCommandLineW(), L"-UndauntedKeepParkedReplication") != nullptr;
+    return Keep;
+}
+
+bool IsParkedInPool(void* Actor) {
+    __try {
+        const uint8_t* Bytes = reinterpret_cast<const uint8_t*>(Actor);
+        if ((Bytes[0x58] & 0x20) == 0) return false;                                    // AActor::bHidden
+        const uint8_t* Root = *reinterpret_cast<const uint8_t* const*>(Bytes + 0x130);  // RootComponent
+        if (!Root || *reinterpret_cast<void* const*>(Root + 0xC0)) return false;        // AttachParent
+        const float* Location = reinterpret_cast<const float*>(Root + 0x11C);          // RelativeLocation
+        return Location[0] == 0.0f && Location[1] == 0.0f && Location[2] == 0.0f;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+// Player controllers and behemoth parts are checked every frame (their
+// NetUpdateFrequency is 100) but rarely change. A player controller carries
+// the player's progression components (quests: 91 series and ~4,500 objects
+// under them; mastery, achievements, bounties, the Hunt Pass), so each check
+// cost ~135 us and found nothing to send; a part carries an ability system
+// component (~9 us). Together 14.6 ms/s in Emberthorne Cove with two players
+// (profile 2026-10-01). After a check that sends nothing the next two are
+// skipped (10 Hz while quiet); a check that sends something goes back to
+// every frame. The first change after a quiet spell can arrive up to 66 ms
+// later at 30 fps.
+//   -UndauntedKeepQuietReplication  checks them every frame as before
+constexpr uint32_t QuietSkips = 2;
+struct QuietChannel { void* Actor; uint32_t SkipsLeft; };
+std::unordered_map<void*, QuietChannel> g_QuietChannels;
+std::unordered_map<void*, bool> g_MonsterPartClasses;
+uint64_t g_QuietSkipped = 0;
+
+bool KeepQuietReplication() {
+    static const bool Keep = wcsstr(GetCommandLineW(), L"-UndauntedKeepQuietReplication") != nullptr;
+    return Keep;
+}
+
+bool IsInstanceOf(void* Object, SDK::UClass* Class) {
+    __try {
+        return Class && reinterpret_cast<UObject*>(Object)->IsA(Class);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return false;
+    }
+}
+
+bool IsMonsterPartActor(void* Actor) {
+    void* const Class = ActorClassOf(Actor);
+    if (!Class) return false;
+    const auto Found = g_MonsterPartClasses.find(Class);
+    if (Found != g_MonsterPartClasses.end()) return Found->second;
+    const bool IsPart = IsInstanceOf(Actor, SDK::AMonsterPartActor::StaticClass());
+    if (g_MonsterPartClasses.size() < 4096) g_MonsterPartClasses[Class] = IsPart;
+    return IsPart;
+}
+}
+
+static uint64_t ReplicateWithSkips(UActorChannel* Channel, void* Actor, bool IsPlayerController) {
+    if (!Actor) return CallReplicateActor(Channel, Actor);
+    if (KeepParkedReplication() || !IsParkedInPool(Actor)) {
+        if (!g_ParkedChannels.empty()) g_ParkedChannels.erase(Channel);
+        if (KeepQuietReplication() || (!IsPlayerController && !IsMonsterPartActor(Actor))) {
+            return CallReplicateActor(Channel, Actor);
+        }
+        QuietChannel& Quiet = g_QuietChannels[Channel];
+        if (Quiet.Actor != Actor) Quiet = { Actor, 0 };
+        if (Quiet.SkipsLeft > 0) {
+            --Quiet.SkipsLeft;
+            ++g_QuietSkipped;
+            return 0;
+        }
+        const uint64_t Result = CallReplicateActor(Channel, Actor);
+        Quiet.SkipsLeft = Result == 0 ? QuietSkips : 0;
+        if (g_QuietChannels.size() > 50000) g_QuietChannels.clear();
+        return Result;
+    }
+    const uint64_t NowMs = GetTickCount64();
+    ParkedChannel& State = g_ParkedChannels[Channel];
+    if (State.Actor != Actor) State = { Actor, 0, false };
+    if (State.Quiet && NowMs - State.LastCheckMs < ParkedRecheckMs) {
+        ++g_ParkedSkipped;
+        return 0;
+    }
+    const uint64_t Result = CallReplicateActor(Channel, Actor);
+    ++g_ParkedChecked;
+    State.LastCheckMs = NowMs;
+    State.Quiet = Result == 0;
+    // Closed channels leave entries behind; never let that grow unbounded.
+    if (g_ParkedChannels.size() > 50000) g_ParkedChannels.clear();
+    return Result;
+}
+
+void LogParkedActorStats() {
+    if (g_QuietSkipped != 0) {
+        MpLog("[QuietReplication] skipped " + std::to_string(g_QuietSkipped)
+            + " checks of player controllers and behemoth parts with nothing to send");
+        g_QuietSkipped = 0;
+    }
+    if (KeepParkedReplication() || (g_ParkedSkipped == 0 && g_ParkedChecked == 0)) return;
+    MpLog("[ParkedActors] skipped " + std::to_string(g_ParkedSkipped) + " replication checks of pooled actors, ran "
+        + std::to_string(g_ParkedChecked) + ", " + std::to_string(g_ParkedChannels.size()) + " channels tracked");
+    g_ParkedSkipped = 0;
+    g_ParkedChecked = 0;
+}
+
 uint64_t __fastcall ReplicateActorFreqHook(UActorChannel* channel) {
     SDK::UClass* const PlayerControllerClass = SDK::APlayerController::StaticClass();
     void* const ChannelActorPtr = channel ? ChannelActor(channel) : nullptr;
     const bool IsPlayerController = IsLivePlayerController(ChannelActorPtr, PlayerControllerClass);
     if (!IsPlayerController && !RepGraphDiag()) {
-        return reinterpret_cast<uint64_t(__fastcall*)(UActorChannel*)>(
-            OrigReplicateActorFreq)(channel);
+        return ReplicateWithSkips(channel, ChannelActorPtr, false);
     }
     if (channel && IsReadablePointer(reinterpret_cast<void*>(channel), 0x78)) {
         void* Actor = *reinterpret_cast<void**>(reinterpret_cast<uintptr_t>(channel) + 0x70);
@@ -302,8 +451,7 @@ uint64_t __fastcall ReplicateActorFreqHook(UActorChannel* channel) {
             }
 
             if (!RepGraphDiag()) {
-                return reinterpret_cast<uint64_t(__fastcall*)(UActorChannel*)>(
-                    OrigReplicateActorFreq)(channel);
+                return ReplicateWithSkips(channel, ChannelActorPtr, IsPlayerController && Actor == ChannelActorPtr);
             }
 
             void* Class = *reinterpret_cast<void**>(reinterpret_cast<uintptr_t>(Actor) + 0x10);
@@ -337,8 +485,7 @@ uint64_t __fastcall ReplicateActorFreqHook(UActorChannel* channel) {
             }
         }
     }
-    return reinterpret_cast<uint64_t(__fastcall*)(UActorChannel*)>(
-        OrigReplicateActorFreq)(channel);
+    return CallReplicateActor(channel, ChannelActorPtr);
 }
 
 static bool SraRateCap() {

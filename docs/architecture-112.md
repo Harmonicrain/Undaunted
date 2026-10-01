@@ -240,6 +240,7 @@ carry client-only costs. The runtime trims them on world servers only
 | `ExpectedPlayerCount` holders cached instead of walking every object each frame | `core/EngineTick.cpp` | About a third of an idle world's CPU |
 | The engine's frame limiter waits on a high-resolution timer instead of spinning `SwitchToThread` through the last ~2 ms of every frame (a client build's limiter; a dedicated-server build sleeps) | `server/FrameWait.cpp` | Measured 2026-10-01 at 90 fps: empty Ramsgate 40% of a core down to 24%; Ramsgate with a player 55% down to 36%. A late timer wake occasionally stretches a frame (worst 18.7 ms against 14.5 ms in a minute) |
 | Per-call overhead cut from the runtime's hottest hooks: the replication guards identify player controllers with guarded reads instead of a VirtualQuery per actor per connection, ProcessEvent caches each function's full name per thread, feature flags are decided once per class, escalation tracing rules functions out with one search, and a debug flag file is looked for every 4 s instead of every frame | `server/Replication.cpp`, `server/ServerEvents.cpp`, `core/Features.cpp`, `diagnostics/RuntimeDiagnostics.cpp`, `core/EngineTick.cpp` | Emberthorne Cove with two players at 30 fps: 30% of a core down to 20%, 9.3 ms of work per frame down to 5.6 ms (profiled 2026-10-01) |
+| Behemoths' pooled projectiles and loot drops (hidden at the origin, always relevant) skip replication checks once a check has found nothing to send, until they leave the pool; quiet player controllers (which carry every progression component) and behemoth parts are checked at 10 Hz instead of every frame until something changes | `server/Replication.cpp` | Emberthorne Cove with two players: replication 47 ms/s down to 22 ms/s (8,447 checks/s down to 2,741). A first change after a quiet spell can reach clients up to 66 ms later |
 | CPU copies of mesh and texture render data freed; `r.FreeSkeletalMeshBuffers` set before content loads; cube maps included | `server/RenderData.cpp` | Ramsgate's own process ~1,245 MB down to ~860 MB |
 | Distance fields (105 MB on Ramsgate), render sections' duplicated-vertex buffers (29 MB) and morph target deltas (30 MB) emptied, found with the allocation profile below | `server/RenderData.cpp` | Ramsgate ~855 MB down to ~690 MB committed |
 | The engine's 32 MB backup out-of-memory pool released after load | `server/WorkingSet.cpp` | 32 MB committed per world |
@@ -266,6 +267,9 @@ pagefile (or RAM) for the full commit but RAM only for the resident part.
 | `-UndauntedKeepWebBrowser` | Let the WebBrowserWidget plugin start Chromium |
 | `-UndauntedKeepWorkingSet` | Don't trim the working set |
 | `-UndauntedTrimSeconds=<n>` | Also trim every n seconds (default 0, off) |
+| `-UndauntedKeepParkedReplication` | Check pooled actors parked at the origin every time, as before |
+| `-UndauntedKeepQuietReplication` | Check quiet player controllers and behemoth parts every frame, as before |
+| `-UndauntedScriptProfile=<n>` | Diagnostic: time every ProcessEvent by function and every actor replication by class on the game thread, and log the largest every n seconds (`[ScriptProfile]`, `[RepProfile]`). Small overhead; set it through `GAMESERVER_EXTRA_ARGS` while measuring |
 | `-UndauntedAllocProfile=<n>` | Diagnostic: record which call stacks own the engine allocator's live memory and write the largest to `allocprofile-<pid>.tsv` next to the executable every n seconds. Slow and memory-hungry; test worlds only |
 
 What the ~650 MB left on an empty Ramsgate is, from that profile (2026-09-30):
@@ -281,7 +285,9 @@ engine versus runtime time, connections), `[ServerFps]` on each rate change and
 `[RenderData]` after each release pass (freed, kept for CPU access, faulted),
 `[WorkingSet]` after each trim (working set before and after, commit),
 `[FrameWait]` with each `[Perf]` (timer waits, how far from the frame's end
-they woke, spin calls) and `[AllocProfile]` when profiling.
+they woke, spin calls), `[ParkedActors]` and `[QuietReplication]` (replication
+checks skipped) and `[AllocProfile]`, `[ScriptProfile]` and `[RepProfile]` when
+profiling.
 Shipping builds ignore `-ini:` overrides and have no `memreport` or `obj list`,
 and `ExecuteConsoleCommand` needs a player controller, so the runtime writes
 console variables through their data pointers (`native/Addresses112.h`).

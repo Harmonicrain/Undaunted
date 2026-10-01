@@ -424,6 +424,7 @@ static void RecordServerFrame(int64_t Entry, int64_t EngineTicks) {
         MpLog(Line);
     }
     LogServerFrameWaitStats();
+    LogParkedActorStats();
     g_PerfWindowStart = Entry; g_PerfFrames = 0; g_PerfEngineTicks = 0; g_PerfHookTicks = 0; g_PerfMaxFrameTicks = 0;
 }
 

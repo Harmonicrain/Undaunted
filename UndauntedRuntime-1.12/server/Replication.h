@@ -52,6 +52,10 @@ uint64_t __fastcall RepGraphReplicateSingleActorGuardHook(
 
 extern void* OrigReplicateActorFreq;
 
+// Logs and resets the count of skipped checks of parked pool actors.
+// Call on the game thread.
+void LogParkedActorStats();
+
 uint64_t __fastcall ReplicateActorFreqHook(UActorChannel* channel);
 
 int __fastcall ServerReplicateActorsHook(void* NetDriver, float DeltaSeconds);
