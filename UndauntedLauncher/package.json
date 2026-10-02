@@ -1,0 +1,40 @@
+{
+  "name": "undaunted-launcher-112",
+  "productName": "Undaunted Launcher",
+  "version": "1.0.3",
+  "description": "Register, sign in and play on an Undaunted 1.12.0 server",
+  "author": "Undaunted contributors",
+  "license": "AGPL-3.0-only",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "prepare:runtime": "node scripts/prepare-runtime.cjs",
+    "test": "node --test test/*.test.cjs",
+    "smoke": "electron test/smoke.cjs",
+    "package": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "43.0.0",
+    "electron-builder": "26.0.12"
+  },
+  "build": {
+    "appId": "community.undaunted.launcher112",
+    "artifactName": "Undaunted-Launcher-${version}-Setup.${ext}",
+    "directories": { "output": "release" },
+    "files": ["src/**/*", "package.json", "LICENSE.txt", "NOTICE.md", "ADDITIONAL_TERMS.md"],
+    "extraResources": [{ "from": "resources", "to": "launcher" }],
+    "afterPack": "scripts/after-pack.cjs",
+    "win": { "target": ["nsis"], "requestedExecutionLevel": "asInvoker", "signAndEditExecutable": false },
+    "nsis": {
+      "installerIcon": "src/art/icon.ico",
+      "uninstallerIcon": "src/art/icon.ico",
+      "installerSidebar": "src/art/installer-sidebar.bmp",
+      "uninstallerSidebar": "src/art/installer-sidebar.bmp",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": false,
+      "runAfterFinish": true
+    }
+  }
+}

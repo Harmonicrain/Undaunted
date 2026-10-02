@@ -1,0 +1,278 @@
+/* Art and fonts come from the game (scripts/extract-art.py writes src/art/).
+   Without them the launcher falls back to plain colours and system fonts. */
+@font-face { font-family: "Goldenbook"; font-weight: 700; src: url("art/fonts/Goldenbook-Bold.ttf"); }
+@font-face { font-family: "Goldenbook"; font-weight: 400; src: url("art/fonts/Goldenbook-Regular.ttf"); }
+@font-face { font-family: "Roboto Condensed"; font-weight: 300; src: url("art/fonts/RobotoCondensed-Light.ttf"); }
+@font-face { font-family: "Roboto Condensed"; font-weight: 400; src: url("art/fonts/RobotoCondensed-Regular.ttf"); }
+@font-face { font-family: "Roboto Condensed"; font-weight: 700; src: url("art/fonts/RobotoCondensed-Bold.ttf"); }
+
+:root {
+  color-scheme: dark;
+  --ink: #edf1f5;
+  --muted: #9ba8b6;
+  --faint: #6f7c8a;
+  --gold: #e8bb45;
+  --gold-deep: #2b1e04;
+  --error: #ff9d8b;
+  --line: rgba(255, 255, 255, 0.13);
+  --field: rgba(3, 7, 12, 0.55);
+  --display: "Goldenbook", Georgia, serif;
+  --body: "Roboto Condensed", "Segoe UI", sans-serif;
+  font-family: var(--body);
+  font-size: 15px;
+  color: var(--ink);
+  background: #0c151d;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; height: 100vh; overflow: hidden; }
+button, input { font: inherit; color: inherit; }
+
+/* The season login screens take turns: renderer.js sets data-art on the
+   hidden layer and fades it in over the visible one. */
+.backdrop { position: fixed; inset: 0; background: #0c151d; }
+.art {
+  position: absolute; inset: 0;
+  background: center right / cover no-repeat;
+  opacity: 0; transition: opacity 2.4s ease-in-out;
+}
+.art.shown { opacity: 1; }
+.art.top { z-index: 1; }
+.art[data-art="1"] { background-image: url("art/background-1.jpg"); }
+.art[data-art="2"] { background-image: url("art/background-2.jpg"); }
+.art[data-art="3"] { background-image: url("art/background-3.jpg"); }
+.art[data-art="4"] { background-image: url("art/background-4.jpg"); }
+.art[data-art="5"] { background-image: url("art/background-5.jpg"); }
+@media (prefers-reduced-motion: reduce) { .art { transition: none; } }
+.backdrop::after {
+  content: ""; position: absolute; inset: 0; z-index: 2;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 17, 0.96) 0, rgba(7, 11, 17, 0.92) 330px, rgba(7, 11, 17, 0.72) 470px, rgba(7, 11, 17, 0.3) 620px, rgba(7, 11, 17, 0) 80%),
+    linear-gradient(0deg, rgba(7, 11, 17, 0.6) 0, rgba(7, 11, 17, 0) 30%);
+}
+
+.panel {
+  position: relative; z-index: 1;
+  width: 440px; height: 100vh;
+  display: flex; flex-direction: column;
+  padding: 34px 44px 18px;
+}
+.brand { flex-shrink: 0; }
+.logo {
+  width: 184px; height: 90px;
+  background: url("art/logo.png") left center / contain no-repeat;
+}
+.edition {
+  display: block; margin-top: 10px;
+  font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.content { flex: 1; min-height: 0; overflow-y: auto; margin: 24px -14px 0; padding: 0 14px; }
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 3px; }
+.content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+footer {
+  flex-shrink: 0; display: flex; justify-content: space-between; gap: 16px;
+  padding-top: 14px; font-size: 11px; color: var(--faint);
+}
+#version { white-space: nowrap; }
+
+/* Server status: a diamond (the sigil's shape) and plain text under the edition line. */
+.connection {
+  display: flex; align-items: center; gap: 9px; margin-top: 7px;
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+}
+.connection::before {
+  content: ""; width: 6px; height: 6px; margin-left: 1px;
+  transform: rotate(45deg); border: 1px solid currentColor;
+}
+.connection.online { color: #9fd7b8; }
+.connection.online::before { background: currentColor; }
+.connection.offline { color: #e0a07a; }
+
+h2 {
+  margin: 4px 0 6px;
+  font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1.15;
+  letter-spacing: 0.02em; text-transform: uppercase;
+}
+.muted { margin: 0; color: var(--muted); line-height: 1.45; }
+.small { font-size: 13px; }
+
+.tabs { display: flex; gap: 26px; margin-bottom: 16px; border-bottom: 1px solid var(--line); }
+.tabs button {
+  margin-bottom: -1px; padding: 0 0 10px; background: none; border: 0; border-bottom: 2px solid transparent;
+  font-family: var(--display); font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer;
+}
+.tabs button:hover:enabled { color: var(--ink); }
+.tabs button.selected { color: var(--ink); border-bottom-color: var(--gold); }
+.tabs button:disabled { cursor: default; opacity: 0.45; }
+
+label, .field-label {
+  display: block; margin: 16px 0 0;
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+input {
+  display: block; width: 100%; margin-top: 7px; padding: 11px 12px;
+  background: var(--field); border: 1px solid var(--line); border-radius: 2px;
+  font-size: 15px; letter-spacing: normal; text-transform: none; outline: none;
+}
+input:focus { border-color: var(--gold); box-shadow: inset 0 0 0 1px rgba(232, 187, 69, 0.35); }
+input::placeholder { color: var(--faint); }
+#password-help { margin-top: 10px; }
+
+/* Buttons use the game's own gold and metal button textures. */
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+.primary, .secondary {
+  border-style: solid; background-clip: padding-box;
+  text-transform: uppercase; white-space: nowrap;
+}
+.primary {
+  height: 54px; margin-top: 22px; padding: 0 20px;
+  border-width: 8px; border-image: url("art/button-gold.png") 20 fill / 8px stretch;
+  background-color: #c8961e;
+  font-family: var(--display); font-weight: 700; font-size: 19px; letter-spacing: 0.08em;
+  color: var(--gold-deep); text-shadow: 0 1px 0 rgba(255, 236, 170, 0.45);
+}
+.primary:hover:enabled, .primary:focus-visible { border-image-source: url("art/button-gold-focus.png"); outline: none; filter: brightness(1.06); }
+.primary:disabled { filter: grayscale(0.85) brightness(0.6); }
+.play { height: 64px; font-size: 24px; }
+.secondary {
+  height: 40px; padding: 0 16px;
+  border-width: 7px; border-image: url("art/button-metal.png") 22 fill / 7px stretch;
+  background-color: #2a2c31;
+  font-weight: 700; font-size: 13px; letter-spacing: 0.1em; color: #dde3ea;
+}
+.secondary:hover:enabled, .secondary:focus-visible { border-image-source: url("art/button-metal-hover.png"); outline: none; color: #fff; }
+.secondary:disabled { opacity: 0.45; }
+.full { width: 100%; }
+.row { display: flex; gap: 10px; }
+.row .secondary { flex: 1; }
+.text-button {
+  display: block; margin: 16px auto 0; padding: 4px 0;
+  background: none; border: 0; font-size: 14px; color: #c4d0dc;
+  text-decoration: underline; text-decoration-color: rgba(196, 208, 220, 0.35); text-underline-offset: 3px;
+}
+.text-button:hover { color: #fff; text-decoration-color: var(--gold); }
+:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+.rule { height: 8px; margin: 22px 0 4px; background: url("art/divider.png") center / 100% 8px no-repeat; opacity: 0.8; }
+.installation { margin-bottom: 4px; }
+#game-path { margin: 7px 0 12px; font-size: 13px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+#import-controls { margin-top: 14px; }
+#imported:not(:empty) { margin-top: 8px; }
+
+#message { min-height: 20px; margin: 14px 0 0; font-size: 14px; line-height: 1.45; color: #cfe7d8; }
+#message.error { color: var(--error); }
+
+/* The popups use the game's own update-notes and options art (scripts/extract-art.py):
+   UI/PatchNotes/patch_notes_popup_bpw's metal frame, top piece and button belt,
+   its blue category buttons, w_button_confirm's blue button, the stud bullets and
+   the metal scrollbar; UI/Options' table rows, chevrons and toggle for Settings.
+   "What's new" opens from its button: the popup scales in, the tabs follow one
+   after another, and each tab's notes fade in item by item. */
+.corner-actions { position: fixed; top: 22px; right: 24px; z-index: 1; display: flex; gap: 10px; }
+.corner-actions .secondary { padding: 0 18px; }
+.news {
+  width: min(860px, calc(100vw - 80px)); height: min(540px, calc(100vh - 110px));
+  margin: auto; padding: 0; overflow: visible; color: var(--ink); border: 0;
+  display: none; flex-direction: column;
+  background:
+    url("art/popup-line.png") top / 100% 8px no-repeat,
+    url("art/popup-line.png") bottom / 100% 8px no-repeat,
+    linear-gradient(180deg, rgba(10, 13, 18, 0.97), rgba(18, 26, 36, 0.95));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.news::before {
+  content: ""; position: absolute; left: 50%; top: -34px; transform: translateX(-50%);
+  width: min(620px, 74%); height: 44px; pointer-events: none;
+  background: url("art/popup-top.png") center bottom / 100% 100% no-repeat;
+}
+.news[open] { display: flex; animation: news-in 360ms cubic-bezier(0.2, 0.75, 0.2, 1) both; }
+.news::backdrop { background: rgba(3, 6, 10, 0.6); animation: news-backdrop 300ms ease-out both; }
+.news-header { flex-shrink: 0; padding: 18px 24px 14px; text-align: center; background: rgba(0, 0, 0, 0.45); }
+.news-header h2 { margin: 0; font-family: var(--body); font-weight: 700; font-size: 24px; letter-spacing: normal; text-transform: none; color: #fff; }
+.news-date { display: block; margin-top: 2px; font-weight: 700; font-size: 16px; color: #e9eef3; }
+.news-main { flex: 1; min-height: 0; display: grid; grid-template-columns: 240px 1fr; padding: 22px 0 6px; }
+.news-tabs { display: flex; flex-direction: column; gap: 12px; padding: 4px 26px 0 34px; border-right: 1px solid rgba(255, 255, 255, 0.35); overflow-y: auto; }
+.news-tab {
+  flex-shrink: 0; min-height: 62px; padding: 8px 12px; border: 0;
+  background: url("art/tab.png") center / 100% 100% no-repeat;
+  font-weight: 700; font-size: 18px; line-height: 1.15; color: #fff; text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  animation: news-rise 360ms cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  animation-delay: calc(120ms + var(--i, 0) * 60ms);
+}
+.news-tab:hover { background-image: url("art/tab-hover.png"); }
+.news-tab[aria-selected="true"] { background-image: url("art/tab-selected.png"); }
+.news-body { overflow-y: auto; padding: 6px 40px 12px 30px; }
+.news-body::-webkit-scrollbar, .settings-form::-webkit-scrollbar { width: 12px; }
+.news-body::-webkit-scrollbar-track, .settings-form::-webkit-scrollbar-track { background: url("art/scroll-track.png") center / 100% 100% no-repeat; }
+.news-body::-webkit-scrollbar-thumb, .settings-form::-webkit-scrollbar-thumb { background: url("art/scroll-thumb.png") center / 100% 100% no-repeat; border-radius: 0; }
+.news-section { margin: 0 0 20px; }
+.news-section > * {
+  animation: news-fade 320ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+.news-section h3 { margin: 0 0 6px; font-size: 20px; font-weight: 700; color: #fff; }
+.news-section p { margin: 0; font-size: 15px; line-height: 1.45; color: #d4dbe3; }
+.news-section .news-comment { margin-top: 10px; color: #e9eef3; }
+.news-section ul { margin: 6px 0 0; padding: 0; list-style: none; }
+.news-section li { position: relative; margin: 4px 0; padding-left: 22px; font-size: 15px; line-height: 1.45; color: #e9eef3; }
+.news-section li::before {
+  content: ""; position: absolute; left: 0; top: 0.18em; width: 15px; height: 15px;
+  background: url("art/bullet.png") center / contain no-repeat;
+}
+/* The buttons sit in the game's metal belt, across the popup's bottom edge. */
+.news-footer {
+  position: relative; flex-shrink: 0; height: 0; margin-top: 34px;
+  display: flex; justify-content: center; align-items: center; gap: 14px;
+}
+.news-footer::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(600px, 84%); height: 66px; pointer-events: none;
+  background: url("art/popup-belt.png") center / 100% 100% no-repeat;
+}
+.news-footer button { position: relative; flex-shrink: 0; }
+.news-close {
+  width: 200px; height: 62px; padding: 0 0 2px; border: 0;
+  background: url("art/button-blue.png") center / 100% 100% no-repeat;
+  font-weight: 700; font-size: 21px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.news-close:hover, .news-close:focus-visible { background-image: url("art/button-blue-hover.png"); outline: none; }
+.news-close:disabled { filter: grayscale(0.6) brightness(0.7); }
+.settings-cancel { width: 170px; height: 46px; font-size: 19px; letter-spacing: normal; text-transform: none; }
+
+/* Settings: the same popup, sized to its rows, laid out like the game's options. */
+.game-settings { width: min(600px, calc(100vw - 80px)); height: fit-content; max-height: calc(100vh - 110px); }
+.settings-form { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 30px 0; }
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  min-height: 54px; margin: 6px 0; padding: 0 14px 0 20px;
+  background: url("art/row.png") center / 100% 100% no-repeat;
+}
+.setting-row:hover, .setting-row:has(:focus-visible) { background-image: url("art/row-hover.png"); }
+.setting-label { font-weight: 700; font-size: 17px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+.cycler { display: flex; align-items: center; gap: 6px; width: 260px; }
+.cycler-value { flex: 1; text-align: center; font-weight: 700; font-size: 17px; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+.chevron { width: 32px; height: 32px; padding: 0; border: 0; background: url("art/chevron-left.png") center / 22px no-repeat; }
+.chevron.next { background-image: url("art/chevron-right.png"); }
+.chevron:hover:enabled { filter: brightness(1.3); }
+.chevron:disabled { opacity: 0.3; }
+.toggle { width: 78px; height: 39px; padding: 0; border: 0; background: url("art/toggle-off.png") center / contain no-repeat; }
+.toggle[aria-checked="true"] { background-image: url("art/toggle-on.png"); }
+.toggle[aria-checked="true"]:hover:enabled { background-image: url("art/toggle-on-hover.png"); }
+.toggle:disabled { opacity: 0.4; }
+.settings-note { margin: 2px 0 10px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.settings-message { min-height: 18px; margin: 8px 0 0; font-size: 14px; color: #cfe7d8; }
+.settings-message.error { color: var(--error); }
+@keyframes news-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes news-backdrop { from { opacity: 0; } to { opacity: 1; } }
+@keyframes news-rise { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@keyframes news-fade { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .news[open], .news::backdrop, .news-tab, .news-section > * { animation: none; } }
+
+details { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+summary { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+summary:hover { color: var(--ink); }
+details .muted { margin-top: 10px; }

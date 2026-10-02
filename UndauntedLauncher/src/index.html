@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <title>Undaunted Launcher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"><div class="art"></div><div class="art"></div></div>
+  <aside class="panel">
+    <header class="brand">
+      <div class="logo" role="img" aria-label="Dauntless"></div>
+      <span class="edition">Undaunted community server · 1.12.0</span>
+      <span id="connection" class="connection" role="status">Connecting…</span>
+    </header>
+    <div class="content">
+      <div id="auth">
+        <nav class="tabs" aria-label="Account options"><button id="tab-login" class="selected" type="button">Sign in</button><button id="tab-register" type="button">Create account</button></nav>
+        <h2 id="auth-title" hidden>Link your account</h2>
+        <p id="auth-description" class="muted">Use the account you made for this server.</p>
+        <form id="account-form">
+          <label id="username-label">Slayer name<input id="username" name="username" autocomplete="username" minlength="3" maxlength="16" required></label>
+          <label id="key-label" hidden>Account key<input id="account-key" type="password" autocomplete="off" maxlength="52" placeholder="From the server owner"></label>
+          <div id="import-controls" hidden><button id="import-account" type="button" class="secondary full">Choose account file</button><p id="imported" class="muted small"></p></div>
+          <label>Password<input id="password" name="password" type="password" autocomplete="current-password" maxlength="128" required></label>
+          <label id="confirm-label" hidden>Confirm password<input id="confirm-password" type="password" autocomplete="new-password" maxlength="128"></label>
+          <label id="invite-label" hidden>Invitation code<input id="invite-code" autocomplete="off" maxlength="128"></label>
+          <p id="password-help" class="muted small" hidden>12 to 128 characters. It's only used for this server.</p>
+          <button id="submit" class="primary full" type="submit">Sign in</button>
+        </form>
+        <button id="claim-mode" type="button" class="text-button">Played here before? Link your existing account</button>
+        <p id="registration-note" class="muted small" hidden>This server isn't taking new accounts.</p>
+      </div>
+      <div id="play-panel" hidden>
+        <h2>Welcome, <span id="player-name"></span></h2>
+        <p class="muted">Signed in to the community server.</p>
+        <div class="rule" aria-hidden="true"></div>
+        <div class="installation">
+          <span class="field-label">Game folder</span>
+          <p id="game-path">Choose your existing 1.12.0 installation.</p>
+          <div class="row"><button id="select-game" class="secondary" type="button">Locate game</button><button id="repair" class="secondary" type="button">Repair runtime</button></div>
+        </div>
+        <button id="play" class="primary full play" type="button">Play</button>
+        <button id="logout" class="text-button" type="button">Sign out</button>
+      </div>
+      <p id="message" role="status" aria-live="polite"></p>
+      <details id="settings"><summary>Server settings</summary><form id="server-form"><label>Server address<input id="server-address" type="url" required maxlength="256" placeholder="http://100.64.0.1:61000"></label><button type="submit" class="secondary full">Save and reconnect</button></form><p class="muted small">Use the address your server owner gave you.</p></details>
+    </div>
+    <footer><span>Unofficial community project. Not affiliated with Phoenix Labs or Epic Games.</span><span id="version">Launcher</span></footer>
+  </aside>
+  <div class="corner-actions">
+    <button id="news-open" class="secondary" type="button" hidden>What's new</button>
+    <button id="settings-open" class="secondary" type="button">Settings</button>
+  </div>
+  <dialog id="game-settings" class="news game-settings" aria-labelledby="game-settings-title">
+    <header class="news-header"><h2 id="game-settings-title">Settings</h2></header>
+    <div class="settings-form">
+      <div class="setting-row"><span class="setting-label" id="label-language">Language</span><div id="setting-language" class="cycler" aria-labelledby="label-language"></div></div>
+      <p class="settings-note">Dauntless starts in this language the next time you press Play.</p>
+      <div id="display-settings">
+        <div class="setting-row"><span class="setting-label" id="label-mode">Display mode</span><div id="setting-mode" class="cycler" aria-labelledby="label-mode"></div></div>
+        <div class="setting-row"><span class="setting-label" id="label-resolution">Resolution</span><div id="setting-resolution" class="cycler" aria-labelledby="label-resolution"></div></div>
+        <div class="setting-row"><span class="setting-label" id="label-fps">Frame rate limit</span><div id="setting-fps" class="cycler" aria-labelledby="label-fps"></div></div>
+        <div class="setting-row"><span class="setting-label" id="label-vsync">V-Sync</span><button id="setting-vsync" class="toggle" type="button" role="switch" aria-checked="false" aria-labelledby="label-vsync"></button></div>
+      </div>
+      <p id="display-note" class="settings-note"></p>
+      <p id="settings-message" class="settings-message" role="status"></p>
+    </div>
+    <footer class="news-footer">
+      <button id="settings-save" class="news-close" type="button">Save</button>
+      <button id="settings-cancel" class="secondary settings-cancel" type="button">Cancel</button>
+    </footer>
+  </dialog>
+  <dialog id="news" class="news" aria-labelledby="news-title">
+    <header class="news-header"><h2 id="news-title">What's new</h2><span id="news-date" class="news-date"></span></header>
+    <div class="news-main">
+      <div id="news-tabs" class="news-tabs" role="tablist" aria-orientation="vertical" aria-label="Update notes"></div>
+      <div id="news-body" class="news-body" role="tabpanel"></div>
+    </div>
+    <footer class="news-footer"><button id="news-close" class="news-close" type="button">Close</button></footer>
+  </dialog>
+  <script src="renderer.js"></script>
+</body>
+</html>
