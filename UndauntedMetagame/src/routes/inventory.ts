@@ -13,6 +13,28 @@ async function RunSlayerLinkGrant(Auth: any, UserId: string, CharacterId: string
 
 export const inventoryRouter = Router();
 
+// Inventory changes are made by world servers, which run the game's own loot,
+// crafting and reward rules. A player token used to be able to add any item or
+// wallet currency to its own character (a 1,000,000 Platinum grant was
+// reproduced), so writes need the gameserver key. Reads stay open to players.
+// INVENTORY_WRITES=any restores player writes if a client flow turns out to
+// need them; every refusal is logged with what was attempted.
+const PLAYER_INVENTORY_WRITES = process.env.INVENTORY_WRITES === "any";
+
+function AllowInventoryWrite(req: any, res: any, Route: string){
+    if(req.AuthData?.IsGameserver === true || PLAYER_INVENTORY_WRITES) return true;
+    const Count = (Items: any) => Array.isArray(Items) ? Items.length : 0;
+    const Ids = [...(req.body?.addStackedItems ?? []), ...(req.body?.addInstancedItems ?? [])]
+        .map((Item: any) => `${Item?.catalogId}x${Item?.quantity ?? 1}`).slice(0, 8);
+    logger.warn(`Refused player inventory write ${Route} from ${req.AuthData?.userId} for characterId ${req.body?.characterId}: `
+        + `add ${Count(req.body?.addStackedItems)}+${Count(req.body?.addInstancedItems)} [${Ids.join(" ")}], `
+        + `remove ${Count(req.body?.removeStackedItems)}+${Count(req.body?.removeInstancedItems)}, `
+        + `save ${Count(req.body?.saveInstancedItems)}${req.body?.catalogId ? `, item ${req.body.catalogId}` : ""}`);
+    res.status(403);
+    res.send();
+    return false;
+}
+
 function StatusForInventoryError(Error: InventoryError){
     switch(Error){
         case "forbidden":
@@ -60,6 +82,7 @@ inventoryRouter.get("/inventory/:userId/:characterId", HasUndauntedMetagameAuth,
 });
 
 inventoryRouter.post("/inventory", HasUndauntedMetagameAuth, async (req: any, res) => {
+    if(!AllowInventoryWrite(req, res, "POST /inventory")) return;
     const UserId = req.AuthData.IsGameserver ? req.body.accountId : req.AuthData.userId;
     const CharacterId = req.body.characterId;
     const TransactionId = req.body.transactionId;
@@ -121,6 +144,7 @@ inventoryRouter.post("/inventory", HasUndauntedMetagameAuth, async (req: any, re
 });
 
 inventoryRouter.post("/inventory/instanceditem", HasUndauntedMetagameAuth, async (req: any, res) => {
+    if(!AllowInventoryWrite(req, res, "POST /inventory/instanceditem")) return;
     const CharacterId = req.body.characterId;
     const UserId = req.AuthData.IsGameserver ? req.body.accountId : req.AuthData.userId;
     const InstanceId = req.body.instanceId;

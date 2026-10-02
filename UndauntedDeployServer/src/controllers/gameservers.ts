@@ -7,6 +7,7 @@ import crypto from "node:crypto";
 import { createWriteStream, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { OnDemandWorld } from "./onDemandWorld";
+import { PortPool } from "./portPool";
 import { ParseExtraWorldArgs } from "./worldArgs";
 import { FindJoinableWorld } from "./joinWorld";
 import { CreateTrainingLease, RemoveTrainingLease, ReserveTrainingLease, TrainingLeasePath, TrainingSleepMarked, TRAINING_IDLE_EXIT_CODE, TRAINING_IDLE_SECONDS } from "./trainingLease";
@@ -38,9 +39,8 @@ type ExpectedPlayer = {
 };
 
 export let Gameservers: Gameserver[] = [];
-let FreePorts: number[] = [];
+const Ports = new PortPool();
 
-let RamsgateServer : Gameserver | undefined;
 
 const PORT_RANGE_BEGIN = Number(process.env.PORT_RANGE_BEGIN!);
 const PORT_RANGE_END = Number(process.env.PORT_RANGE_END!);
@@ -73,10 +73,23 @@ const TrainingDojo = new OnDemandWorld<Gameserver>({
     wait: () => setTimeout(50),
     now: () => Date.now()
 });
+// Ramsgate is always running. It can die without this service noticing (the
+// watchdog is optional), so every connection checks the process first; a
+// restart after a crash and the travel requests that find it gone share one
+// launch, where each used to start its own world on the same port.
+const Ramsgate = new OnDemandWorld<Gameserver>({
+    start: () => StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false),
+    alive: World => IsProcessAlive(World.processId),
+    reserve: () => true,
+    wait: () => setTimeout(50),
+    now: () => Date.now()
+});
 
 async function WaitForGamePort(pid: number, port: number) {
     const deadline = Date.now() + 60_000;
     while (Date.now() < deadline) {
+        // A world that has already exited will never listen; stop waiting.
+        if (!IsProcessAlive(pid)) throw new Error(`Gameserver PID ${pid} exited before listening on UDP ${port}`);
         try {
             const { stdout } = await execFileAsync("netstat", ["-ano", "-p", "UDP"]);
             const listening = stdout.split(/\r?\n/).some(line => {
@@ -122,7 +135,8 @@ export async function CleanupServer(ServerToShutdown: Gameserver, IntentionalSle
     if(ServerToShutdown.isRamsgate){
         logger.warn("RAMSGATE HAS FALLEN! Restarting!");
 
-        RamsgateServer = await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
+        Ramsgate.forget(ServerToShutdown);
+        await Ramsgate.get();
     }
     else if(ServerToShutdown.isTrainingDojo){
         TrainingDojo.forget(ServerToShutdown);
@@ -140,7 +154,7 @@ export async function CleanupServer(ServerToShutdown: Gameserver, IntentionalSle
         }
     }
     else{
-        FreePorts.push(ServerToShutdown.port);
+        Ports.release(ServerToShutdown.port);
     }
 }
 
@@ -162,7 +176,7 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         Port = TRAINING_DOJO_PORT;
     }
     else{
-        Port = FreePorts.pop();
+        Port = Ports.take();
     }
 
     const Id = crypto.randomUUID();
@@ -243,7 +257,8 @@ async function StartServer(Map: string, Behemoth: string | undefined, Matchmaker
         await WaitForGamePort(Child.pid!, Port);
     } catch (error) {
         Gameservers = Gameservers.filter(server => server !== NewGameserver);
-        if (!IsRamsgate && !IsTrainingDojo) FreePorts.push(Port);
+        // The exit handler may already have released it; releasing is idempotent.
+        if (!IsRamsgate && !IsTrainingDojo) Ports.release(Port);
         if (Child.exitCode === null) Child.kill();
         if (IsTrainingDojo) RemoveTrainingLease(TrainingLeasePath(GAMESERVER_BINARY_PATH, Child.pid!));
         throw error;
@@ -262,27 +277,8 @@ function IsProcessAlive(ProcessId: number){
     }
 }
 
-// A persistent world can die without the deploy service noticing: the watchdog
-// is optional, runs on a 60 second timer and only reclaims ports. Anything that
-// hands out a connection has to confirm the world is actually alive first, or
-// the client is sent to a port nothing is listening on and travel fails with no
-// error on this side.
-async function EnsurePersistentWorldAlive(Existing: Gameserver | undefined, MapPath: string, IsRamsgate: boolean, IsTrainingDojo: boolean, Label: string){
-    if(Existing != undefined && IsProcessAlive(Existing.processId)){
-        return Existing;
-    }
-
-    logger.warn(`${Label} is not running - starting it before handing out a connection`);
-
-    if(Existing != undefined){
-        Gameservers = Gameservers.filter(Server => Server !== Existing);
-    }
-
-    return await StartServer(MapPath, undefined, undefined, undefined, IsRamsgate, IsTrainingDojo);
-}
-
 export async function GetRamsgateConnectionDetails(){
-    RamsgateServer = await EnsurePersistentWorldAlive(RamsgateServer, RAMSGATE_MAP_PATH, true, false, "Ramsgate");
+    const RamsgateServer = await Ramsgate.get();
 
     return {
         host: MY_IP,
@@ -453,10 +449,10 @@ export async function StartupGameserverWithHuntIdAndPlayers(HuntId: string, Expe
 
 export async function Startup(){
     for(let i = PORT_RANGE_BEGIN; i <= PORT_RANGE_END - 2; i++){
-        FreePorts.push(i);
+        Ports.add(i);
     }
 
-    RamsgateServer = await StartServer(RAMSGATE_MAP_PATH, undefined, undefined, undefined, true, false);
+    await Ramsgate.get();
 
     // Training Grounds starts only when matchmaking asks for a connection.
 }

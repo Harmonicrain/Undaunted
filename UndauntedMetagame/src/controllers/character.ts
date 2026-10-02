@@ -17,6 +17,16 @@ function TransformDbCharacterToWireCharacter(DbCharacter: any){
     };
 }
 
+function IsEmptyCharacterData(Data: unknown){
+    if(Data == undefined || (typeof Data === "string" && Data.trim() === "")) return true;
+    try{
+        const Parsed = typeof Data === "string" ? JSON.parse(Data) : Data;
+        return Parsed == undefined || (typeof Parsed === "object" && Object.keys(Parsed).length === 0);
+    } catch {
+        return false;
+    }
+}
+
 export async function DoesCharacterBelongToUserId(UserId: string, CharacterId: string){
     const Character = await GetDb().query.characters.findFirst({
         columns: { characterId: true },
@@ -99,8 +109,22 @@ export async function UpdateCharacterForUid(CharacterId: string, UserId: string,
     // a retry overlaps an in-flight save, which used to be rejected as a
     // conflict and lost the write. Treat an equal version as an idempotent
     // re-send and accept it; only a strictly older version is a genuinely stale
-    // write worth refusing. Safe while a character has a single writer.
+    // write worth refusing. Every 1.12 character save comes from the player's
+    // own client (caller=player in the save log; world servers never write
+    // characters), so an equal-version save is that client's newer state.
     if(CurrentData.updateVersion > UpdateVersion){
+        return false;
+    }
+
+    // An empty save never replaces a character that has data: that is a
+    // wiped or forged payload, not progress.
+    const Stored = await GetDb().query.characters.findFirst({
+        columns: { data: true },
+        where: and(eq(characters.characterId, CharacterId), eq(characters.userId, UserId))
+    });
+    if(IsEmptyCharacterData(CharacterDataToUpdateWith) && !IsEmptyCharacterData(Stored?.data)){
+        logger.warn(`Refusing an empty save over characterId ${CharacterId} for userId ${UserId} at updateVersion ${UpdateVersion}`);
+
         return false;
     }
 
