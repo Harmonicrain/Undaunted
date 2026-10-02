@@ -118,6 +118,8 @@ foreach ($package in @('UndauntedMetagame','UndauntedDeployServer')) {
     foreach ($folder in @('src','test')) { $files += Get-ChildItem -LiteralPath (Join-Path $dir $folder) -File -Recurse }
     foreach ($name in @('package.json','package-lock.json','tsconfig.json')) { $files += Get-Item -LiteralPath (Join-Path $dir $name) }
 }
+$patchNotes = Join-Path $repo 'data\1.12\patchnotes'
+$files += Get-ChildItem -LiteralPath $patchNotes -File -Recurse
 $sourceLines = @($files | Sort-Object FullName -Unique | ForEach-Object {
     $_.FullName.Substring($repo.Length + 1).Replace('\','/') + ':' + (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
 })
@@ -128,6 +130,9 @@ $commit = (& git -C $repo rev-parse HEAD).Trim()
 $buildId = '112-' + $commit.Substring(0,8) + '-' + $sourceHash.Substring(0,12).ToLowerInvariant()
 $stage = Assert-RepoPath (Join-Path $repo ('artifacts\' + $buildId + '-' + (Get-Date -Format 'yyyyMMdd-HHmmss')))
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
+$stagedData = Join-Path $stage 'data\1.12'
+New-Item -ItemType Directory -Path $stagedData -Force | Out-Null
+Copy-Item -LiteralPath $patchNotes -Destination $stagedData -Recurse
 $sourceLines | Set-Content -LiteralPath (Join-Path $stage 'sources.sha256') -Encoding utf8
 ('#pragma once' + "`n" + '#define UNDAUNTED_BUILD_ID "' + $buildId + '"' + "`n") |
     Set-Content -LiteralPath (Join-Path $runtime 'native\BuildIdentity.generated.h') -Encoding ascii

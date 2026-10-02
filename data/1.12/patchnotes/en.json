@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-02T00:00:00Z",
+  "title": "Undaunted",
+  "release_version": "1.12.0",
+  "language": "en",
+  "description": "Community updates and information for Dauntless 1.12.0.",
+  "permalink": "",
+  "notes": [
+    {
+      "type": "features",
+      "title": "New Features",
+      "sections": [
+        {
+          "type": "text",
+          "title": "Community launcher",
+          "description": "Create an account, sign in and launch Dauntless from the Undaunted Launcher.",
+          "changes": [
+            {
+              "comment": "Getting started",
+              "list": [
+                "New players can create their own account in the launcher.",
+                "Existing players can use their account file to set a password and keep their Slayer's progress.",
+                "Locate your Dauntless 1.12.0 installation once, then use Play to return to the Isles."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "fixes",
+      "title": "Fixes",
+      "sections": [
+        {
+          "type": "text",
+          "title": "In-game update notes",
+          "description": "The update screen now displays community news, changes and server information.",
+          "changes": [
+            {
+              "comment": "Using this screen",
+              "list": [
+                "Select a category on the left to read its notes.",
+                "Scroll through longer sections and use Close to return to the game."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "known-issues",
+      "title": "Known Issues",
+      "sections": [
+        {
+          "type": "text",
+          "title": "Store artwork",
+          "description": "Some store cards still show generic artwork. Their artwork mappings and item-icon fallbacks are being investigated.",
+          "changes": []
+        },
+        {
+          "type": "text",
+          "title": "Account recovery",
+          "description": "Automatic password recovery is not available yet. Contact the server owner if you cannot sign in to your existing account.",
+          "changes": []
+        }
+      ]
+    },
+    {
+      "type": "information",
+      "title": "Server Information",
+      "sections": [
+        {
+          "type": "text",
+          "title": "Playing with friends",
+          "description": "For remote play, keep Tailscale connected and accept the host's private sharing invitation using the same account as the Tailscale app.",
+          "changes": [
+            {
+              "comment": "Connection requirements",
+              "list": [
+                "The host PC and game servers must be online.",
+                "Use the supported Dauntless 1.12.0 installation (CL392819).",
+                "The launcher installer supplies the community runtime, but does not include the base game."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "title": "Community project",
+          "description": "Undaunted is an unofficial community project and is not affiliated with Phoenix Labs or Epic Games.",
+          "changes": []
+        }
+      ]
+    }
+  ]
+}

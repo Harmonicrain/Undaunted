@@ -9,6 +9,7 @@ import { GetTrackedObjectives, SaveTrackedObjectives, TrackingSettingsError } fr
 import { DailyChallengeResetHourUtc } from "../features/challenges/daily";
 import { GetSelectedWeeklyChallenges, GetSupportedWeeklyChallenges, WeeklyChallengeResetHourUtc,
     WeeklyChallengeSlots } from "../features/challenges/weekly";
+import { GetPatchNotes } from "../features/patchnotes/patchnotes";
 
 export const client112Router = Router();
 
@@ -20,18 +21,11 @@ client112Router.get("/isbanned", (_req, res) => {
 
 // PatchNotesGetDataEndpoint, shown on the title screen.
 client112Router.get("/patchnotes/:language/:buildId", (req, res) => {
+    res.set("Cache-Control", "no-store");
     res.json({
         code: null,
         message: "OK",
-        payload: {
-            date: "2026-09-23T00:00:00.000+00:00",
-            description: "Welcome to Undaunted!",
-            language: req.params.language,
-            notes: [],
-            permalink: "/patch-notes/undaunted/",
-            release_version: "1.12.0",
-            title: "Undaunted"
-        }
+        payload: GetPatchNotes(req.params.language)
     });
 });
 

@@ -35,6 +35,7 @@ Point the servers at it from the package folders, which is where they run:
 | `linked-slayer/linked_slayer_rewards.json` | `Archon_UI_0-WindowsClient.pak`: `Social/LinkedSlayers/linked_slayer_rewards` and `linked_slayer_config`. |
 | `challenges/challenge_rewards.json` | `Archon_24-WindowsClient.pak` `Gameplay/Bounty`: `challenge_seasons_daily_table`, `challenge_seasons_weekly_table`, `challenge_category_table`. |
 | `events/seasonal_events.json` | This server's configuration. The event, feature flag, pass and store ids are the client's. |
+| `patchnotes/en.json` | This server's editable community update notes, in the 1.12.0 client's native category/section/change format. See [`patchnotes/README.md`](patchnotes/README.md). |
 | `hunts/*.json` | The client's player and matchmaker hunt and Trials tables, laid over the 1.4.4 tables the deploy server bundles (1.12.0 rows win; rows only 1.4.4 had stay, because some 1.12.0 hunts still name them). |
 
 Each file's own `_comment` or `source` field repeats its origin where the format
