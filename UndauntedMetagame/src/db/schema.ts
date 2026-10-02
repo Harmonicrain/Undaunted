@@ -1,5 +1,25 @@
 import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+export const launchercredentials = sqliteTable("launchercredentials", {
+    userId: text("userId").notNull().primaryKey(),
+    usernameNormalized: text("usernameNormalized").notNull().unique(),
+    passwordHash: text("passwordHash").notNull()
+});
+export const launchersessions = sqliteTable("launchersessions", {
+    sessionId: text("sessionId").notNull().primaryKey(),
+    userId: text("userId").notNull(),
+    accessHash: text("accessHash").notNull().unique(),
+    accessExpiresAt: integer("accessExpiresAt").notNull(),
+    refreshHash: text("refreshHash").notNull().unique(),
+    refreshExpiresAt: integer("refreshExpiresAt").notNull()
+});
+export const launcherexchanges = sqliteTable("launcherexchanges", {
+    codeHash: text("codeHash").notNull().primaryKey(),
+    userId: text("userId").notNull(),
+    sessionId: text("sessionId").notNull(),
+    expiresAt: integer("expiresAt").notNull()
+});
+
 export const users = sqliteTable("users", {
     userId: text("userId").notNull().primaryKey(),
     name: text("name").notNull(),

@@ -19,8 +19,12 @@ import { friendsRouter } from "./routes/friends.js";
 import { slayerLinksRouter } from "./routes/slayerLinks.js";
 import { WireCapture } from "./middleware/WireCapture.js";
 import { undauntedApiRouter } from "./routes/undauntedapi.js";
+import { launcherRouter, LauncherBodyError } from "./routes/launcher.js";
 
 export const app = express();
+
+// Keep launcher credentials out of gameplay's much larger JSON body allowance.
+app.use("/launcher/v1", express.json({ limit: "8kb" }), launcherRouter, LauncherBodyError);
 
 app.use(express.json({ limit: "50mb" }));
 

@@ -83,24 +83,27 @@ export async function DeleteInviteCode(InviteCodeToDelete: string){
     ));
 }
 
-export async function RegisterUser(Username: string){
+export async function RegisterUser(Username: string, InviteCode?: string){
+    if(!/^[A-Za-z0-9_-]{3,16}$/.test(Username.trim())) return undefined;
+    Username = Username.trim();
     const UID = `UID-${randomUUID()}`;
     const UUK = `UUK_${randomBytes(24).toString("hex")}`;
 
     const UUKHash = HashUserAPIKey(UUK);
 
-    await GetDb().insert(users).values({
-        userId: UID,
-        name: Username,
-        notes: 0
-    });
-
-    await GetDb().insert(userapikeys).values({
-        userId: UID,
-        keyHash: UUKHash
-    });
-
-    return UUK;
+    const Client = GetDb().$client;
+    return Client.transaction(() => {
+        if(Client.prepare("SELECT 1 FROM users WHERE lower(name)=lower(?)").get(Username)) return undefined;
+        if(InviteCode !== undefined){
+            const Used = Client.prepare(`UPDATE invitecodes SET usesRemaining =
+                CASE WHEN infiniteUses THEN usesRemaining ELSE usesRemaining - 1 END
+                WHERE inviteCode=? AND (infiniteUses=1 OR usesRemaining>0)`).run(InviteCode.trim());
+            if(Used.changes !== 1) return undefined;
+        }
+        GetDb().insert(users).values({ userId: UID, name: Username, notes: 0 }).run();
+        GetDb().insert(userapikeys).values({ userId: UID, keyHash: UUKHash }).run();
+        return UUK;
+    })();
 }
 
 export async function ValidateAndConsumeInviteCode(InviteCode: unknown){

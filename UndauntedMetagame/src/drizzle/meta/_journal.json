@@ -183,6 +183,13 @@
       "when": 1790438125589,
       "tag": "0025_bounty_retirements",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1790942161764,
+      "tag": "0026_launcher_accounts",
+      "breakpoints": true
     }
   ]
 }

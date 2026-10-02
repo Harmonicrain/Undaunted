@@ -7,6 +7,7 @@ import { eq, inArray } from "drizzle-orm";
 import { HasUndauntedMetagameAuth } from "../middleware/HasUndauntedMetagameAuth";
 import { HasOptionalUndauntedMetagameAuth } from "../middleware/HasOptionalUndauntedMetagameAuth";
 import { GetUsernameForUserId } from "../controllers/login";
+import { ConsumeLauncherExchange } from "../controllers/launcherAuth";
 
 export const eosRouter = Router();
 
@@ -36,7 +37,9 @@ eosRouter.post("/account/api/oauth/token", async (req, res) => {
     else if(process.env.AUTH_MODE === "APIKEY"){
         const ApiKey = req.body.exchange_code;
 
-        const UserId = await GetUserIDForAPIKey(ApiKey);
+        const UserId = typeof ApiKey === "string" && ApiKey.startsWith("ULX_")
+            ? ConsumeLauncherExchange(ApiKey)
+            : typeof ApiKey === "string" ? await GetUserIDForAPIKey(ApiKey) : undefined;
 
         if(UserId != undefined){
             logger.info(`Logging in ${UserId}!`);
