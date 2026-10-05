@@ -1,7 +1,7 @@
 {
   "name": "undaunted-launcher-112",
   "productName": "Undaunted Launcher",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "description": "Register, sign in and play on an Undaunted 1.12.0 server",
   "author": "Undaunted contributors",
   "license": "AGPL-3.0-only",
@@ -11,7 +11,10 @@
     "prepare:runtime": "node scripts/prepare-runtime.cjs",
     "test": "node --test test/*.test.cjs",
     "smoke": "electron test/smoke.cjs",
-    "package": "electron-builder --win --x64"
+    "test:installed-update": "node test/installed-update.cjs",
+    "package": "electron-builder --win --x64",
+    "configure:updates": "node scripts/configure-updates.cjs",
+    "release": "node scripts/release.cjs"
   },
   "devDependencies": {
     "electron": "43.0.0",
@@ -20,11 +23,30 @@
   "build": {
     "appId": "community.undaunted.launcher112",
     "artifactName": "Undaunted-Launcher-${version}-Setup.${ext}",
-    "directories": { "output": "release" },
-    "files": ["src/**/*", "package.json", "LICENSE.txt", "NOTICE.md", "ADDITIONAL_TERMS.md"],
-    "extraResources": [{ "from": "resources", "to": "launcher" }],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "LICENSE.txt",
+      "NOTICE.md",
+      "ADDITIONAL_TERMS.md"
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "launcher"
+      }
+    ],
     "afterPack": "scripts/after-pack.cjs",
-    "win": { "target": ["nsis"], "requestedExecutionLevel": "asInvoker", "signAndEditExecutable": false },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "requestedExecutionLevel": "asInvoker",
+      "signAndEditExecutable": false
+    },
     "nsis": {
       "installerIcon": "src/art/icon.ico",
       "uninstallerIcon": "src/art/icon.ico",
@@ -36,5 +58,8 @@
       "createDesktopShortcut": false,
       "runAfterFinish": true
     }
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9"
   }
 }

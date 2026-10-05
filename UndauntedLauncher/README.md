@@ -51,12 +51,77 @@ accepts `--game-directory`. It copies the host's installed `winmm.dll` and
 The ignored `resources/server.json` contains only the launcher API origin.
 Never include environment files, databases or account files in a player release.
 
-The NSIS installer is under `release/`. This first release is unsigned; it has
-no publisher certificate or SmartScreen reputation. It bundles a pinned runtime
-and checks the bundle and installation hashes. It does not download remote DLLs,
-update itself automatically or install the base game. Rebuild and redistribute
-the installer when runtime files change. HTTPS plus signed update manifests are
-required before adding a remote update channel.
+The NSIS installer is under `release/`. It has no Windows publisher certificate
+or SmartScreen reputation. It bundles a pinned runtime and checks the bundle and
+installation hashes. Launcher updates use separate Ed25519 release signatures;
+these do not provide Windows publisher signing. It does not install the base game
+or download remote DLLs independently of a verified launcher release.
+
+## Launcher updates
+
+Players install 1.0.6 manually once. Installed launchers check at startup and
+download newer releases in the background. **Restart to update** installs and
+reopens the launcher, preserving the encrypted login, game folder and settings.
+Installation waits until Dauntless is closed, including clients started outside
+the launcher. Closing the launcher does not automatically install an update.
+Failed checks/downloads can be retried and do not prevent playing.
+
+The packaged `resources/updates.json` fixes the trusted HTTPS feed and public
+verification key. Changing the game server does not change the update feed.
+Release metadata is signed, downloads are restricted to that HTTPS folder,
+and the installer size and SHA-512 are verified before installation. Metadata
+cannot supply arbitrary executables, arguments or download URLs.
+
+Configure the host once, retaining the generated private key outside the source
+repository and outside the served directory:
+
+```powershell
+npm run configure:updates -- --feed https://<host>.<tailnet>.ts.net/launcher/ --tailscale true
+tailscale serve --bg --https=443 --set-path=/launcher '<dataRoot>\data\launcher-updates'
+```
+
+Enable HTTPS/Serve in the Tailscale admin page when prompted; leave Funnel off.
+Only the public update folder is served. Back up the private signing key securely;
+losing it requires a manual trust-key replacement for installed players. Its
+contents must never be shared. The ignored `release.local.json` records local
+key/output paths, while only the public verification key goes into installers.
+Shared friends need TCP 443 to this host in the tailnet access policy, in addition
+to the existing game ports. Keep access scoped to the shared host.
+
+For every release, increment `package.json` and the matching lockfile version,
+write release notes to a text file, then run:
+
+```powershell
+npm run release -- --notes-file <release-notes.txt>
+```
+
+This runs launcher tests and a disposable backend smoke test, prepares the verified
+runtime, builds NSIS, signs the release, and copies it to the update folder. It
+publishes `latest.json` last, after the installer is complete. Keep older installers
+and blockmaps for differential updates. Never replace an installer with different
+bytes under the same version. This workflow does not restart game servers.
+
+For production HTTPS, use `--tailscale false` and a normal HTTPS folder URL with
+the same signing key. The updater then requires no Tailscale client. Existing
+private-feed users can receive a signed bridge release: publish to their existing
+feed with `npm run release -- --next-feed <feed-migration.json>`. That JSON contains
+`{"url":"https://updates.example.com/launcher/","requiresTailscale":false}`.
+Put the signed release files on both hosts and keep the old feed available until
+players have installed the bridge. A successful bridge install saves signed
+migration metadata; later launches verify it before switching feeds. Game-server
+HTTPS/runtime support remains a separate deployment task.
+
+To test the actual Windows upgrade flow without touching the installed launcher:
+
+```powershell
+$env:UNDAUNTED_TEST_STAGE = '<repo>\artifacts\<tested-build>\UndauntedMetagame'
+npm run test:installed-update
+```
+
+This builds isolated test apps, serves a signed test release over local HTTPS,
+performs the NSIS upgrade/relaunch and verifies login/settings preservation.
+Test-only certificate exceptions and debugging hooks stay in ignored artifacts;
+production retains certificate validation. The test never starts the game.
 
 ## Backend
 

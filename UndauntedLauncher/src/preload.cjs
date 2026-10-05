@@ -13,6 +13,17 @@ contextBridge.exposeInMainWorld('launcher', Object.freeze({
   repair: () => call('repair'),
   play: () => call('play'),
   patchNotes: () => call('patchNotes'),
+  discord: () => call('discord'),
+  updateState: () => call('updateState'),
+  updateCheck: () => call('updateCheck'),
+  updateDownload: () => call('updateDownload'),
+  updateInstall: () => call('updateInstall'),
+  onUpdate: callback => {
+    if (typeof callback !== 'function') throw new TypeError('An update callback is required.');
+    const listener = (_event, value) => callback(value);
+    ipcRenderer.on('launcher:updateState', listener);
+    return () => ipcRenderer.removeListener('launcher:updateState', listener);
+  },
   settings: () => call('settings'),
   saveSettings: value => call('saveSettings', value)
 }));

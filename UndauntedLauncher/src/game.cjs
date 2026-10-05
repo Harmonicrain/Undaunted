@@ -179,6 +179,9 @@ function patchNotesText(payload) {
   const list = (value, limit) => Array.isArray(value) ? value.slice(0, limit) : [];
   return {
     date: text(payload?.date, 40),
+    title: text(payload?.title, 80),
+    version: text(payload?.release_version, 40),
+    description: text(payload?.description, 300),
     categories: list(payload?.notes, 12).map(category => ({
       title: text(category?.title, 80),
       sections: list(category?.sections, 20).map(section => ({

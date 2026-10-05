@@ -31,6 +31,11 @@ TEXTURES = {
     'button-metal.png': UI + 'Textures/Buttons/ui_help_button_2_normal',
     'button-metal-hover.png': UI + 'Textures/Buttons/ui_help_button_2_hover',
     'divider.png': UI + 'Textures/Buttons/DoubleLine',
+    # The title screen's w_loginbutton and patch_notes_preview_bpw.
+    'play-face.png': MENUS + 'ui_store_button_neutral',
+    'play-buckle.png': MENUS + 'ui_decor_buckle_lg',
+    'play-sparkle.png': MENUS + 'ui_sparkle_add',
+    'news-frame.png': MENUS + 'ui_metal_frame',
     # The update-notes popup (UI/PatchNotes/patch_notes_popup_bpw and its parts).
     'popup-top.png': MENUS + 'ui_metal_frame_top',
     'popup-belt.png': MENUS + 'ui_decor_belt',
@@ -51,6 +56,9 @@ TEXTURES = {
     'toggle-on-hover.png': UI + 'Textures/Options/ui_toggle_2_on_hover',
     'chevron-left.png': MENUS + 'ui_cheveron_arrow_left',
     'chevron-right.png': MENUS + 'ui_cheveron_arrow',
+    # The options screen's bottom bar buttons (UI/Buttons/w_button_legend_hint).
+    'button-legend.png': UI + 'Textures/Buttons/ui_help_button_1_normal',
+    'button-legend-hover.png': UI + 'Textures/Buttons/ui_help_button_1_hover',
 }
 # Textures larger than the launcher shows them; the rest are copied at full size.
 MAX_WIDTH = { 'row.png': 1024, 'row-hover.png': 1024, 'bullet.png': 48, 'chevron-left.png': 64, 'chevron-right.png': 64 }

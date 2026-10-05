@@ -24,9 +24,36 @@ let mode = 'login';
 let current;
 let busy = false;
 let imported = false;
+let updateStatus;
+function renderUpdate(value) {
+  updateStatus = value;
+  $('update-message').textContent = value.message;
+  const downloading = value.phase === 'downloading';
+  $('update-progress').hidden = !downloading;
+  $('update-progress').value = value.percent || 0;
+  $('update-check').disabled = busy || ['disabled', 'checking', 'downloading', 'ready', 'installing'].includes(value.phase);
+  $('update-action').hidden = !['available', 'ready'].includes(value.phase);
+  $('update-action').disabled = busy || (value.phase === 'ready' && current?.running);
+  $('update-action').textContent = value.phase === 'ready' ? 'Restart to update' : 'Download update';
+}
+async function updateAction(action) {
+  try {
+    const response = await action();
+    if (!response.ok) throw new Error(response.message);
+    renderUpdate(response.result);
+  } catch (error) { $('update-message').textContent = error.message; }
+}
+window.launcher.onUpdate(renderUpdate);
+$('update-check').addEventListener('click', () => updateAction(() => window.launcher.updateCheck()));
+$('update-action').addEventListener('click', () => updateAction(() => updateStatus?.phase === 'ready' ? window.launcher.updateInstall() : window.launcher.updateDownload()));
+updateAction(() => window.launcher.updateState());
 function message(text, error = false) { $('message').textContent = text; $('message').classList.toggle('error', error); }
+function updateContentScrollbar() {
+  document.querySelector('.content').classList.toggle('signup-visible', mode === 'register' && !current?.user);
+}
 function setMode(next) {
   mode = next; imported = false;
+  updateContentScrollbar();
   $('imported').textContent = '';
   $('password').value = ''; $('confirm-password').value = ''; $('account-key').value = '';
   $('tab-login').classList.toggle('selected', next === 'login');
@@ -76,9 +103,16 @@ function showCategory(category) {
   }
 }
 let newsNotes;
+function setNewsExpanded(expanded) {
+  $('news-open').setAttribute('aria-expanded', String(expanded));
+  $('news-preview').classList.toggle('news-preview-expanded', expanded);
+  $('news-preview').inert = expanded;
+  $('news-preview').setAttribute('aria-hidden', String(expanded));
+}
 // Opening rebuilds the tabs and the first tab's notes, so they animate in each time.
 function openNews() {
   if (!newsNotes) return;
+  $('news-title').textContent = newsNotes.title || 'Undaunted';
   const tabs = $('news-tabs');
   tabs.replaceChildren();
   newsNotes.categories.forEach((category, index) => {
@@ -95,13 +129,17 @@ function openNews() {
   $('news-date').textContent = Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   tabs.firstElementChild?.click();
   $('news').showModal();
+  setNewsExpanded(true);
   $('news-close').focus();
 }
 async function loadNews() {
   const response = await window.launcher.patchNotes();
   newsLoaded = response.ok;
   newsNotes = response.ok && response.result.categories.length ? response.result : undefined;
-  $('news-open').hidden = !newsNotes;
+  $('news-preview-title').textContent = newsNotes?.title || 'Undaunted';
+  $('news-preview-version').textContent = 'Update ' + (newsNotes?.version || '1.12.0');
+  $('news-preview-description').textContent = newsNotes?.description || 'Community updates and information for Dauntless 1.12.0.';
+  $('news-preview').hidden = !newsNotes;
 }
 $('news-open').addEventListener('click', openNews);
 
@@ -148,6 +186,7 @@ async function openSettings() {
     : settingsData.running ? 'Close Dauntless to change its display settings.'
     : "Display settings are saved to the game's own settings file.";
   settingsMessage('');
+  $('server-address').value = current?.server || '';
   $('game-settings').showModal();
   $('settings-save').focus();
 }
@@ -172,11 +211,16 @@ $('settings-save').addEventListener('click', async () => {
   message('Settings saved.');
 });
 $('news-close').addEventListener('click', () => $('news').close());
+$('news').addEventListener('close', () => {
+  setNewsExpanded(false);
+  $('news-open').focus({ preventScroll: true });
+});
 // A click on the backdrop lands on the dialog element itself (its content covers
 // the box), so that closes it; Esc closes it natively.
 $('news').addEventListener('click', event => { if (event.target === $('news')) $('news').close(); });
 function render(state) {
   current = state;
+  updateContentScrollbar();
   $('auth').hidden = !!state.user; $('play-panel').hidden = !state.user;
   $('player-name').textContent = state.user?.username || '';
   const tailscale = /^https?:\/\/100\./.test(state.server);
@@ -185,10 +229,10 @@ function render(state) {
     : 'Server offline';
   $('connection').classList.toggle('online', state.connected);
   $('connection').classList.toggle('offline', !state.connected);
-  $('server-address').value = state.server;
+  if (!$('game-settings').open) $('server-address').value = state.server;
   $('version').textContent = 'Launcher ' + state.version;
   $('game-path').textContent = state.gameDirectory || 'Choose your existing 1.12.0 installation.';
-  $('play').textContent = state.running ? 'Game running' : 'Play';
+  $('play-label').textContent = state.running ? 'Game running' : 'PLAY!';
   $('play').disabled = busy || state.running || !state.connected || !state.gameDirectory;
   $('repair').disabled = busy || state.running || !state.gameDirectory;
   $('select-game').disabled = busy || state.running;
@@ -197,6 +241,7 @@ function render(state) {
   $('invite-label').hidden = mode !== 'register' || state.registrationMode !== 'INVITECODE';
   $('invite-code').required = !$('invite-label').hidden;
   $('submit').disabled = busy || !state.connected || (mode === 'register' && state.registrationMode === 'NONE');
+  if (updateStatus) renderUpdate(updateStatus);
 }
 async function run(action, success = '') {
   if (busy) return;
@@ -235,12 +280,24 @@ $('import-account').addEventListener('click', async () => {
 });
 $('server-form').addEventListener('submit', async event => {
   event.preventDefault();
-  if (await run(() => window.launcher.server($('server-address').value))) loadNews();
+  settingsMessage('Connecting…');
+  const result = await run(() => window.launcher.server($('server-address').value));
+  if (result) {
+    $('game-settings').close();
+    loadNews();
+  } else settingsMessage($('message').textContent, true);
 });
 $('logout').addEventListener('click', async () => { const result = await run(() => window.launcher.logout()); if (result) setMode('login'); });
 $('select-game').addEventListener('click', () => run(() => window.launcher.selectGame(), 'Game verified and runtime installed.'));
 $('repair').addEventListener('click', () => run(() => window.launcher.repair(), 'Runtime repaired.'));
 $('play').addEventListener('click', () => run(() => window.launcher.play(), 'Starting Dauntless…'));
+$('discord-open').addEventListener('click', async event => {
+  event.preventDefault();
+  try {
+    const response = await window.launcher.discord();
+    if (!response.ok) throw new Error(response.message);
+  } catch { message('Could not open Discord in your browser. Please try again.', true); }
+});
 run(() => window.launcher.state()).then(() => { if (current?.serverError) message(current.serverError, true); loadNews(); });
 setInterval(async () => {
   // Notes that failed to load (server offline at start) are fetched once it is back.

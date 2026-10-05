@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, dialog, ipcMain, safeStorage, screen } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, safeStorage, screen, shell } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -47,20 +47,25 @@ async function createLauncher(options = {}) {
     session = next;
   }
   async function forget() { session = undefined; await fs.unlink(tokenPath).catch(() => {}); }
-  async function ensureTailnet() {
-    if (game.isTailscaleAddress(config.server) &&
-        (tailnetCheckedOrigin !== config.server || Date.now() - tailnetCheckedAt > 30000)) {
+  async function ensureTailnet(origin = config.server, required = game.isTailscaleAddress(origin)) {
+    if (required &&
+        (tailnetCheckedOrigin !== origin || Date.now() - tailnetCheckedAt > 30000)) {
       try {
         const executable = path.join(process.env.ProgramFiles || 'C:\\Program Files', 'Tailscale', 'tailscale.exe');
         const { stdout } = await promisify(execFile)(executable, ['status', '--json'], { windowsHide: true, timeout: 5000, maxBuffer: 4 * 1024 * 1024 });
         const status = JSON.parse(stdout);
-        const host = new URL(config.server).hostname;
-        const known = [status.Self, ...Object.values(status.Peer || {})].some(peer => peer?.TailscaleIPs?.includes(host));
+        const host = new URL(origin).hostname;
+        const known = [status.Self, ...Object.values(status.Peer || {})].some(peer =>
+          peer?.TailscaleIPs?.includes(host) || peer?.DNSName?.replace(/\.$/, '').toLowerCase() === host);
         if (status.BackendState !== 'Running' || !known) throw new Error();
-        tailnetCheckedAt = Date.now(); tailnetCheckedOrigin = config.server;
+        tailnetCheckedAt = Date.now(); tailnetCheckedOrigin = origin;
       } catch { throw new Error('Connect to Tailscale and accept the server sharing invitation before using this address.'); }
     }
   }
+  const updater = await require('./updater.cjs').createUpdater({ resources, profile, version: app.getVersion(),
+    ensureTailnet: url => ensureTailnet(url, true),
+    isGameRunning: () => require('./running-game.cjs').isGameRunning(config.gameDirectory, child),
+    emit: value => { if (!window.isDestroyed()) window.webContents.send('launcher:updateState', value); } });
   // The same update notes the game's title screen shows; only bounded text is
   // passed on, and the renderer shows it as plain text.
   async function patchNotes() {
@@ -220,7 +225,8 @@ async function createLauncher(options = {}) {
       process.unref(); return state();
     },
     settings: gameSettings,
-    saveSettings: saveGameSettings
+    saveSettings: saveGameSettings,
+    updateInstall: () => updater.install()
   };
   const trusted = event => event.sender === window.webContents && event.senderFrame === window.webContents.mainFrame &&
     event.senderFrame.url === trustedUrl;
@@ -232,18 +238,22 @@ async function createLauncher(options = {}) {
     catch (error) { return { ok: false, message: error.message || 'The operation could not be completed.' }; }
     finally { operation = false; }
   });
-  // Read-only and outside the operation lock, so slow notes never hold up sign-in or Play.
-  const reads = { patchNotes };
+  // Independent of account operations. External navigation is limited to our
+  // fixed invite; the renderer cannot supply a URL to the OS shell.
+  const reads = { patchNotes, discord: () => shell.openExternal('https://discord.gg/zxZfbhMEs7'),
+    updateState: () => updater.state(), updateCheck: () => updater.check(), updateDownload: () => updater.download() };
   for (const [name, read] of Object.entries(reads)) ipcMain.handle('launcher:' + name, async event => {
     if (!trusted(event)) return { ok: false, message: 'Invalid launcher request.' };
     try { return { ok: true, result: await read() }; }
     catch (error) { return { ok: false, message: error.message || 'The operation could not be completed.' }; }
   });
   window.on('closed', () => {
+    updater.dispose();
     for (const name of [...Object.keys(actions), ...Object.keys(reads)]) ipcMain.removeHandler('launcher:' + name);
     importedKey = undefined; session = undefined;
   });
   await window.loadFile(index);
+  if (app.isPackaged) updater.check().then(value => { if (value.phase === 'available') return updater.download(); }).catch(() => {});
   return window;
 }
 module.exports = { createLauncher };

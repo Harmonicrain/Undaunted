@@ -3,3 +3,6 @@ resources/
 release/
 *.log
 src/art/
+release.local.json
+__pycache__/
+*.py[cod]

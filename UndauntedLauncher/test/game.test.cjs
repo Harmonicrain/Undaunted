@@ -22,19 +22,22 @@ test('launch arguments use a one-time code, correct 1.12 identifiers and no shel
 });
 test('update notes keep only bounded text, whatever the server sends', () => {
   const long = 'x'.repeat(5000);
-  const notes = game.patchNotesText({ date: '2026-10-02T00:00:00Z', notes: [
+  const notes = game.patchNotesText({ date: '2026-10-02T00:00:00Z', title: long, release_version: '1.12.0', description: long, notes: [
     { title: 'New Features', sections: [{ title: 'Launcher', description: 'Sign in here.', url: 'javascript:alert(1)',
       changes: [{ comment: 'Start', list: ['One', 2, '', long] }] }] },
     { title: 'Empty', sections: [{ title: '', description: '' }] },
     { title: '<b>html</b>', sections: 'not a list' }
   ] });
   assert.equal(notes.categories.length, 1);
+  assert.equal(notes.title.length, 80);
+  assert.equal(notes.version, '1.12.0');
+  assert.equal(notes.description.length, 300);
   const section = notes.categories[0].sections[0];
   assert.deepEqual(Object.keys(section), ['title', 'description', 'changes']);
   assert.deepEqual(section.changes[0].list.slice(0, 1), ['One']);
   assert.equal(section.changes[0].list.length, 2);
   assert.equal(section.changes[0].list[1].length, 400);
-  assert.deepEqual(game.patchNotesText(null), { date: '', categories: [] });
+  assert.deepEqual(game.patchNotesText(null), { date: '', title: '', version: '', description: '', categories: [] });
 });
 test('language is passed as -culture only for languages the client ships', () => {
   const user = { userId: 'UID-11111111-2222-3333-4444-555555555555', username: 'Slayer' };

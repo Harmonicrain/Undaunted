@@ -42,17 +42,28 @@
           <p id="game-path">Choose your existing 1.12.0 installation.</p>
           <div class="row"><button id="select-game" class="secondary" type="button">Locate game</button><button id="repair" class="secondary" type="button">Repair runtime</button></div>
         </div>
-        <button id="play" class="primary full play" type="button">Play</button>
+        <button id="play" class="full play" type="button"><span class="play-buckle" aria-hidden="true"></span><span class="play-face" aria-hidden="true"></span><span class="play-sparkles" aria-hidden="true"></span><span id="play-label" class="play-label">PLAY!</span></button>
         <button id="logout" class="text-button" type="button">Sign out</button>
       </div>
       <p id="message" role="status" aria-live="polite"></p>
-      <details id="settings"><summary>Server settings</summary><form id="server-form"><label>Server address<input id="server-address" type="url" required maxlength="256" placeholder="http://100.64.0.1:61000"></label><button type="submit" class="secondary full">Save and reconnect</button></form><p class="muted small">Use the address your server owner gave you.</p></details>
+    </div>
+    <div class="launcher-update" aria-label="Launcher updates">
+      <p id="update-message" class="muted small" role="status" aria-live="polite">Checking update settings…</p>
+      <progress id="update-progress" max="100" value="0" aria-label="Update download progress" hidden></progress>
+      <div class="row"><button id="update-check" class="secondary" type="button">Check for updates</button><button id="update-action" class="secondary" type="button" hidden>Download</button></div>
     </div>
     <footer><span>Unofficial community project. Not affiliated with Phoenix Labs or Epic Games.</span><span id="version">Launcher</span></footer>
   </aside>
+  <section id="news-preview" class="news-preview" aria-labelledby="news-preview-title" hidden>
+    <header><h2 id="news-preview-title">Undaunted</h2><p id="news-preview-version">Update 1.12.0</p></header>
+    <p id="news-preview-description" class="news-preview-description">Community updates and information for Dauntless 1.12.0.</p>
+    <button id="news-open" class="news-close news-read-more" type="button" aria-haspopup="dialog" aria-controls="news" aria-expanded="false">Read More</button>
+  </section>
   <div class="corner-actions">
-    <button id="news-open" class="secondary" type="button" hidden>What's new</button>
-    <button id="settings-open" class="secondary" type="button">Settings</button>
+    <a id="discord-open" class="corner-icon discord-link" href="https://discord.gg/zxZfbhMEs7" target="_blank" rel="noopener noreferrer" aria-label="Join our Discord (opens in your browser)" title="Join our Discord">
+      <img src="icons/discord.svg" width="28" height="28" alt="">
+    </a>
+    <button id="settings-open" class="corner-icon settings-icon" type="button" aria-label="Settings" title="Settings" aria-haspopup="dialog" aria-controls="game-settings"><img src="icons/settings.svg" width="26" height="26" alt=""></button>
   </div>
   <dialog id="game-settings" class="news game-settings" aria-labelledby="game-settings-title">
     <header class="news-header"><h2 id="game-settings-title">Settings</h2></header>
@@ -66,11 +77,12 @@
         <div class="setting-row"><span class="setting-label" id="label-vsync">V-Sync</span><button id="setting-vsync" class="toggle" type="button" role="switch" aria-checked="false" aria-labelledby="label-vsync"></button></div>
       </div>
       <p id="display-note" class="settings-note"></p>
+      <details id="settings"><summary>Server settings</summary><form id="server-form"><label>Server address<input id="server-address" type="url" required maxlength="256" placeholder="http://100.64.0.1:61000"></label><button type="submit" class="secondary full">Save and reconnect</button></form><p class="muted small">Use the address your server owner gave you.</p></details>
       <p id="settings-message" class="settings-message" role="status"></p>
     </div>
-    <footer class="news-footer">
-      <button id="settings-save" class="news-close" type="button">Save</button>
-      <button id="settings-cancel" class="secondary settings-cancel" type="button">Cancel</button>
+    <footer class="options-bar">
+      <button id="settings-save" class="legend-button" type="button">Save</button>
+      <button id="settings-cancel" class="legend-button" type="button">Cancel</button>
     </footer>
   </dialog>
   <dialog id="news" class="news" aria-labelledby="news-title">
