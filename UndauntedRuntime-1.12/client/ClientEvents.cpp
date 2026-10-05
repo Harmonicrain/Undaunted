@@ -32,6 +32,9 @@
 #include "core/Memory.h"
 #include "core/PlayerRoles.h"
 #include "client/PlayerRoleActivation.h"
+#include "client/Language.h"
+#include "client/Credits.h"
+#include "client/TitleBackground.h"
 #include "diagnostics/EscalationTrace.h"
 #include "diagnostics/PlayerRoleDiagnostics.h"
 
@@ -58,6 +61,9 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
         }
         return;
     }
+
+    // The first top-level event runs once the engine and its text are loaded.
+    if (s_processEventDepthClient == 1) ApplyRequestedCultureOnce();
 
     std::string FunctionName = Function ? Function->GetFullName() : "null";
     SlayerLinksBeforeEvent(Object, FunctionName);
@@ -212,6 +218,8 @@ void ProcessEventClientHook(UObject* Object, UFunction* Function, void* Parms) {
     }
 
     reinterpret_cast<void(*)(UObject*, UFunction*, void*)>(OrigProcessEventClient)(Object, Function, Parms);
+    CreditsAfterEvent(Object, FunctionName);
+    TitleBackgroundAfterEvent(Object, FunctionName, Parms);
     MiddlemanAfterEvent(Object, FunctionName);
     HuntPassAfterEvent(Object, FunctionName);
     ChallengesAfterEvent(Object, FunctionName);

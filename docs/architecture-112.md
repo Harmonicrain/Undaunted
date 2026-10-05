@@ -23,6 +23,9 @@ these folders are not text fragments included into a replacement monolith.
 | `core/Features` | Feature flags, event schedules and trials scheduling |
 | `core/PlayerRoles`, `core/LoadingGate` | Applying player roles and retrying them; the loading check both sides hook |
 | `client/ClientHooks`, `client/ClientEvents` | Client installation and ordered event dispatch |
+| `client/Credits`, `client/CreditsContent`, `client/CreditsInsert` | Prepend this fork's contributors to the existing credits, using native text styling; preserve original sections and slot layout, restore them on insertion failure |
+| `client/TitleBackground`, `client/TitleBackgroundTiming` | Crossfade and gently zoom installed login artwork on the title screen; retain the original controls and static-art fallback |
+| `client/LoadingBackground`, `client/LoadingBackgroundChoice`, `client/BackgroundArt` | Choose installed artwork once per normal loading screen without consecutive repeats; share the title artwork pool, preserve tips and loading UI |
 | `client/PlayerRoleActivation` | Activating the possessed pawn's input and gameplay once its role is applied |
 | `client/Middleman` | Aetherdust balance/offer conversion and dust-only tiles, popup, tooltip |
 | `client/SlayerLinks`, `client/SlayerLinkRecoveryPolicy` | Recover missing native prize-pool activation; defer an unlock until its pool and UI are ready, then resume native collection once |

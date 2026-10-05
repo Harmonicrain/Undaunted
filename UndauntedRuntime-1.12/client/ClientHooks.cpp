@@ -36,6 +36,7 @@
 #include "core/PlayerRoles.h"
 #include "core/Transport.h"
 #include "core/LoadingGate.h"
+#include "client/LoadingBackground.h"
 
 void EasyAntiCheatErrorProcHook(void* Context, void* Stack, void* Result);
 void EasyAntiCheatStartupHook(void* Module);
@@ -135,6 +136,7 @@ void InitClientHooks() {
     InstallMiddlemanAetherdustHook();
     InstallMatchLootSummaryGuardHook();
     InstallSlayerLinkRecoveryHook();
+    InstallLoadingBackgroundHook();
 
     {
         MH_STATUS EacCreate = RUNTIME_CREATE_HOOK(

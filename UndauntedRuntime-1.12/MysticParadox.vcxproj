@@ -148,6 +148,15 @@
     <ClInclude Include="client\ClientHooks.h" />
     <ClInclude Include="client\HuntPass.h" />
     <ClInclude Include="client\LootSummary.h" />
+    <ClInclude Include="client\Language.h" />
+    <ClInclude Include="client\Credits.h" />
+    <ClInclude Include="client\CreditsContent.h" />
+    <ClInclude Include="client\CreditsInsert.h" />
+    <ClInclude Include="client\TitleBackground.h" />
+    <ClInclude Include="client\TitleBackgroundTiming.h" />
+    <ClInclude Include="client\BackgroundArt.h" />
+    <ClInclude Include="client\LoadingBackground.h" />
+    <ClInclude Include="client\LoadingBackgroundChoice.h" />
     <ClInclude Include="client\Middleman.h" />
     <ClInclude Include="client\SlayerLinks.h" />
     <ClInclude Include="client\SlayerLinkRecoveryPolicy.h" />
@@ -227,6 +236,26 @@
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="client\LootSummary.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\Language.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\Credits.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\TitleBackground.cpp">
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="client\LoadingBackground.cpp">
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>core/Runtime.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>core/Runtime.h</ForcedIncludeFiles>

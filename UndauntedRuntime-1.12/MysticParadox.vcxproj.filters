@@ -48,6 +48,18 @@
     <ClCompile Include="client\LootSummary.cpp">
       <Filter>client</Filter>
     </ClCompile>
+    <ClCompile Include="client\Language.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\Credits.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\TitleBackground.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="client\LoadingBackground.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
     <ClCompile Include="client\Middleman.cpp">
       <Filter>client</Filter>
     </ClCompile>
@@ -237,6 +249,33 @@
       <Filter>client</Filter>
     </ClInclude>
     <ClInclude Include="client\LootSummary.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\Language.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\Credits.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\CreditsContent.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\CreditsInsert.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\TitleBackground.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\TitleBackgroundTiming.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\BackgroundArt.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\LoadingBackground.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="client\LoadingBackgroundChoice.h">
       <Filter>client</Filter>
     </ClInclude>
     <ClInclude Include="client\Middleman.h">

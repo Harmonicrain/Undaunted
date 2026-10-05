@@ -41,7 +41,9 @@ namespace Native112 {
     inline constexpr uintptr_t ApplyPlayerRole = 0x01A4B790;
     // InitClientHooks, InitServerHooks
     inline constexpr uintptr_t HasFinishedLoading = 0x01A60BC0;
-    // InitServerHooks
+    // Server widget guard / client random loading art. CL392819 native
+    // ArchonLoadingScreen::ScreenFadeIn, verified switcher fields +0x3E0,
+    // normal image +0x388; prologue 48 89 5C 24 10 57 48 83 EC 70.
     inline constexpr uintptr_t LoadingScreenFadeIn = 0x01CADE20;
     // InitClientHooks, InitServerHooks
     inline constexpr uintptr_t ProcessEvent = 0x026A9890;
