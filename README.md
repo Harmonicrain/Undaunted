@@ -35,6 +35,7 @@ This is the `1.12` branch, the project's main line. The server for the older
 | [`UndauntedMetagame`](UndauntedMetagame) | The backend service (Node.js, Express, SQLite). Accounts, characters, inventory, store, Hunt Pass, progression, challenges, escalation, parties, friends, chat and presence. |
 | [`UndauntedDeployServer`](UndauntedDeployServer) | Launches and tracks world servers (Ramsgate, Training Grounds, hunt islands) and allocates them to matchmaking. |
 | [`UndauntedRuntime-1.12`](UndauntedRuntime-1.12) | The DLL injected into the 1.12.0 client and world servers: points them at this backend and fixes or completes game behaviour the official services used to provide. |
+| [`UndauntedLauncher`](UndauntedLauncher) | Windows launcher rewritten in Rust/Tauri: account sign-in, game repair and launch, settings, news and signed updates. Replaces the Electron launcher and imports its saved settings and valid login. Build and release configuration stays local. |
 | [`tools`](tools) | 1.12 scripts: the checked build and deployment workflow, starting the stack, launching a client and adding accounts. |
 | [`docs`](docs) | The architecture guide, and dated session reports in [`docs/history`](docs/history). |
 

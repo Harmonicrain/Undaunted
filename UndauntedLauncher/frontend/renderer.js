@@ -49,7 +49,7 @@ $('update-action').addEventListener('click', () => updateAction(() => updateStat
 updateAction(() => window.launcher.updateState());
 function message(text, error = false) { $('message').textContent = text; $('message').classList.toggle('error', error); }
 function updateContentScrollbar() {
-  document.querySelector('.content').classList.toggle('signup-visible', mode === 'register' && !current?.user);
+  document.querySelector('.content').classList.toggle('signup-visible', ['register', 'claim'].includes(mode) && !current?.user);
 }
 function setMode(next) {
   mode = next; imported = false;

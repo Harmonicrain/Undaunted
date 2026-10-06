@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-06T00:00:00Z",
+  "title": "Launcher 1.0.8",
+  "sections": [{
+    "title": "Rewritten in Rust",
+    "description": "The Undaunted Launcher has been rewritten in Rust, with a much smaller installer.",
+    "changes": [{"comment": "6 October 2026", "list": [
+      "Existing Electron launchers can update directly, retaining valid saved logins, game folders and language settings.",
+      "Automatic signed updates remain available, with verification before installation.",
+      "Includes the updated game runtime DLL with the Undaunted private server credits.",
+      "Removed the preview branding and enabled production updates."
+    ]}]
+  }]
+}

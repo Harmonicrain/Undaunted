@@ -1,0 +1,43 @@
+[package]
+name = "undaunted-launcher"
+version = "1.0.8"
+edition = "2024"
+license = "AGPL-3.0-only"
+description = "Undaunted 1.12 launcher rewritten in Rust"
+default-run = "undaunted-launcher"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+local-tests = ["dep:windows", "dep:webview2-com"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots"] }
+url = "2"
+sha2 = "0.10"
+base64 = "0.22"
+aes-gcm = "0.10"
+ed25519-dalek = { version = "2", features = ["pkcs8", "pem"] }
+semver = "1"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+rfd = "0.15"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+windows = { version = "0.62", optional = true, features = ["Win32_System_Com", "Win32_UI_Shell"] }
+webview2-com = { version = "0.39", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+strip = true
+panic = "abort"

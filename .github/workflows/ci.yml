@@ -11,6 +11,23 @@ permissions:
   contents: read
 
 jobs:
+  launcher:
+    name: Rust launcher
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: UndauntedLauncher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: rustup default stable
+      - run: node scripts/prepare-local.cjs --test-assets
+      - run: node --test test/build.test.cjs
+      - run: cargo test --locked --lib --test parity
+      - run: cargo build --locked --release
   test:
     name: ${{ matrix.package }}
     runs-on: windows-latest

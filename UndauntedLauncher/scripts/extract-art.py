@@ -1,5 +1,5 @@
 # Copies the launcher's artwork, fonts and icon out of a Dauntless 1.12.0
-# installation into src/art/. Nothing it writes is committed: the art belongs
+# installation into assets/art/. Nothing it writes is committed: the art belongs
 # to the game, so each build takes it from the builder's own copy.
 #
 #   python scripts/extract-art.py --game <Dauntless 1.12.0 folder> --oodle <oo2core_*_win64.dll>
@@ -249,12 +249,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--game', required=True, help='Dauntless 1.12.0 folder (or its Paks folder)')
     parser.add_argument('--oodle', default=os.environ.get('OODLE_DLL'), help='oo2core_*_win64.dll')
-    parser.add_argument('--out', default=os.path.join(os.path.dirname(__file__), '..', 'src', 'art'))
+    parser.add_argument('--out', default=os.path.join(os.path.dirname(__file__), '..', 'assets', 'art'))
     args = parser.parse_args()
     if not args.oodle or not os.path.exists(args.oodle):
         raise SystemExit('Pass --oodle (or set OODLE_DLL) to an oo2core_*_win64.dll.')
     paks_dir = args.game
-    for candidate in (args.game, os.path.join(args.game, 'Dauntless', 'Archon', 'Content', 'Paks')):
+    for candidate in (args.game, os.path.join(args.game, 'Archon', 'Content', 'Paks'), os.path.join(args.game, 'Dauntless', 'Archon', 'Content', 'Paks')):
         if os.path.isdir(candidate) and any(f.endswith('.pak') for f in os.listdir(candidate)): paks_dir = candidate
     paks = [Pak(os.path.join(paks_dir, f)) for f in sorted(os.listdir(paks_dir)) if f.endswith('.pak')]
     if not paks: raise SystemExit(f'No .pak files under {args.game}.')
@@ -289,9 +289,9 @@ def main():
         if data[:4] not in (b'\0\1\0\0', b'OTTO'): raise SystemExit(f'{asset} is not a font file')
         open(os.path.join(out, 'fonts', name), 'wb').write(data)
         print(f'fonts/{name}')
-    root = os.path.abspath(os.path.join(paks_dir, '..', '..', '..', '..'))
-    exe = next((path for path in (os.path.join(root, 'Dauntless', 'Dauntless.exe'),
-                                  os.path.join(root, 'Dauntless', 'Archon', 'Binaries', 'Win64', 'Dauntless-Win64-Shipping.exe'))
+    game_root = os.path.abspath(os.path.join(paks_dir, '..', '..', '..'))
+    exe = next((path for path in (os.path.join(game_root, 'Dauntless.exe'),
+                                  os.path.join(game_root, 'Archon', 'Binaries', 'Win64', 'Dauntless-Win64-Shipping.exe'))
                 if os.path.exists(path)), None)
     if exe is None: raise SystemExit(f'No Dauntless executable next to {paks_dir}')
     open(os.path.join(out, 'icon.ico'), 'wb').write(game_icon(exe))

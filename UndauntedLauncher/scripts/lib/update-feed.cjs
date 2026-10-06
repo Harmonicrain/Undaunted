@@ -2,9 +2,19 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const fsp = require('node:fs/promises');
-const semver = require('semver');
 const APP_ID = 'community.undaunted.launcher112';
 const MAX_MANIFEST = 64 * 1024;
+function compareVersions(a,b) {
+  const parse=value=>{
+    if(typeof value!=='string'||value.length>128||!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value))throw new Error('A stable three-part version is required.');
+    const parts=value.split('.').map(Number);
+    if(!parts.every(Number.isSafeInteger))throw new Error('Invalid release version.');
+    return parts;
+  };
+  const left=parse(a),right=parse(b);
+  for(let i=0;i<3;i++){if(left[i]!==right[i])return left[i]<right[i]?-1:1;}
+  return 0;
+}
 
 function feedConfig(value) {
   if (!value || typeof value.url !== 'string' || value.url.length > 2048 || typeof value.requiresTailscale !== 'boolean') throw new Error('Invalid update configuration.');
@@ -15,9 +25,10 @@ function feedConfig(value) {
 }
 function trustedConfig(value) {
   const feed = feedConfig(value);
+  if(typeof value.publicKey!=='string'||value.publicKey.includes('PRIVATE KEY'))throw new Error('Configure only the public update verification key.');
   const key = crypto.createPublicKey(value.publicKey);
   if (key.asymmetricKeyType !== 'ed25519') throw new Error('Invalid update verification key.');
-  return { ...feed, publicKey: value.publicKey, appId: value.appId || APP_ID };
+  return { ...feed, publicKey: key.export({type:'spki',format:'pem'}), appId: value.appId || APP_ID };
 }
 function verifyManifest(envelope, config) {
   if (!envelope || typeof envelope.payload !== 'string' || envelope.payload.length > MAX_MANIFEST ||
@@ -26,7 +37,7 @@ function verifyManifest(envelope, config) {
   if (bytes.toString('base64') !== envelope.payload || !crypto.verify(null, bytes, config.publicKey, Buffer.from(envelope.signature, 'base64'))) throw new Error('The update release signature is invalid.');
   const value = JSON.parse(bytes.toString('utf8'));
   if (value.schema !== 1 || value.appId !== config.appId || value.channel !== 'stable' ||
-      typeof value.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(value.version) || semver.valid(value.version) !== value.version ||
+      typeof value.version !== 'string' || compareVersions(value.version,value.version)!==0 ||
       typeof value.releaseDate !== 'string' || !Number.isFinite(Date.parse(value.releaseDate)) ||
       typeof value.releaseNotes !== 'string' || value.releaseNotes.length > 4000 ||
       !Array.isArray(value.files) || value.files.length !== 1) throw new Error('The signed update release is not compatible with this launcher.');
@@ -68,4 +79,4 @@ async function verifyInstaller(file, info) {
   for await (const chunk of fs.createReadStream(file)) hash.update(chunk);
   if (hash.digest('base64') !== info.sha512) throw new Error('The downloaded installer failed verification.');
 }
-module.exports = { APP_ID, MAX_MANIFEST, feedConfig, trustedConfig, verifyManifest, signManifest, fetchManifest, verifyInstaller };
+module.exports = { APP_ID, MAX_MANIFEST, feedConfig, trustedConfig, verifyManifest, signManifest, fetchManifest, verifyInstaller, compareVersions };

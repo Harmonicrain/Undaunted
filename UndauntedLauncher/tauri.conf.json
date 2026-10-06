@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Undaunted Launcher",
+  "version": "1.0.8",
+  "identifier": "community.undaunted.launcher112",
+  "build": { "frontendDist": "ui" },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [{
+      "label": "main", "create": false, "title": "Undaunted Launcher",
+      "width": 1080, "height": 760, "minWidth": 900, "minHeight": 690,
+      "backgroundColor": "#0c151d"
+    }],
+    "security": {
+      "csp": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; frame-src 'none'",
+      "capabilities": [{ "identifier": "main", "windows": ["main"], "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"] }]
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": ["nsis"],
+    "icon": ["ui/art/icon.ico"],
+    "resources": { "resources/": "launcher/" },
+    "windows": { "webviewInstallMode": { "type": "downloadBootstrapper" }, "nsis": { "installMode": "currentUser" } }
+  }
+}

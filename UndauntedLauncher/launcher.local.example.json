@@ -1,0 +1,11 @@
+{
+  "server": "http://127.0.0.1:61000",
+  "gameDirectory": "",
+  "assetsDirectory": "assets/art",
+  "nsisCompiler": "makensis.exe",
+  "openssl": "openssl.exe",
+  "updateFeed": null,
+  "keyFile": "",
+  "publishDir": "",
+  "legacyElectronSource": ""
+}

@@ -149,7 +149,13 @@ the data root. Ports come from the packages' `.env` files.
 
 The deploy step builds `UndauntedRuntime-1.12/MysticParadox.sln` and installs
 the DLL in the 1.12 game directory as `UndauntedInternalServer.dll`, the name
-the game loads. The 1.4.4 runtime and launcher are on the `1.4.4` branch.
+the game loads. The 1.4.4 runtime and its older launcher are on the `1.4.4` branch.
+The current Windows launcher lives in `UndauntedLauncher/`: Rust/Tauri native
+commands, a static HTML/CSS/JavaScript frontend and a standalone NSIS installer.
+Its ignored `launcher.local.json` supplies deployment addresses, resource paths
+and release settings. It retains the original installation identity and imports
+Electron settings and valid DPAPI-protected logins. See its README for build,
+isolated UI tests and installed-update migration checks.
 
 Every run stages fresh compiler output under ignored `artifacts/`, so deleted
 source modules cannot be masked by stale compiled controllers. Tests run against

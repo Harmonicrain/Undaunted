@@ -2,7 +2,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { trustedConfig, signManifest, verifyManifest, verifyInstaller } = require('../src/update-feed.cjs');
+const { trustedConfig, signManifest, verifyManifest, verifyInstaller, compareVersions } = require('./lib/update-feed.cjs');
 async function hashFile(file) {
   const hash = crypto.createHash('sha512');
   for await (const chunk of require('node:fs').createReadStream(file)) hash.update(chunk);
@@ -21,7 +21,7 @@ async function publishRelease({ installer, version, output, config, keyFile, not
   await fs.mkdir(targetDir, { recursive: true });
   try {
     const previous = verifyManifest(JSON.parse(await fs.readFile(path.join(targetDir, 'latest.json'), 'utf8')), config);
-    if (require('semver').lt(version, previous.version)) throw new Error('Cannot publish an older version over the latest release.');
+    if (compareVersions(version, previous.version)<0) throw new Error('Cannot publish an older version over the latest release.');
   } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const target = path.join(targetDir, file.url);
   try { if (await hashFile(target) !== file.sha512) throw new Error('A different installer already uses this version. Increment the version.'); }
